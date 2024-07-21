@@ -1,9 +1,6 @@
 package com.clean.cleanroom.commission.service;
 
-import com.clean.cleanroom.commission.dto.CommissionCreateRequestDto;
-import com.clean.cleanroom.commission.dto.CommissionCreateResponseDto;
-import com.clean.cleanroom.commission.dto.CommissionUpdateRequestDto;
-import com.clean.cleanroom.commission.dto.CommissionUpdateResponseDto;
+import com.clean.cleanroom.commission.dto.*;
 import com.clean.cleanroom.commission.entity.Commission;
 import com.clean.cleanroom.commission.repository.CommissionRepository;
 import com.clean.cleanroom.exception.CustomException;
@@ -47,8 +44,8 @@ public class CommissionService {
 
         //저장
         commissionRepository.save(commission);
-        //자신이 의뢰한 청소내역 반환해주기
-        return getMemberCommissions(members.getId(), CommissionCreateResponseDto.class);
+
+        return getMemberCommissions(members.getId(), CommissionCreateResponseDto.class); //내 청소의뢰내역 전체조회
     }
 
     //청소의로 수정 서비스
@@ -65,7 +62,18 @@ public class CommissionService {
 
         commission.update(requestDto, address); //청소의뢰를 업데이트(요청데이터와, 찾은주소)
 
-        return getMemberCommissions(commission.getMembers().getId(), CommissionUpdateResponseDto.class);
+        return getMemberCommissions(commission.getMembers().getId(), CommissionUpdateResponseDto.class); //내 청소의뢰내역 전체조회
+    }
+
+    //청소의뢰 취소 서비스
+    public List<CommissionCancelResponseDto> cancelCommission(Long memberId, Long commissionId) {
+
+        Commission commission = commissionRepository.findByIdAndMembersId(commissionId, memberId)
+                .orElseThrow(() -> new CustomException("청소의뢰가 존재하지 않거나 권한이 없습니다."));
+
+        commissionRepository.delete(commission);//청소 내역 삭제
+
+        return getMemberCommissions(memberId, CommissionCancelResponseDto.class); //내 청소의뢰내역 전체조회
     }
 
 
@@ -83,6 +91,8 @@ public class CommissionService {
                 responseDtoList.add(responseType.cast(new CommissionCreateResponseDto(commission)));
             } else if (responseType == CommissionUpdateResponseDto.class) {
                 responseDtoList.add(responseType.cast(new CommissionUpdateResponseDto(commission)));
+            } else if (responseType == CommissionCancelResponseDto.class) {
+                responseDtoList.add(responseType.cast(new CommissionCancelResponseDto(commission)));
             }
         }
         return responseDtoList;

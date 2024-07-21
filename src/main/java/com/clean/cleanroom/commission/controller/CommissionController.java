@@ -1,9 +1,6 @@
 package com.clean.cleanroom.commission.controller;
 
-import com.clean.cleanroom.commission.dto.CommissionCreateRequestDto;
-import com.clean.cleanroom.commission.dto.CommissionCreateResponseDto;
-import com.clean.cleanroom.commission.dto.CommissionUpdateRequestDto;
-import com.clean.cleanroom.commission.dto.CommissionUpdateResponseDto;
+import com.clean.cleanroom.commission.dto.*;
 import com.clean.cleanroom.commission.service.CommissionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,8 +21,8 @@ public class CommissionController {
     //청소의뢰 생성
     @PostMapping
     public ResponseEntity<List<CommissionCreateResponseDto>> createCommission(@RequestBody CommissionCreateRequestDto requestDto) {
-            List<CommissionCreateResponseDto> responseDtoList = commissionService.createCommission(requestDto);
-            return new ResponseEntity<>(responseDtoList, HttpStatus.OK);
+        List<CommissionCreateResponseDto> responseDtoList = commissionService.createCommission(requestDto);
+        return new ResponseEntity<>(responseDtoList, HttpStatus.OK);
     }
 
 
@@ -33,6 +30,13 @@ public class CommissionController {
     @PutMapping
     public ResponseEntity<List<CommissionUpdateResponseDto>> updateCommission(@RequestBody CommissionUpdateRequestDto requestDto) {
         List<CommissionUpdateResponseDto> responseDtoList = commissionService.updateCommission(requestDto);
+        return new ResponseEntity<>(responseDtoList, HttpStatus.OK);
+    }
+
+    //청소의뢰 취소
+    @DeleteMapping("/{memberId}/{commissionId}")
+    public ResponseEntity<List<CommissionCancelResponseDto>> cancelCommission(@PathVariable Long memberId, @PathVariable Long commissionId) {
+        List<CommissionCancelResponseDto> responseDtoList = commissionService.cancelCommission(memberId, commissionId);
         return new ResponseEntity<>(responseDtoList, HttpStatus.OK);
     }
 }

@@ -10,5 +10,6 @@ public interface CommissionRepository extends JpaRepository<Commission, Long> {
 
     Optional<List<Commission>> findByMembersId(Long membersId);
 
+    Optional<Commission> findByIdAndMembersId(Long id, Long membersId);
 
 }
