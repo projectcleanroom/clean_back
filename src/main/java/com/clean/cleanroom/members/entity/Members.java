@@ -1,5 +1,6 @@
 package com.clean.cleanroom.members.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 
@@ -25,6 +26,7 @@ public class Members {
     private String phoneNumber;
 
     @OneToMany(mappedBy = "members")
+    @JsonBackReference
     private List<Address> address;
 
 }
