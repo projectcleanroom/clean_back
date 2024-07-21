@@ -1,16 +1,21 @@
 package com.clean.cleanroom.commission.entity;
 
+import com.clean.cleanroom.commission.dto.CommissionCreateRequestDto;
 import com.clean.cleanroom.enums.CleanType;
 import com.clean.cleanroom.enums.HouseType;
+import com.clean.cleanroom.members.entity.Address;
 import com.clean.cleanroom.members.entity.Members;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
 @Entity
+@NoArgsConstructor
 public class Commission {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,6 +24,10 @@ public class Commission {
     @ManyToOne
     @JoinColumn(name = "members_id")
     private Members members;
+
+    @ManyToOne
+    @JoinColumn(name = "address_id")
+    private Address address;
 
     @Column(nullable = false, length = 255)
     private String image;
@@ -40,4 +49,15 @@ public class Commission {
     @Column(nullable = true, length = 255)
     private String significant;
 
+
+    public Commission(Members members, Address address,CommissionCreateRequestDto requestDto) {
+        this.members = members;
+        this.address = address;
+        this.image = requestDto.getImage();
+        this.size = requestDto.getSize();
+        this.houseType = requestDto.getHouseType();
+        this.cleanType = requestDto.getCleanType();
+        this.desiredDate = requestDto.getDesiredDate();
+        this.significant = requestDto.getSignificant();
+    }
 }

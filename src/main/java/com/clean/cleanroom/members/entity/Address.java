@@ -2,8 +2,10 @@ package com.clean.cleanroom.members.entity;
 
 
 import jakarta.persistence.*;
+import lombok.Getter;
 
 @Entity
+@Getter
 public class Address {
 
     @Id
