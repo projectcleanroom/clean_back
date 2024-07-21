@@ -2,6 +2,8 @@ package com.clean.cleanroom.commission.service;
 
 import com.clean.cleanroom.commission.dto.CommissionCreateRequestDto;
 import com.clean.cleanroom.commission.dto.CommissionCreateResponseDto;
+import com.clean.cleanroom.commission.dto.CommissionUpdateRequestDto;
+import com.clean.cleanroom.commission.dto.CommissionUpdateResponseDto;
 import com.clean.cleanroom.commission.entity.Commission;
 import com.clean.cleanroom.commission.repository.CommissionRepository;
 import com.clean.cleanroom.exception.CustomException;
@@ -9,8 +11,8 @@ import com.clean.cleanroom.members.entity.Address;
 import com.clean.cleanroom.members.entity.Members;
 import com.clean.cleanroom.members.repository.AddressRepository;
 import com.clean.cleanroom.members.repository.MembersRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,9 +47,47 @@ public class CommissionService {
 
         //저장
         commissionRepository.save(commission);
-
-        return getAllCommissions();
+        //자신이 의뢰한 청소내역 반환해주기
+        return getMemberCommissions(members.getId(), CommissionCreateResponseDto.class);
     }
+
+    //청소의로 수정 서비스
+    @Transactional
+    public List<CommissionUpdateResponseDto> updateCommission(CommissionUpdateRequestDto requestDto) {
+
+        //청소의뢰 내역찾기
+        Commission commission = commissionRepository.findById(requestDto.getCommissionId())
+                .orElseThrow(() -> new CustomException("청소의뢰가 존재하지 않습니다."));
+
+        //수정한 주소 찾기
+        Address address = addressRepository.findById(requestDto.getAddressId())
+                .orElseThrow(() -> new CustomException("주소를 찾을 수 없습니다."));
+
+        commission.update(requestDto, address); //청소의뢰를 업데이트(요청데이터와, 찾은주소)
+
+        return getMemberCommissions(commission.getMembers().getId(), CommissionUpdateResponseDto.class);
+    }
+
+
+    //특정 회원(나) 청소의뢰 내역 전체조회
+    public <T> List<T> getMemberCommissions(Long memberId, Class<T> responseType) {
+
+        //특정 회원의 청소의뢰 내역 조회하기
+        List<Commission> commissions = commissionRepository.findByMembersId(memberId)
+                .orElseThrow(()-> new CustomException("회원을 찾을 수 없습니다."));
+
+        //청소 내역 DTO를 담을 리스트
+        List<T> responseDtoList = new ArrayList<>();
+        for (Commission commission : commissions) {
+            if (responseType == CommissionCreateResponseDto.class) {
+                responseDtoList.add(responseType.cast(new CommissionCreateResponseDto(commission)));
+            } else if (responseType == CommissionUpdateResponseDto.class) {
+                responseDtoList.add(responseType.cast(new CommissionUpdateResponseDto(commission)));
+            }
+        }
+        return responseDtoList;
+    }
+
 
     //전체 청소의뢰를 조회하는 서비스
     private List<CommissionCreateResponseDto> getAllCommissions() {
@@ -55,23 +95,14 @@ public class CommissionService {
         //청소의뢰 객체 전체 찾기
         List<Commission> commissions = commissionRepository.findAll();
 
-        //찾은 청소 의뢰 객체들을 담아줄 리스트 생성
+        //찾은 청소 의뢰 객체들을 담아줄 DTO리스트 생성
         List<CommissionCreateResponseDto> responseDtoList = new ArrayList<>();
-
         for (Commission commission : commissions) {
-            responseDtoList.add(convertToResponseDto(commission)); //for 문으로 하나씩 담아주기
+            responseDtoList.add(new CommissionCreateResponseDto(commission)); //for 문으로 하나씩 담아주기
         }
 
         return responseDtoList;
 
-    }
-
-    //청소객체를 -> DTO로 반환하는 메서드
-    private CommissionCreateResponseDto convertToResponseDto(Commission commission) {
-
-        CommissionCreateResponseDto responseDto = new CommissionCreateResponseDto(commission);
-
-        return responseDto;
     }
 
 }

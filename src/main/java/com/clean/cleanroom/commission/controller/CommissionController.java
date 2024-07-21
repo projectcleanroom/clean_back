@@ -2,14 +2,12 @@ package com.clean.cleanroom.commission.controller;
 
 import com.clean.cleanroom.commission.dto.CommissionCreateRequestDto;
 import com.clean.cleanroom.commission.dto.CommissionCreateResponseDto;
-import com.clean.cleanroom.commission.entity.Commission;
+import com.clean.cleanroom.commission.dto.CommissionUpdateRequestDto;
+import com.clean.cleanroom.commission.dto.CommissionUpdateResponseDto;
 import com.clean.cleanroom.commission.service.CommissionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -23,11 +21,19 @@ public class CommissionController {
         this.commissionService = commissionService;
     }
 
+    //청소의뢰 생성
     @PostMapping
     public ResponseEntity<List<CommissionCreateResponseDto>> createCommission(@RequestBody CommissionCreateRequestDto requestDto) {
-
             List<CommissionCreateResponseDto> responseDtoList = commissionService.createCommission(requestDto);
             return new ResponseEntity<>(responseDtoList, HttpStatus.OK);
+    }
 
+
+    //청소의뢰 수정
+    @PutMapping
+    public ResponseEntity<List<CommissionUpdateResponseDto>> updateCommission(@RequestBody CommissionUpdateRequestDto requestDto) {
+        List<CommissionUpdateResponseDto> responseDtoList = commissionService.updateCommission(requestDto);
+        return new ResponseEntity<>(responseDtoList, HttpStatus.OK);
     }
 }
+
