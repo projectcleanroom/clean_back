@@ -39,5 +39,13 @@ public class CommissionController {
         List<CommissionCancelResponseDto> responseDtoList = commissionService.cancelCommission(memberId, commissionId);
         return new ResponseEntity<>(responseDtoList, HttpStatus.OK);
     }
+
+    //내 청소의뢰내역 조회
+    @GetMapping("{memberId}")
+    public ResponseEntity<List<MyCommissionResponseDto>> getMyCommission(@PathVariable Long memberId) {
+        List<MyCommissionResponseDto> responseDtoList = commissionService.getMemberCommissions(memberId, MyCommissionResponseDto.class);
+        return new ResponseEntity<>(responseDtoList, HttpStatus.OK);
+    }
+
 }
 

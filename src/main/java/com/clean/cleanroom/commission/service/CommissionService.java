@@ -93,6 +93,8 @@ public class CommissionService {
                 responseDtoList.add(responseType.cast(new CommissionUpdateResponseDto(commission)));
             } else if (responseType == CommissionCancelResponseDto.class) {
                 responseDtoList.add(responseType.cast(new CommissionCancelResponseDto(commission)));
+            } else if (responseType == MyCommissionResponseDto.class) {
+                responseDtoList.add(responseType.cast(new MyCommissionResponseDto(commission)));
             }
         }
         return responseDtoList;
