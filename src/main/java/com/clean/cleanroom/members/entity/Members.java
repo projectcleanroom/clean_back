@@ -26,7 +26,6 @@ public class Members {
     private String phoneNumber;
 
     @OneToMany(mappedBy = "members")
-    @JsonBackReference
     private List<Address> address;
 
 }

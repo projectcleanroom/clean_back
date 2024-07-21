@@ -13,22 +13,22 @@ import java.time.LocalDateTime;
 public class CommissionCreateResponseDto {
 
     private Long commissionId;
-    private Members members;
+    private String memberNick;
     private int size;
     private HouseType houseType;
     private CleanType cleanType;
-    private Address address;
+    private String address;
     private LocalDateTime desiredDate;
     private String significant;
 
 
     public CommissionCreateResponseDto(Commission commission) {
         this.commissionId = commission.getId();
-        this.members = commission.getMembers();
+        this.memberNick = commission.getMembers().getNick();
         this.size = commission.getSize();
         this.houseType = commission.getHouseType();
         this.cleanType = commission.getCleanType();
-        this.address = commission.getAddress();
+        this.address = commission.getAddress().getAddress();
         this.desiredDate = commission.getDesiredDate();
         this.significant = commission.getSignificant();
     }

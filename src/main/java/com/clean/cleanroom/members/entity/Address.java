@@ -15,7 +15,6 @@ public class Address {
 
     @ManyToOne
     @JoinColumn(name = "member_id")
-    @JsonManagedReference
     private Members members;
 
     @Column(nullable = false, length = 30)
