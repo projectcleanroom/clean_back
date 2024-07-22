@@ -20,6 +20,12 @@ public class MembersService {
     @Transactional
     public MembersSignupResponseDto signup(MembersRequestDto requestDto) {
         Members members = new Members(requestDto);
+        members.setPassword(requestDto.getPassword());
+        members.updateProfile(
+                requestDto.getEmail(),
+                requestDto.getNick(),
+                requestDto.getPhoneNumber()
+        );
         membersRepository.save(members);
         return new MembersSignupResponseDto(members);
     }
@@ -35,7 +41,6 @@ public class MembersService {
         }
         members.members(
                 requestDto.getEmail(),
-                requestDto.getPassword(),
                 requestDto.getNick(),
                 requestDto.getPhoneNumber()
         );
