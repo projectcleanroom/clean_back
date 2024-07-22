@@ -1,5 +1,6 @@
 package com.clean.cleanroom.members.entity;
 
+import com.clean.cleanroom.members.dto.MembersRequestDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 
@@ -26,5 +27,13 @@ public class Members {
 
     @OneToMany(mappedBy = "members")
     private List<Address> address;
+
+    public Members(MembersRequestDto requestDto) {
+        this.email = requestDto.getEmail();
+        this.password = requestDto.getPassword();
+        this.nick = requestDto.getNick();
+        this.phoneNumber = requestDto.getPhoneNumber();
+
+    }
 
 }
