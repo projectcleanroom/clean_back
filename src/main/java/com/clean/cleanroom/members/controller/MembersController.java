@@ -2,11 +2,9 @@ package com.clean.cleanroom.members.controller;
 
 import com.clean.cleanroom.members.dto.MembersRequestDto;
 import com.clean.cleanroom.members.dto.MembersSignupResponseDto;
+import com.clean.cleanroom.members.dto.MembersProfileResponseDto;
 import com.clean.cleanroom.members.service.MembersService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/members")
@@ -19,5 +17,10 @@ public class MembersController {
     @PostMapping("/signup")
     public MembersSignupResponseDto signup(@RequestBody MembersRequestDto requestDto) {
         return membersService.signup(requestDto);
+    }
+
+    @PutMapping("/profile")
+    public MembersProfileResponseDto profile(@RequestParam Long id, @RequestBody MembersRequestDto requestDto) {
+        return membersService.profile(id, requestDto);
     }
 }
