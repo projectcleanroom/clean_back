@@ -36,7 +36,7 @@ public class MembersService {
                 () -> new RuntimeException("잘못된 ID : " + id)
         );
 //         입력한 비밀번호가 현재 비밀번호와 일치하는지 확인
-        if(!members.checkPassword(requestDto.getPassword())){
+        if (!members.checkPassword(requestDto.getPassword())) {
             throw new RuntimeException("잘못된 비밀번호");
         }
         members.members(
