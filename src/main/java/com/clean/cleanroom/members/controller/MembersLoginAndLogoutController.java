@@ -3,7 +3,7 @@ package com.clean.cleanroom.members.controller;
 import com.clean.cleanroom.members.dto.MembersLoginRequestDto;
 import com.clean.cleanroom.members.dto.MembersLoginResponseDto;
 import com.clean.cleanroom.members.dto.MembersLogoutResponseDto;
-import com.clean.cleanroom.members.service.MembersService;
+import com.clean.cleanroom.members.service.MembersLoginService;
 import com.clean.cleanroom.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class MembersLoginAndLogoutController {
 
-    private final MembersService membersService;
+    private final MembersLoginService membersService;
     private final JwtUtil jwtUtil;
 
     @PostMapping("/login")

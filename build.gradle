@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.3.2'
+    id 'org.springframework.boot' version '3.3.2' // 최신 Spring Boot 버전
     id 'io.spring.dependency-management' version '1.1.6'
 }
 
@@ -37,7 +37,12 @@ dependencies {
     runtimeOnly 'com.mysql:mysql-connector-j'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.9.3' // 최신 JUnit 플랫폼 런처 버전
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.3' // JUnit 5 최신 버전으로 업데이트
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.3' // JUnit 5 최신 버전으로 업데이트
+    testImplementation 'org.mockito:mockito-core:4.0.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:4.0.0'
+    testImplementation 'org.hamcrest:hamcrest:2.2'
 }
 
 tasks.named('test') {
