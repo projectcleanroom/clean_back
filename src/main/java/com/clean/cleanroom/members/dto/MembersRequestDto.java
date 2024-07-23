@@ -8,4 +8,5 @@ public class MembersRequestDto {
     private String password;
     private String nick;
     private String phoneNumber;
+
 }

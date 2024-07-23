@@ -10,4 +10,5 @@ public class MembersSignupResponseDto {
     public MembersSignupResponseDto(Members members) {
         this.message = "회원 가입 성공!";
     }
+
 }

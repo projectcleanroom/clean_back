@@ -1,8 +1,8 @@
 package com.clean.cleanroom.members.controller;
 
+import com.clean.cleanroom.members.dto.MembersProfileResponseDto;
 import com.clean.cleanroom.members.dto.MembersRequestDto;
 import com.clean.cleanroom.members.dto.MembersSignupResponseDto;
-import com.clean.cleanroom.members.dto.MembersProfileResponseDto;
 import com.clean.cleanroom.members.service.MembersService;
 import org.springframework.web.bind.annotation.*;
 
