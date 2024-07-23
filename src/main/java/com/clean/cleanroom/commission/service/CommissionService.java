@@ -102,7 +102,7 @@ public class CommissionService {
 
 
     //전체 청소의뢰를 조회하는 서비스
-    private List<CommissionCreateResponseDto> getAllCommissions() {
+    public List<CommissionCreateResponseDto> getAllCommissions() {
 
         //청소의뢰 객체 전체 찾기
         List<Commission> commissions = commissionRepository.findAll();

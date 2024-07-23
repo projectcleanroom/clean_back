@@ -2,7 +2,6 @@ package com.clean.cleanroom.commission.dto;
 
 import com.clean.cleanroom.enums.CleanType;
 import com.clean.cleanroom.enums.HouseType;
-import com.clean.cleanroom.members.entity.Address;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -19,5 +18,18 @@ public class CommissionUpdateRequestDto {
     private CleanType cleanType;
     private LocalDateTime desiredDate;
     private String significant;
+
+
+    public CommissionUpdateRequestDto(Long commissionId, Long memberId, Long addressId, String image, int size, HouseType houseType, CleanType cleanType, LocalDateTime desiredDate, String significant) {
+        this.commissionId = commissionId;
+        this.memberId = memberId;
+        this.addressId = addressId;
+        this.image = image;
+        this.size = size;
+        this.houseType = houseType;
+        this.cleanType = cleanType;
+        this.desiredDate = desiredDate;
+        this.significant = significant;
+    }
 
 }
