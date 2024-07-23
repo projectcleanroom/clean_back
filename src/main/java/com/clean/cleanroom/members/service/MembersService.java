@@ -8,6 +8,7 @@ import com.clean.cleanroom.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+
 @Service
 @RequiredArgsConstructor
 public class MembersService {
@@ -17,17 +18,17 @@ public class MembersService {
 
     public MembersLoginResponseDto login(MembersLoginRequestDto requestDto) {
         Members member = membersRepository.findByEmail(requestDto.getEmail())
-                .orElseThrow(() -> new RuntimeException("Invalid email or password"));
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 아이디입니다."));
 
+        // 평문 비교. merge 후 수정할 부분
         if (!requestDto.getPassword().equals(member.getPassword())) {
-            throw new RuntimeException("Invalid email or password");
+            throw new RuntimeException("잘못된 비밀번호입니다.");
         }
 
-        String token = jwtUtil.generateToken(member.getEmail());
-        MembersLoginResponseDto responseDto = new MembersLoginResponseDto();
-        responseDto.setToken(token);
-        return responseDto;
+        return new MembersLoginResponseDto(
+                member.getEmail(),
+                member.getNick()
+        );
     }
-
 }
 

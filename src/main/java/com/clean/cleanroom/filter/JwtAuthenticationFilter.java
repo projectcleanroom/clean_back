@@ -31,8 +31,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (email != null && jwtUtil.validateToken(token)) {
             // 토큰이 유효한 경우
             request.setAttribute("email", email);
+        } else if (request.getRequestURI().equals("/api/members/logout")) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write("{\"message\": \"로그인 후 가능합니다.\"}");
+            return;
         }
-
         chain.doFilter(request, response);
     }
 }
