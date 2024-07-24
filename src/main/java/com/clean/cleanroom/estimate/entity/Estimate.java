@@ -31,4 +31,7 @@ public class Estimate {
     @Column(nullable = true, length = 1000)
     private String statement;
 
+
+    public Estimate() {
+    }
 }

@@ -1,13 +1,11 @@
 package com.clean.cleanroom.estimate.service;
 
-import com.clean.cleanroom.commission.repository.CommissionRepository;
 import com.clean.cleanroom.estimate.dto.EstimateResponseDto;
 import com.clean.cleanroom.estimate.entity.Estimate;
 import com.clean.cleanroom.estimate.repository.EstimateRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,9 +32,9 @@ public class EstimateService {
 
 
     //견적 내역 조회
-    public List<EstimateResponseDto> getAllEstimates() {
+    public List<EstimateResponseDto> getAllEstimates(Long id) {
 
-        List<Estimate> estimates = estimateRepository.findAll();
+        List<Estimate> estimates = estimateRepository.findByCommissionId(id);
 
         List<EstimateResponseDto> estimateResponseDtos = new ArrayList<>();
 
