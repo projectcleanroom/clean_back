@@ -4,9 +4,7 @@ import com.clean.cleanroom.members.dto.MembersLoginRequestDto;
 import com.clean.cleanroom.members.dto.MembersLoginResponseDto;
 import com.clean.cleanroom.members.dto.MembersLogoutResponseDto;
 import com.clean.cleanroom.members.service.MembersLoginService;
-import com.clean.cleanroom.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 public class MembersLoginAndLogoutController {
 
     private final MembersLoginService membersService;
-    private final JwtUtil jwtUtil;
 
     @PostMapping("/login")
     public ResponseEntity<MembersLoginResponseDto> login(@RequestBody MembersLoginRequestDto requestDto) {
