@@ -1,5 +1,6 @@
 package com.clean.cleanroom.members.dto;
 
+import com.clean.cleanroom.members.entity.Members;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 
@@ -11,10 +12,11 @@ public class MembersLoginResponseDto {
     private String nick;
     private String message;
 
-    public MembersLoginResponseDto(String email, String nick) {
+    public MembersLoginResponseDto(Members members) {
         this.email = email;
         this.nick = nick;
     }
+
     public MembersLoginResponseDto(String message) {
         this.message = message;
     }

@@ -22,13 +22,7 @@ public class MembersLoginAndLogoutController {
     @PostMapping("/login")
     public ResponseEntity<MembersLoginResponseDto> login(@RequestBody MembersLoginRequestDto requestDto) {
         try {
-            MembersLoginResponseDto responseDto = membersService.login(requestDto);
-            String token = jwtUtil.generateToken(responseDto.getEmail());
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Authorization", "Bearer " + token);
-            return ResponseEntity.ok()
-                    .headers(headers)
-                    .body(responseDto);
+            return membersService.login(requestDto);
         } catch (RuntimeException e) {
             MembersLoginResponseDto errorResponse = new MembersLoginResponseDto(e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
@@ -37,14 +31,6 @@ public class MembersLoginAndLogoutController {
 
     @PostMapping("/logout")
     public ResponseEntity<MembersLogoutResponseDto> logout(@RequestHeader("Authorization") String token) {
-        if (token != null && token.startsWith("Bearer ")) {
-            String actualToken = token.substring(7);
-            if (jwtUtil.validateToken(actualToken)) {
-                MembersLogoutResponseDto response = new MembersLogoutResponseDto("로그아웃 되었습니다.");
-                return ResponseEntity.ok(response);
-            }
-        }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MembersLogoutResponseDto("로그인 후 가능합니다."));
+        return membersService.logout(token);
     }
 }
-
