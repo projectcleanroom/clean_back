@@ -79,7 +79,7 @@ class CommissionServiceTest {
     void testUpdateCommission() {
         //given
         //requestDto 생성
-        CommissionUpdateRequestDto requestDto = new CommissionUpdateRequestDto(1L, 1L, 1L, "updated_image.png", 200, HouseType.H, CleanType.특수, LocalDateTime.now(), "Updated Significant");
+        CommissionUpdateRequestDto requestDto = new CommissionUpdateRequestDto("updated_image.png", 200, HouseType.H, CleanType.특수, LocalDateTime.now(), "Updated Significant");
         //멤버 객체 생성
         Members member = new Members(1L, "user@example.com", "password", "nick", "1234567890");
         //주소 객체 생성
@@ -92,7 +92,7 @@ class CommissionServiceTest {
         when(commissionRepository.findByMembersId(any(Long.class))).thenReturn(Optional.of(List.of(commission)));
 
         //when
-        List<CommissionUpdateResponseDto> response = commissionService.updateCommission(requestDto);
+        List<CommissionUpdateResponseDto> response = commissionService.updateCommission(member.getId(), address.getId(), commission.getId(), requestDto);
 
         //then
         assertNotNull(response);

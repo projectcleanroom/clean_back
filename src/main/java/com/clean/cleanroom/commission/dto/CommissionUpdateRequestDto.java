@@ -8,9 +8,6 @@ import java.time.LocalDateTime;
 @Getter
 public class CommissionUpdateRequestDto {
 
-    private Long commissionId;
-    private Long memberId;
-    private Long addressId;
     private String image;
     private int size;
     private HouseType houseType;
@@ -19,10 +16,8 @@ public class CommissionUpdateRequestDto {
     private String significant;
 
 
-    public CommissionUpdateRequestDto(Long commissionId, Long memberId, Long addressId, String image, int size, HouseType houseType, CleanType cleanType, LocalDateTime desiredDate, String significant) {
-        this.commissionId = commissionId;
-        this.memberId = memberId;
-        this.addressId = addressId;
+    public CommissionUpdateRequestDto(String image, int size, HouseType houseType, CleanType cleanType, LocalDateTime desiredDate, String significant) {
+
         this.image = image;
         this.size = size;
         this.houseType = houseType;

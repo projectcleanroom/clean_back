@@ -4,6 +4,7 @@ import com.clean.cleanroom.commission.dto.*;
 import com.clean.cleanroom.commission.entity.Commission;
 import com.clean.cleanroom.commission.repository.CommissionRepository;
 import com.clean.cleanroom.exception.CustomException;
+import com.clean.cleanroom.exception.ErrorMsg;
 import com.clean.cleanroom.members.entity.Address;
 import com.clean.cleanroom.members.entity.Members;
 import com.clean.cleanroom.members.repository.AddressRepository;
@@ -33,11 +34,11 @@ public class CommissionService {
 
         //의뢰한 회원찾기
         Members members = membersRepository.findById(requestDto.getMembersId())
-                .orElseThrow(() -> new CustomException("회원을 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorMsg.MEMBER_NOT_FOUND));
 
         //주소찾기
         Address address = addressRepository.findById(requestDto.getAddressId())
-                .orElseThrow(() -> new CustomException("주소를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorMsg.ADDRESS_NOT_FOUND));
 
         //청소의뢰 객채 생성
         Commission commission = new Commission(members, address, requestDto);
@@ -50,26 +51,28 @@ public class CommissionService {
 
     //청소의로 수정 서비스
     @Transactional
-    public List<CommissionUpdateResponseDto> updateCommission(CommissionUpdateRequestDto requestDto) {
+    public List<CommissionUpdateResponseDto> updateCommission(Long commissionId, Long memberId, Long addressId, CommissionUpdateRequestDto requestDto) {
 
         //청소의뢰 내역찾기
-        Commission commission = commissionRepository.findById(requestDto.getCommissionId())
-                .orElseThrow(() -> new CustomException("청소의뢰가 존재하지 않습니다."));
+        Commission commission = commissionRepository.findById(commissionId)
+                .orElseThrow(() -> new CustomException(ErrorMsg.COMMISSION_NOT_FOUND));
 
         //수정한 주소 찾기
-        Address address = addressRepository.findById(requestDto.getAddressId())
-                .orElseThrow(() -> new CustomException("주소를 찾을 수 없습니다."));
+        Address address = addressRepository.findById(addressId)
+                .orElseThrow(() -> new CustomException(ErrorMsg.ADDRESS_NOT_FOUND));
 
-        commission.update(requestDto, address); //청소의뢰를 업데이트(요청데이터와, 찾은주소)
+        //청소의뢰를 업데이트(요청데이터와, 찾은주소)
+        commission.update(requestDto, address);
 
-        return getMemberCommissions(commission.getMembers().getId(), CommissionUpdateResponseDto.class); //내 청소의뢰내역 전체조회
+        //내 청소의뢰내역 전체조회
+        return getMemberCommissions(memberId, CommissionUpdateResponseDto.class);
     }
 
     //청소의뢰 취소 서비스
     public List<CommissionCancelResponseDto> cancelCommission(Long memberId, Long commissionId) {
 
         Commission commission = commissionRepository.findByIdAndMembersId(commissionId, memberId)
-                .orElseThrow(() -> new CustomException("청소의뢰가 존재하지 않거나 권한이 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorMsg.COMMISSION_NOT_FOUND_OR_UNAUTHORIZED));
 
         commissionRepository.delete(commission);//청소 내역 삭제
 
@@ -82,7 +85,7 @@ public class CommissionService {
 
         //특정 회원의 청소의뢰 내역 조회하기
         List<Commission> commissions = commissionRepository.findByMembersId(memberId)
-                .orElseThrow(()-> new CustomException("회원을 찾을 수 없습니다."));
+                .orElseThrow(()-> new CustomException(ErrorMsg.MEMBER_NOT_FOUND));
 
         //청소 내역 DTO를 담을 리스트
         List<T> responseDtoList = new ArrayList<>();

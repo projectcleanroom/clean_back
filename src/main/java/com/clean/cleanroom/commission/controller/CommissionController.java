@@ -27,13 +27,18 @@ public class CommissionController {
 
     //청소의뢰 수정
     @PutMapping
-    public ResponseEntity<List<CommissionUpdateResponseDto>> updateCommission(@RequestBody CommissionUpdateRequestDto requestDto) {
-        List<CommissionUpdateResponseDto> responseDtoList = commissionService.updateCommission(requestDto);
+    public ResponseEntity<List<CommissionUpdateResponseDto>> updateCommission(
+            @RequestParam Long commissionId,
+            @RequestParam Long memberId,
+            @RequestParam Long addressId,
+            @RequestBody CommissionUpdateRequestDto requestDto) {
+
+        List<CommissionUpdateResponseDto> responseDtoList = commissionService.updateCommission(commissionId, memberId, addressId, requestDto);
         return new ResponseEntity<>(responseDtoList, HttpStatus.OK);
     }
 
     //청소의뢰 취소
-    @DeleteMapping("/{memberId}/{commissionId}")
+    @DeleteMapping
     public ResponseEntity<List<CommissionCancelResponseDto>> cancelCommission(@RequestParam Long memberId, @RequestParam Long commissionId) {
         List<CommissionCancelResponseDto> responseDtoList = commissionService.cancelCommission(memberId, commissionId);
         return new ResponseEntity<>(responseDtoList, HttpStatus.OK);
