@@ -20,12 +20,8 @@ public class MembersService {
     @Transactional
     public MembersSignupResponseDto signup(MembersRequestDto requestDto) {
         Members members = new Members(requestDto);
+//        패스워드 Hashing
         members.setPassword(requestDto.getPassword());
-        members.updateProfile(
-                requestDto.getEmail(),
-                requestDto.getNick(),
-                requestDto.getPhoneNumber()
-        );
         membersRepository.save(members);
         return new MembersSignupResponseDto(members);
     }
@@ -33,24 +29,13 @@ public class MembersService {
     @Transactional
     public MembersProfileResponseDto profile(Long id, MembersRequestDto requestDto) {
         Members members = membersRepository.findById(id).orElseThrow(
-                () -> new RuntimeException("잘못된 ID : " + id)
-        );
-//         입력한 비밀번호가 현재 비밀번호와 일치하는지 확인
-        if(!members.checkPassword(requestDto.getPassword())){
-            throw new RuntimeException("잘못된 비밀번호");
+                () -> new IllegalArgumentException("잘못된 ID : " + id));
+//         비밀번호 일치 확인
+        if (!members.checkPassword(requestDto.getPassword())) {
+            throw new IllegalArgumentException("잘못된 비밀번호");
         }
-        members.members(
-                requestDto.getEmail(),
-                requestDto.getNick(),
-                requestDto.getPhoneNumber()
-        );
-
+        members.members(requestDto);
         membersRepository.save(members);
-
-        return new MembersProfileResponseDto(
-                members.getEmail(),
-                members.getNick(),
-                members.getPhoneNumber()
-        );
+        return new MembersProfileResponseDto(members);
     }
 }
