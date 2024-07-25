@@ -3,7 +3,6 @@ package com.clean.cleanroom.commission.dto;
 import com.clean.cleanroom.enums.CleanType;
 import com.clean.cleanroom.enums.HouseType;
 import lombok.Getter;
-
 import java.time.LocalDateTime;
 
 @Getter

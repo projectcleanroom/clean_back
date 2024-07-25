@@ -7,6 +7,7 @@ import com.clean.cleanroom.enums.HouseType;
 import com.clean.cleanroom.members.entity.Address;
 import com.clean.cleanroom.members.entity.Members;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 @Getter
 @Entity
 @NoArgsConstructor
+@AllArgsConstructor
 public class Commission {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
