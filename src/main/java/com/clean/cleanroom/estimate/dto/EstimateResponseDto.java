@@ -2,29 +2,16 @@ package com.clean.cleanroom.estimate.dto;
 
 import com.clean.cleanroom.estimate.entity.Estimate;
 import lombok.Getter;
-
-import java.time.LocalDateTime;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor
 public class EstimateResponseDto {
 
-    private Long Id;
+    private String message;
 
-    private Long commissionId;
-
-    private int price;
-
-    private LocalDateTime fixedDate;
-
-    private String statement;
-
-
-
-    public  EstimateResponseDto(Estimate estimate) {
-        this.Id = estimate.getId();
-        this.commissionId = estimate.getCommissionId().getId();
-        this.fixedDate = estimate.getFixedDate();
-        this.price = estimate.getPrice();
-        this.statement = estimate.getStatement();
+    public EstimateResponseDto(Estimate estimate) {
+        this.message = "견적이 승인 되었습니다.";
     }
 }
+
