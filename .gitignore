@@ -199,4 +199,6 @@ application.yml
 application-*.properties
 application-*.yml
 
+.idea/
+
 # End of https://www.toptal.com/developers/gitignore/api/java,intellij,windows,gradle
