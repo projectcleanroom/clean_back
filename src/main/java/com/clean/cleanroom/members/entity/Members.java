@@ -1,12 +1,18 @@
 package com.clean.cleanroom.members.entity;
 
+import com.clean.cleanroom.members.dto.MembersRequestDto;
+import com.clean.cleanroom.util.PasswordUtil;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+@AllArgsConstructor
 @Getter
 @Entity
+@NoArgsConstructor
 public class Members {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,5 +32,26 @@ public class Members {
 
     @OneToMany(mappedBy = "members")
     private List<Address> address;
+
+    public Members(MembersRequestDto requestDto) {
+        this.email = requestDto.getEmail();
+        this.password = requestDto.getPassword();
+        this.nick = requestDto.getNick();
+        this.phoneNumber = requestDto.getPhoneNumber();
+    }
+
+    public void members(MembersRequestDto requestDto) {
+        this.email = requestDto.getEmail();
+        this.nick = requestDto.getNick();
+        this.phoneNumber = requestDto.getPhoneNumber();
+    }
+
+    public boolean checkPassword(String password) {
+        return PasswordUtil.matches(password, this.password);
+    }
+
+    public void setPassword(String password) {
+        this.password = PasswordUtil.encodePassword(password);
+    }
 
 }
