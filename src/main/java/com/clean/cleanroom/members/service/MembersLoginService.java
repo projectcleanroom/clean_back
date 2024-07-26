@@ -6,12 +6,11 @@ import com.clean.cleanroom.members.dto.MembersLogoutResponseDto;
 import com.clean.cleanroom.members.entity.Members;
 import com.clean.cleanroom.members.repository.MembersRepository;
 import com.clean.cleanroom.util.JwtUtil;
+import com.clean.cleanroom.jwt.service.TokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
 
 @Service
 @RequiredArgsConstructor
@@ -19,22 +18,30 @@ public class MembersLoginService {
 
     private final MembersRepository membersRepository;
     private final JwtUtil jwtUtil;
+    private final TokenService tokenService;
 
+    // 로그인 로직
     public ResponseEntity<MembersLoginResponseDto> login(MembersLoginRequestDto requestDto) {
         // 이메일로 회원을 조회. 없으면 예외를 던짐
         Members member = membersRepository.findByEmail(requestDto.getEmail())
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 아이디입니다."));
 
         // 비밀번호가 일치하는지 확인. 일치하지 않으면 예외를 던짐
-        if (!requestDto.getPassword().equals(member.getPassword())) {
-            throw new RuntimeException("잘못된 비밀번호입니다.");
+        if (!member.checkPassword(requestDto.getPassword())) {
+            throw new RuntimeException("잘못된 비밀번호");
         }
 
         // JWT 토큰 생성
-        String token = jwtUtil.generateToken(member.getEmail());
+        String token = jwtUtil.generateAccessToken(member.getEmail());
+        String refreshToken = jwtUtil.generateRefreshToken(member.getEmail());
+
+        // 토큰 저장
+        tokenService.saveToken(member, refreshToken);
+
         // HTTP 헤더에 토큰 추가
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + token);
+        headers.set("Refresh-Token", "Bearer " + refreshToken);
 
         // 응답 DTO 생성
         MembersLoginResponseDto responseDto = new MembersLoginResponseDto(member);
@@ -45,17 +52,26 @@ public class MembersLoginService {
                 .body(responseDto);
     }
 
-    public ResponseEntity<MembersLogoutResponseDto> logout(String token) {
-        // 토큰이 유효한지 확인
-        if (token != null && token.startsWith("Bearer ")) {
-            String actualToken = token.substring(7);
-            if (jwtUtil.validateToken(actualToken)) {
-                // 토큰이 유효하면 로그아웃 성공 응답 반환
-                MembersLogoutResponseDto response = new MembersLogoutResponseDto("로그아웃 되었습니다.");
-                return ResponseEntity.ok(response);
+    // 로그아웃 로직
+    public ResponseEntity<MembersLogoutResponseDto> logout(String accessToken, String refreshToken) {
+        // Access Token 검증 및 무효화 처리
+        if (accessToken != null && accessToken.startsWith("Bearer ")) {
+            String actualAccessToken = accessToken.substring(7);
+            if (jwtUtil.validateToken(actualAccessToken)) {
+                jwtUtil.revokeToken(actualAccessToken);
             }
         }
-        // 토큰이 유효하지 않으면 인증 실패 응답 반환
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MembersLogoutResponseDto("로그인 후 가능합니다."));
+
+        // Refresh Token 검증 및 무효화 처리
+        if (refreshToken != null && refreshToken.startsWith("Bearer ")) {
+            String actualRefreshToken = refreshToken.substring(7);
+            if (jwtUtil.validateToken(actualRefreshToken)) {
+                jwtUtil.revokeToken(actualRefreshToken);
+            }
+        }
+
+        // 로그아웃 성공 응답 반환
+        MembersLogoutResponseDto response = new MembersLogoutResponseDto("로그아웃 되었습니다.");
+        return ResponseEntity.ok(response);
     }
 }
