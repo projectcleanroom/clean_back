@@ -27,7 +27,7 @@ public class MembersLoginAndLogoutController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<MembersLogoutResponseDto> logout(@RequestHeader("Authorization") String token) {
-        return membersService.logout(token);
+    public ResponseEntity<MembersLogoutResponseDto> logout(@RequestHeader("Authorization") String accessToken, @RequestHeader("Refresh-Token") String refreshToken) {
+        return membersService.logout(accessToken, refreshToken);
     }
 }
