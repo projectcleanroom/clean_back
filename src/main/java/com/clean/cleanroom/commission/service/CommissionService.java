@@ -30,15 +30,13 @@ public class CommissionService {
     }
 
     //청소의뢰 생성 서비스
-    public List<CommissionCreateResponseDto> createCommission(CommissionCreateRequestDto requestDto) {
+    public List<CommissionCreateResponseDto> createCommission(String email, CommissionCreateRequestDto requestDto) {
 
         //의뢰한 회원찾기
-        Members members = membersRepository.findById(requestDto.getMembersId())
-                .orElseThrow(() -> new CustomException(ErrorMsg.MEMBER_NOT_FOUND));
+        Members members = getMemberByEmail(email);
 
         //주소찾기
-        Address address = addressRepository.findById(requestDto.getAddressId())
-                .orElseThrow(() -> new CustomException(ErrorMsg.ADDRESS_NOT_FOUND));
+        Address address = getAddressById(requestDto.getAddressId());
 
         //청소의뢰 객채 생성
         Commission commission = new Commission(members, address, requestDto);
@@ -46,61 +44,58 @@ public class CommissionService {
         //저장
         commissionRepository.save(commission);
 
-        return getMemberCommissions(members.getId(), CommissionCreateResponseDto.class); //내 청소의뢰내역 전체조회
+        //내 청소의뢰내역 전체조회
+        return getMemberCommissionsByEmail(email, CommissionCreateResponseDto.class);
     }
 
     //청소의로 수정 서비스
     @Transactional
-    public List<CommissionUpdateResponseDto> updateCommission(Long commissionId, Long memberId, Long addressId, CommissionUpdateRequestDto requestDto) {
+    public List<CommissionUpdateResponseDto> updateCommission(String email, Long commissionId, Long addressId, CommissionUpdateRequestDto requestDto) {
 
-        //청소의뢰 내역찾기
-        Commission commission = commissionRepository.findById(commissionId)
-                .orElseThrow(() -> new CustomException(ErrorMsg.COMMISSION_NOT_FOUND));
+        //수정할 회원 찾기
+        Members members = getMemberByEmail(email);
 
-        //수정한 주소 찾기
-        Address address = addressRepository.findById(addressId)
-                .orElseThrow(() -> new CustomException(ErrorMsg.ADDRESS_NOT_FOUND));
+        //회원이 신청한 청소의뢰 객체 찾기
+        Commission commission = getCommissionByIdAndMember(commissionId, members);
 
-        //청소의뢰를 업데이트(요청데이터와, 찾은주소)
+        //수정할 주소가 존재하는지 확인
+        Address address = getAddressById(addressId);
+
+        //청소의뢰를 업데이트(요청데이터와, 수정주소)
         commission.update(requestDto, address);
 
         //내 청소의뢰내역 전체조회
-        return getMemberCommissions(memberId, CommissionUpdateResponseDto.class);
+        return getMemberCommissionsByEmail(email, CommissionUpdateResponseDto.class);
     }
 
     //청소의뢰 취소 서비스
-    public List<CommissionCancelResponseDto> cancelCommission(Long memberId, Long commissionId) {
+    public List<CommissionCancelResponseDto> cancelCommission(String email, Long commissionId) {
 
-        Commission commission = commissionRepository.findByIdAndMembersId(commissionId, memberId)
-                .orElseThrow(() -> new CustomException(ErrorMsg.COMMISSION_NOT_FOUND_OR_UNAUTHORIZED));
+        //회원 찾기
+        Members members = getMemberByEmail(email);
 
-        commissionRepository.delete(commission);//청소 내역 삭제
+        //청소의뢰 객체 찾기
+        Commission commission = getCommissionByIdAndMember(commissionId, members);
 
-        return getMemberCommissions(memberId, CommissionCancelResponseDto.class); //내 청소의뢰내역 전체조회
+        //청소 의뢰 삭제
+        commissionRepository.delete(commission);
+
+        //내 청소의뢰내역 전체조회
+        return getMemberCommissionsByEmail(email, CommissionCancelResponseDto.class);
     }
 
 
-    //특정 회원(나) 청소의뢰 내역 전체조회
-    public <T> List<T> getMemberCommissions(Long memberId, Class<T> responseType) {
+    // 특정 회원(나) 청소의뢰 내역 전체조회
+    public <T> List<T> getMemberCommissionsByEmail(String email, Class<T> responseType) {
 
-        //특정 회원의 청소의뢰 내역 조회하기
-        List<Commission> commissions = commissionRepository.findByMembersId(memberId)
-                .orElseThrow(()-> new CustomException(ErrorMsg.MEMBER_NOT_FOUND));
+        //회원 찾기
+        Members members = getMemberByEmail(email);
 
-        //청소 내역 DTO를 담을 리스트
-        List<T> responseDtoList = new ArrayList<>();
-        for (Commission commission : commissions) {
-            if (responseType == CommissionCreateResponseDto.class) {
-                responseDtoList.add(responseType.cast(new CommissionCreateResponseDto(commission)));
-            } else if (responseType == CommissionUpdateResponseDto.class) {
-                responseDtoList.add(responseType.cast(new CommissionUpdateResponseDto(commission)));
-            } else if (responseType == CommissionCancelResponseDto.class) {
-                responseDtoList.add(responseType.cast(new CommissionCancelResponseDto(commission)));
-            } else if (responseType == MyCommissionResponseDto.class) {
-                responseDtoList.add(responseType.cast(new MyCommissionResponseDto(commission)));
-            }
-        }
-        return responseDtoList;
+        //청소의뢰 객체 찾기 (리스트로)
+        List<Commission> commissions = commissionRepository.findByMembersId(members.getId())
+                .orElseThrow(() -> new CustomException(ErrorMsg.MEMBER_NOT_FOUND));
+
+        return convertToDtoList(commissions, responseType);
     }
 
 
@@ -120,4 +115,39 @@ public class CommissionService {
 
     }
 
+    //이메일로 회원은 찾는 메서드
+    private Members getMemberByEmail(String email) {
+        return membersRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorMsg.MEMBER_NOT_FOUND));
+    }
+
+    //주소 찾는 메서드
+    private Address getAddressById(Long addressId) {
+        return addressRepository.findById(addressId)
+                .orElseThrow(() -> new CustomException(ErrorMsg.ADDRESS_NOT_FOUND));
+    }
+
+    //회원이 신청한 청소의뢰를 찾는 메서드
+    private Commission getCommissionByIdAndMember(Long commissionId, Members members) {
+        return commissionRepository.findByIdAndMembersId(commissionId, members.getId())
+                .orElseThrow(() -> new CustomException(ErrorMsg.COMMISSION_NOT_FOUND_OR_UNAUTHORIZED));
+    }
+
+
+    // 청소의뢰 내역 리스트를 -> 각각의 반환타입 DTO타입 리스트에 맞도록 변환해 담아주는 매서드
+    private <T> List<T> convertToDtoList(List<Commission> commissions, Class<T> responseType) {
+        List<T> responseDtoList = new ArrayList<>();
+        for (Commission commission : commissions) {
+            if (responseType == CommissionCreateResponseDto.class) {
+                responseDtoList.add(responseType.cast(new CommissionCreateResponseDto(commission)));
+            } else if (responseType == CommissionUpdateResponseDto.class) {
+                responseDtoList.add(responseType.cast(new CommissionUpdateResponseDto(commission)));
+            } else if (responseType == CommissionCancelResponseDto.class) {
+                responseDtoList.add(responseType.cast(new CommissionCancelResponseDto(commission)));
+            } else if (responseType == MyCommissionResponseDto.class) {
+                responseDtoList.add(responseType.cast(new MyCommissionResponseDto(commission)));
+            }
+        }
+        return responseDtoList;
+    }
 }
