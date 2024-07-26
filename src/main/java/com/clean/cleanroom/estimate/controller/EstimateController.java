@@ -3,6 +3,8 @@ package com.clean.cleanroom.estimate.controller;
 import com.clean.cleanroom.estimate.dto.EstimateResponseDto;
 import com.clean.cleanroom.estimate.dto.EstimateListResponseDto;
 import com.clean.cleanroom.estimate.service.EstimateService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,14 +22,16 @@ public class EstimateController {
 
     //견적 승인
     @PostMapping
-    public EstimateResponseDto approveEstimate (@RequestParam Long id) {
-        return estimateService.approveEstimate(id);
+    public ResponseEntity<EstimateResponseDto> approveEstimate (@RequestParam Long id) {
+        EstimateResponseDto estimateResponseDto = estimateService.approveEstimate(id);
+        return new ResponseEntity<>(estimateResponseDto, HttpStatus.OK);
     }
 
 
     //내 견적 전체 조회
     @GetMapping
-    public List<EstimateListResponseDto> getAllEstimates(@RequestParam Long id) {
-        return estimateService.getAllEstimates(id);
+    public ResponseEntity<List<EstimateListResponseDto>> getAllEstimates(@RequestParam Long id) {
+        List<EstimateListResponseDto> estimateListResponseDtos = estimateService.getAllEstimates(id);
+        return new ResponseEntity<>(estimateListResponseDtos, HttpStatus.OK);
     }
 }
