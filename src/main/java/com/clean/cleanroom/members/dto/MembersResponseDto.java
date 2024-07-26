@@ -11,6 +11,4 @@ public class MembersResponseDto {
     private String nick;
     private String phoneNumber;
 
-
-
 }

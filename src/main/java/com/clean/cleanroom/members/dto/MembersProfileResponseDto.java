@@ -1,5 +1,6 @@
 package com.clean.cleanroom.members.dto;
 
+import com.clean.cleanroom.members.entity.Members;
 import lombok.Getter;
 
 @Getter
@@ -8,9 +9,9 @@ public class MembersProfileResponseDto {
     private String nick;
     private String phoneNumber;
 
-    public MembersProfileResponseDto(String email, String nick, String phoneNumber) {
-        this.email = email;
-        this.nick = nick;
-        this.phoneNumber = phoneNumber;
+    public MembersProfileResponseDto(Members members) {
+        this.email = members.getEmail();
+        this.nick = members.getNick();
+        this.phoneNumber = members.getPhoneNumber();
     }
 }
