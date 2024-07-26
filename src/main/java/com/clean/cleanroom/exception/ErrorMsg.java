@@ -34,6 +34,8 @@ public enum ErrorMsg {
     REVIEW_NOT_FOUND(NOT_FOUND, "후기를 찾을 수 없습니다."),
     COMMISSION_NOT_FOUND(NOT_FOUND, "청소의뢰를 찾을 수 없습니다."),
     ADDRESS_NOT_FOUND(NOT_FOUND, "주소를 찾을 수 없습니다."),
+    ESTIMATE_NOT_FOUND(NOT_FOUND, "견적 내역을 찾을 수 없습니다."),
+    NO_ESTIMATES_FOUND(NOT_FOUND, "견적 내역이 존재하지 않습니다."),
 
 
 

@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-<!--      <data-source source="LOCAL" name="cleanroom@localhost" uuid="6aaf1a25-6238-487c-ab33-04411bba8af3">-->
-      <data-source source="LOCAL" name="cleanroom@localhost" uuid="dda97b9c-74f0-4a23-809a-1ac60595ecce">
+    <data-source source="LOCAL" name="cleanroom@localhost" uuid="cba119c3-6f55-49a8-a0b1-18992ea630a2">
       <driver-ref>mysql.8</driver-ref>
       <synchronize>true</synchronize>
+      <imported>true</imported>
+      <remarks>$PROJECT_DIR$/src/main/resources/application.properties</remarks>
       <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
       <jdbc-url>jdbc:mysql://localhost:3306/cleanroom</jdbc-url>
       <jdbc-additional-properties>
