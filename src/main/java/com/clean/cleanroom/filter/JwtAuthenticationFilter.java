@@ -23,6 +23,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain chain)
             throws ServletException, IOException {
 
+        String path = request.getRequestURI();
+
+        // /login 및 /signup 경로는 필터를 거치지 않도록 설정
+        if ("/api/login".equals(path) || "/api/signup".equals(path)) {
+            chain.doFilter(request, response);
+            return;
+        }
         // Authorization 헤더에서 JWT 토큰 추출
         String header = request.getHeader("Authorization");
         String token = null;
@@ -32,6 +39,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (header != null && header.startsWith("Bearer ")) {
             token = header.substring(7);
             email = jwtUtil.getEmailFromToken(token);
+        }else {
+            // 헤더가 없거나 올바른 형식이 아닌 경우 적절한 응답을 설정
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write("{\"message\": \"Authorization 헤더가 없거나 형식이 올바르지 않습니다.\"}");
+            return;
         }
 
         if (email != null && jwtUtil.validateToken(token)) {
