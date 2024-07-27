@@ -23,6 +23,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain chain)
             throws ServletException, IOException {
 
+        String path = request.getRequestURI();
+
+        // /login 및 /signup 경로는 필터를 거치지 않도록 설정
+        if ("/api/login".equals(path) || "/api/signup".equals(path)) {
+            chain.doFilter(request, response);
+            return;
+        }
         // Authorization 헤더에서 JWT 토큰 추출
         String header = request.getHeader("Authorization");
         String token = null;
