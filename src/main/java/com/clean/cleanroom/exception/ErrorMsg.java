@@ -15,6 +15,8 @@ public enum ErrorMsg {
     /* 400 BAD_REQUEST : 잘못된 요청 */
     IMAGE_INVALID(BAD_REQUEST,"이미지가 잘못 되었습니다."),
     PASSWORD_INCORRECT(BAD_REQUEST,"비밀번호가 옳지 않습니다."),
+    INVALID_TOKEN(BAD_REQUEST, "유효하지 않은 토큰입니다."),
+
 
 
     /* 401 UNAUTHORIZED : 인증되지 않은 사용자 */
