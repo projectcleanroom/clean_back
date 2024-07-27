@@ -2,13 +2,12 @@ package com.clean.cleanroom.commission.controller;
 
 import com.clean.cleanroom.commission.dto.*;
 import com.clean.cleanroom.commission.service.CommissionService;
-import com.clean.cleanroom.exception.CustomException;
-import com.clean.cleanroom.exception.ErrorMsg;
 import com.clean.cleanroom.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
@@ -65,12 +64,10 @@ public class CommissionController {
         return new ResponseEntity<>(responseDtoList, HttpStatus.OK);
     }
 
+
     //요청헤더에서 토큰안의 이메일을 추출하는 메서드
     private String getEmailFromRequest(HttpServletRequest request) {
         String header = request.getHeader("Authorization");
-        if (header == null || !header.startsWith("Bearer ")) {
-            throw new CustomException(ErrorMsg.INVALID_TOKEN);
-        }
         String token = header.substring(7);
         return jwtUtil.getEmailFromToken(token);
     }
