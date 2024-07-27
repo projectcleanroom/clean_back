@@ -1,6 +1,5 @@
 package com.clean.cleanroom.members.dto;
 
-import com.clean.cleanroom.members.entity.Members;
 import lombok.Getter;
 
 @Getter
