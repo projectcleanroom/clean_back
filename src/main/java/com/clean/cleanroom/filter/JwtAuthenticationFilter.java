@@ -32,6 +32,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (header != null && header.startsWith("Bearer ")) {
             token = header.substring(7);
             email = jwtUtil.getEmailFromToken(token);
+        }else {
+            // 헤더가 없거나 올바른 형식이 아닌 경우 적절한 응답을 설정
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write("{\"message\": \"Authorization 헤더가 없거나 형식이 올바르지 않습니다.\"}");
+            return;
         }
 
         if (email != null && jwtUtil.validateToken(token)) {
