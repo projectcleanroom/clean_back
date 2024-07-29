@@ -38,6 +38,7 @@ public enum ErrorMsg {
     ADDRESS_NOT_FOUND(NOT_FOUND, "주소를 찾을 수 없습니다."),
     ESTIMATE_NOT_FOUND(NOT_FOUND, "견적 내역을 찾을 수 없습니다."),
     NO_ESTIMATES_FOUND(NOT_FOUND, "견적 내역이 존재하지 않습니다."),
+    ACCOUNT_NOT_FOUND(NOT_FOUND, "계좌번호를 찾을 수 없습니다."),
 
 
 
@@ -49,6 +50,7 @@ public enum ErrorMsg {
     /* 500 INTERNAL SERVER ERROR : 그 외 서버 에러 (컴파일 관련) */
     FAILED_TO_EXECUTE_FILE(INTERNAL_SERVER_ERROR, "파일 실행에 실패했습니다."),
     FAILED_TO_COMPILE_FILE(INTERNAL_SERVER_ERROR, "파일 컴파일에 실패했습니다.");
+
 
     private final HttpStatus httpStatus;
     private final String details;

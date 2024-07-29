@@ -1,5 +1,6 @@
 package com.clean.cleanroom.members.entity;
 
+import com.clean.cleanroom.account.entity.Account;
 import com.clean.cleanroom.members.dto.MembersRequestDto;
 import com.clean.cleanroom.util.PasswordUtil;
 import jakarta.persistence.*;
@@ -33,6 +34,9 @@ public class Members {
     @OneToMany(mappedBy = "members")
     private List<Address> address;
 
+    @ManyToOne
+    private Account selectedAccount;
+
     public Members(MembersRequestDto requestDto) {
         this.email = requestDto.getEmail();
         this.password = requestDto.getPassword();
@@ -54,4 +58,7 @@ public class Members {
         this.password = PasswordUtil.encodePassword(password);
     }
 
+    public void SelectedAccount(Account account) {
+        this.selectedAccount = account;
+    }
 }

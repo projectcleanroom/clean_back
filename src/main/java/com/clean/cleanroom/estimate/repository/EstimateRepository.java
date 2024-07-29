@@ -1,16 +1,16 @@
-package com.clean.cleanroom.estimate.repository;
-
-import com.clean.cleanroom.commission.entity.Commission;
-import com.clean.cleanroom.estimate.entity.Estimate;
-import org.springframework.data.jpa.repository.JpaRepository;
-
-import java.util.List;
-import java.util.Optional;
-
-public interface EstimateRepository extends JpaRepository<Estimate, Long> {
-    List<Estimate> findByCommissionId(Commission commission);
-
-    Optional<Estimate> findByEmail(String email);
-
-    List<Estimate> findByEmailAndCommissionId(String email, Long commissionId);
-}
+//package com.clean.cleanroom.estimate.repository;
+//
+//import com.clean.cleanroom.commission.entity.Commission;
+//import com.clean.cleanroom.estimate.entity.Estimate;
+//import org.springframework.data.jpa.repository.JpaRepository;
+//
+//import java.util.List;
+//import java.util.Optional;
+//
+//public interface EstimateRepository extends JpaRepository<Estimate, Long> {
+//    List<Estimate> findByCommissionId(Commission commission);
+//
+//    Optional<Estimate> findByEmail(String email);
+//
+//    List<Estimate> findByEmailAndCommissionId(String email, Long commissionId);
+//}
