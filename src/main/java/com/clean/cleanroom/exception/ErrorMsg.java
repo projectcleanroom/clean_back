@@ -16,12 +16,14 @@ public enum ErrorMsg {
     IMAGE_INVALID(BAD_REQUEST,"이미지가 잘못 되었습니다."),
     PASSWORD_INCORRECT(BAD_REQUEST,"비밀번호가 옳지 않습니다."),
     INVALID_TOKEN(BAD_REQUEST, "유효하지 않은 토큰입니다."),
-
+    MISSING_AUTHORIZATION_HEADER(BAD_REQUEST, "Authorization 헤더가 없거나 형식이 올바르지 않습니다."),
 
 
     /* 401 UNAUTHORIZED : 인증되지 않은 사용자 */
     UNAUTHORIZED_MEMBER(UNAUTHORIZED, "인증된 사용자가 아닙니다."),
     NOT_LOGGED_ID(UNAUTHORIZED, "로그인이 되어있지 않습니다."),
+    EXPIRED_ACCESS_TOKEN(UNAUTHORIZED, "Access Token이 만료되었습니다. Refresh Token을 사용하여 재인증하세요."),
+    EXPIRED_REFRESH_TOKEN(UNAUTHORIZED, "Refresh Token이 만료되었습니다. 다시 로그인해주세요."),
 
 
     /* 403 FORBIDDEN : 권한 없음 */

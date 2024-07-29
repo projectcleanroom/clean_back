@@ -1,5 +1,6 @@
 package com.clean.cleanroom.filter;
 
+import com.clean.cleanroom.exception.ErrorMsg;
 import com.clean.cleanroom.jwt.service.TokenService;
 import com.clean.cleanroom.util.JwtUtil;
 import jakarta.servlet.FilterChain;
@@ -44,7 +45,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
-            response.getWriter().write("{\"message\": \"Authorization 헤더가 없거나 형식이 올바르지 않습니다.\"}");
+            response.getWriter().write(String.format("{\"message\": \"%s\"}", ErrorMsg.MISSING_AUTHORIZATION_HEADER.getDetails()));
             return;
         }
 
@@ -59,7 +60,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             if (jwtUtil.validateToken(token)) {
                 // Access Token이 만료된 경우
-                response.getWriter().write("{\"message\": \"Access Token이 만료되었습니다. Refresh Token을 사용하여 재인증하세요.\"}");
+                response.getWriter().write(String.format("{\"message\": \"%s\"}", ErrorMsg.EXPIRED_ACCESS_TOKEN.getDetails()));
             } else {
                 // Refresh Token을 사용하여 재인증 시도
                 String refreshToken = request.getHeader("Refresh-Token");
@@ -67,7 +68,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     jwtUtil.refreshToken(request, response);
                 } else {
                     // Refresh Token도 만료된 경우
-                    response.getWriter().write("{\"message\": \"Refresh Token이 만료되었습니다. 다시 로그인해주세요.\"}");
+                    response.getWriter().write(String.format("{\"message\": \"%s\"}", ErrorMsg.EXPIRED_REFRESH_TOKEN.getDetails()));
                 }
             }
             // 응답을 보낸 후, 더 이상 요청을 처리하지 않고 메서드를 끝냅니다.
