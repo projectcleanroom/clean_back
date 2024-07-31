@@ -1,5 +1,7 @@
 package com.clean.cleanroom.util;
 
+import com.clean.cleanroom.exception.CustomException;
+import com.clean.cleanroom.exception.ErrorMsg;
 import com.clean.cleanroom.jwt.dto.TokenResponseDto;
 import com.clean.cleanroom.jwt.entity.RefreshToken;
 import com.clean.cleanroom.jwt.repository.RefreshTokenRepository;
@@ -10,6 +12,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -60,15 +63,27 @@ public class JwtUtil {
                 .compact();
     }
 
-    // 토큰에서 이메일 추출
     public String getEmailFromToken(String token) {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-        return claims.getSubject();
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+            return claims.getSubject();
+        } catch (SignatureException e) {
+            // 서명 예외 처리
+            throw new CustomException(ErrorMsg.INVALID_TOKEN);
+        }
     }
+
+    public String extractEmail(String token) {
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+        return getEmailFromToken(token);
+    }
+
 
     // 토큰 유효성 검증
     public boolean validateToken(String token) {

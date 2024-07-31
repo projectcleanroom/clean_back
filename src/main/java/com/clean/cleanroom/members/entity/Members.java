@@ -1,5 +1,6 @@
 package com.clean.cleanroom.members.entity;
 
+import com.clean.cleanroom.account.entity.Account;
 import com.clean.cleanroom.business.entity.BusinessInfo;
 import com.clean.cleanroom.members.dto.MembersRequestDto;
 import com.clean.cleanroom.util.PasswordUtil;
@@ -34,6 +35,9 @@ public class Members {
     @OneToMany(mappedBy = "members")
     private List<Address> address;
 
+    @ManyToOne
+    private Account selectedAccount;
+
     @OneToMany(mappedBy = "members")
     private List<BusinessInfo> businessInfo;
 
@@ -58,4 +62,7 @@ public class Members {
         this.password = PasswordUtil.encodePassword(password);
     }
 
+    public void SelectedAccount(Account account) {
+        this.selectedAccount = account;
+    }
 }
