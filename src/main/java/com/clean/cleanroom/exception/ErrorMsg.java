@@ -38,6 +38,8 @@ public enum ErrorMsg {
     ADDRESS_NOT_FOUND(NOT_FOUND, "주소를 찾을 수 없습니다."),
     ESTIMATE_NOT_FOUND(NOT_FOUND, "견적 내역을 찾을 수 없습니다."),
     NO_ESTIMATES_FOUND(NOT_FOUND, "견적 내역이 존재하지 않습니다."),
+    PARTNER_NOT_FOUND(NOT_FOUND, "청소 업체를 찾을 수 없습니다."),
+    BUSINESS_INFO_NOT_FOUND(NOT_FOUND, "사업자 등록을 찾을 수 없습니다."),
 
 
 
