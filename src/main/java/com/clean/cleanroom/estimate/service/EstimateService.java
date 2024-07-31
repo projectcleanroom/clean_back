@@ -57,24 +57,6 @@ public class EstimateService {
 
 
     //견적 내역 조회
-//    public List<EstimateListResponseDto> getAllEstimates(Long commissionId) {
-//
-//        Commission commission = commissionRepository.findById(commissionId)
-//                .orElseThrow(() -> new CustomException(ErrorMsg.COMMISSION_NOT_FOUND));
-//
-//        List<Estimate> estimates = estimateRepository.findByCommissionId(commission);
-//
-//        if (estimates.isEmpty()) {
-//            throw new CustomException(ErrorMsg.NO_ESTIMATES_FOUND);
-//        }
-//        List<EstimateListResponseDto> estimateListResponseDtos = new ArrayList<>();
-//        for (Estimate estimate : estimates) {
-//            EstimateListResponseDto estimateListResponseDto = new EstimateListResponseDto(estimate);
-//            estimateListResponseDtos.add(estimateListResponseDto);
-//        }
-//        return estimateListResponseDtos;
-//    }
-
     public List<EstimateListResponseDto> getAllEstimates(String email, Long commissionId) {
 
         //email로 회원 찾기
