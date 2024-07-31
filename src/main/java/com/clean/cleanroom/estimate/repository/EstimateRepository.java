@@ -9,8 +9,4 @@ import java.util.Optional;
 
 public interface EstimateRepository extends JpaRepository<Estimate, Long> {
     List<Estimate> findByCommissionId(Commission commission);
-
-    Optional<Estimate> findByEmail(String email);
-
-    List<Estimate> findByEmailAndCommissionId(String email, Long commissionId);
 }
