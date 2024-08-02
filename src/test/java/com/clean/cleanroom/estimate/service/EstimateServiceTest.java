@@ -1,7 +1,7 @@
-package com.clean.cleanroom.estimate.service;
-
-public class EstimateServiceTest {
-
+//package com.clean.cleanroom.estimate.service;
+//
+//public class EstimateServiceTest {
+//
 
 
 //    @Mock
@@ -77,4 +77,4 @@ public class EstimateServiceTest {
 //        assertEquals(2L, result.get(1).getId());
 //    }
 
-}
+//}
