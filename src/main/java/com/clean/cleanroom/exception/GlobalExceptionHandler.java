@@ -40,12 +40,12 @@ public class GlobalExceptionHandler {
         return ResponseDto.toExceptionResponseEntity(HttpStatus.UNAUTHORIZED, 2000);
     }
 
-    // 500 error
-    @ExceptionHandler({Exception.class})
-    public ResponseEntity<ResponseDto> handleAll(final Exception ex) {
-        log.error("Unexpected error occurred: ", ex);
-        return ResponseDto.toExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, 9999);
-    }
+    // // 500 error
+    // @ExceptionHandler({Exception.class})
+    // public ResponseEntity<ResponseDto> handleAll(final Exception ex) {
+    //     log.error("Unexpected error occurred: ", ex);
+    //     return ResponseDto.toExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, 9999);
+    // }
 
     @ExceptionHandler(value = {IOException.class})
     public ResponseEntity<ResponseDto> handleIOException(IOException ex) {
