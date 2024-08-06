@@ -1,8 +1,6 @@
 package com.clean.cleanroom.members.controller;
 
-import com.clean.cleanroom.members.dto.MembersProfileResponseDto;
-import com.clean.cleanroom.members.dto.MembersRequestDto;
-import com.clean.cleanroom.members.dto.MembersSignupResponseDto;
+import com.clean.cleanroom.members.dto.*;
 import com.clean.cleanroom.members.service.MembersService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -25,8 +23,14 @@ public class MembersController {
     }
 
     @PutMapping("/profile")
-    public ResponseEntity<MembersProfileResponseDto> profile(@RequestParam Long id, @RequestBody @Valid MembersRequestDto requestDto) {
-        MembersProfileResponseDto membersProfileResponseDto = membersService.profile(id, requestDto);
+    public ResponseEntity<MembersProfileResponseDto> profile(@RequestHeader("Authorization") String token, @RequestBody @Valid MembersRequestDto requestDto) {
+        MembersProfileResponseDto membersProfileResponseDto = membersService.profile(token, requestDto);
         return new ResponseEntity<>(membersProfileResponseDto, HttpStatus.OK);
+    }
+
+    @GetMapping("/profile")
+    public ResponseEntity<MembersGetProfileResponseDto> getProfile(@RequestHeader("Authorization") String token) {
+        MembersGetProfileResponseDto membersGetProfileResponseDto = membersService.getProfile(token);
+        return new ResponseEntity<>(membersGetProfileResponseDto, HttpStatus.OK);
     }
 }
