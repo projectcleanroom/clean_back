@@ -32,8 +32,8 @@ public class Members {
     @Column(nullable = false, length = 15, unique = true)
     private String phoneNumber;
 
-    @OneToMany(mappedBy = "members")
-    private List<Address> address;
+//    @OneToMany(mappedBy = "members")
+//    private List<Address> address;
 
     @ManyToOne
     private Account selectedAccount;
