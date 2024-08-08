@@ -1,4 +1,4 @@
-<included>
+<included> <!-- 어떤 appender를 사용할지 추가 (자바에서 import와 동일) -->
 
     <!-- 어디에 기록할 것인가 (콘솔Appender) -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender"> <!-- 콘솔에 로그를 기록하는 Appender 설정 -->

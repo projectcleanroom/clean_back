@@ -1,5 +1,5 @@
 
-<included>
+<included> <!-- 어떤 appender를 사용할지 추가 (자바에서 import와 동일) -->
 
     <!-- 에러 로그를 기록할 롤링 파일Appender: ERROR 레벨 로그만 기록 -->
     <appender name="FILE-ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
