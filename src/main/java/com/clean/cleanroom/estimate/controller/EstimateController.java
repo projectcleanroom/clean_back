@@ -26,26 +26,16 @@ public class EstimateController {
 
     //견적 승인
     @PostMapping
-    public ResponseEntity<EstimateResponseDto> approveEstimate (HttpServletRequest request, @RequestParam Long id) {
-        String email = getEmailFromRequest(request); // 헤더에서 email 추출하는 메서드 호출
-        EstimateResponseDto estimateResponseDto = estimateService.approveEstimate(email, id);
+    public ResponseEntity<EstimateResponseDto> approveEstimate (@RequestHeader("Authorization") String token, @RequestParam Long id) {
+        EstimateResponseDto estimateResponseDto = estimateService.approveEstimate(token, id);
         return new ResponseEntity<>(estimateResponseDto, HttpStatus.OK);
     }
 
 
     //내 견적 전체 조회
     @GetMapping
-    public ResponseEntity<List<EstimateListResponseDto>> getAllEstimates(HttpServletRequest request, Long id) {
-        String email = getEmailFromRequest(request);
-        List<EstimateListResponseDto> estimateListResponseDtos = estimateService.getAllEstimates(email, id);
+    public ResponseEntity<List<EstimateListResponseDto>> getAllEstimates(@RequestHeader("Authorization") String token, Long id) {
+        List<EstimateListResponseDto> estimateListResponseDtos = estimateService.getAllEstimates(token, id);
         return new ResponseEntity<>(estimateListResponseDtos, HttpStatus.OK);
-    }
-
-
-    //요청헤더에서 토큰안의 이메일을 추출하는 메서드
-    private String getEmailFromRequest(HttpServletRequest request) {
-        String header = request.getHeader("Authorization");
-        String token = header.substring(7);
-        return jwtUtil.getEmailFromToken(token);
     }
 }

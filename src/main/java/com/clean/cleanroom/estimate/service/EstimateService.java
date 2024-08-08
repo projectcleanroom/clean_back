@@ -10,6 +10,7 @@ import com.clean.cleanroom.exception.CustomException;
 import com.clean.cleanroom.exception.ErrorMsg;
 import com.clean.cleanroom.members.entity.Members;
 import com.clean.cleanroom.members.repository.MembersRepository;
+import com.clean.cleanroom.util.JwtUtil;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -21,18 +22,23 @@ public class EstimateService {
     private final EstimateRepository estimateRepository;
     private final CommissionRepository commissionRepository;
     private final MembersRepository membersRepository;
+    private final JwtUtil jwtUtil;
 
     public EstimateService(EstimateRepository estimateRepository,
                            CommissionRepository commissionRepository,
-                           MembersRepository membersRepository) {
+                           MembersRepository membersRepository,
+                           JwtUtil jwtUtil) {
         this.estimateRepository = estimateRepository;
         this.commissionRepository = commissionRepository;
         this.membersRepository = membersRepository;
+        this.jwtUtil = jwtUtil;
     }
 
 
     //견적 승인
-    public EstimateResponseDto approveEstimate(String email, Long id) {
+    public EstimateResponseDto approveEstimate(String token, Long id) {
+
+        String email = jwtUtil.extractEmail(token);
 
         //email로 회원 찾기
         Members members = getMemberByEmail(email);
@@ -41,12 +47,16 @@ public class EstimateService {
         Estimate estimate = estimateRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorMsg.ESTIMATE_NOT_FOUND));
 
-        Commission commission = estimate.getCommissionId(); // 견적에 연결된 Commission 가져오기
+        Commission commission = estimate.getCommissionId();// 견적에 연결된 Commission 가져오기
+
         Members owner = commission.getMembers(); // Commission에 연결된 회원 가져오기
 
         if (!owner.getId().equals(members.getId())) { // 견적의 소유자가 요청한 회원인지 확인
             throw new CustomException(ErrorMsg.UNAUTHORIZED_MEMBER);
         }
+
+        // 승인 상태로 변경 (엔티티의 메서드를 통해 변경)
+        estimate.approve();
 
         estimateRepository.save(estimate); //estimate 레포지토리에 저장
 
@@ -57,7 +67,9 @@ public class EstimateService {
 
 
     //견적 내역 조회
-    public List<EstimateListResponseDto> getAllEstimates(String email, Long commissionId) {
+    public List<EstimateListResponseDto> getAllEstimates(String token, Long commissionId) {
+
+        String email = jwtUtil.extractEmail(token);
 
         //email로 회원 찾기
         Members members = getMemberByEmail(email);
@@ -92,13 +104,11 @@ public class EstimateService {
     }
 
 
-
     //email로 회원 찾기
     private Members getMemberByEmail(String email) {
         return membersRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(ErrorMsg.MEMBER_NOT_FOUND));
     }
-
 }
 
 

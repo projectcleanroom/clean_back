@@ -32,4 +32,12 @@ public class Estimate {
 
     @Column(nullable = true, length = 1000)
     private String statement;
+
+    private boolean approved = false; //승인 상태
+
+
+    // 승인 상태 변경 메서드
+    public void approve() {
+        this.approved = true;
+    }
 }
