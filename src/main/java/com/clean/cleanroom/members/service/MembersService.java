@@ -51,12 +51,12 @@ public class MembersService {
         Members members = membersRepository.findByEmail(email).orElseThrow(
                 () -> new CustomException(ErrorMsg.INVALID_ID));
         // Nick 존재 유무
-        if (!members.getEmail().equals(requestDto.getEmail()) &&
+        if (!members.getNick().equals(requestDto.getNick()) &&
                 membersRepository.existsByNick(requestDto.getNick())){
             throw new CustomException(ErrorMsg.DUPLICATE_NICK);
         }
         // phoneNumber 존재 유무
-        if (!members.getEmail().equals(requestDto.getEmail()) &&
+        if (!members.getPhoneNumber().equals(requestDto.getPhoneNumber()) &&
                 membersRepository.existsByPhoneNumber(requestDto.getPhoneNumber())){
             throw new CustomException(ErrorMsg.DUPLICATE_PHONENUMBER);
         }
