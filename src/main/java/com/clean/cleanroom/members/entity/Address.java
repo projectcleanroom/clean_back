@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Comment;
 
 @AllArgsConstructor
 @Entity
@@ -18,9 +19,11 @@ public class Address {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Comment("이메일")
     @Column(nullable = false, length = 25)
     private String email;
 
+    @Comment("주소")
     @Column(nullable = false, length = 500)
     private String address;
 
