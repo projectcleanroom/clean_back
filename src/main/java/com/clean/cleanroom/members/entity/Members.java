@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Comment;
 
 import java.util.List;
 
@@ -20,15 +21,19 @@ public class Members {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Comment("이메일")
     @Column(nullable = false, length = 25, unique = true)
     private String email;
 
+    @Comment("비밀번호")
     @Column(nullable = false, length = 255)
     private String password;
 
+    @Comment("닉네임")
     @Column(nullable = false, length = 15, unique = true)
     private String nick;
 
+    @Comment("전화번호")
     @Column(nullable = false, length = 15, unique = true)
     private String phoneNumber;
 
