@@ -1,7 +1,6 @@
 package com.clean.cleanroom.members.entity;
 
 import com.clean.cleanroom.account.entity.Account;
-import com.clean.cleanroom.business.entity.BusinessInfo;
 import com.clean.cleanroom.members.dto.MembersRequestDto;
 import com.clean.cleanroom.util.PasswordUtil;
 import jakarta.persistence.*;
@@ -9,8 +8,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
-
-import java.util.List;
 
 @AllArgsConstructor
 @Getter
@@ -43,8 +40,6 @@ public class Members {
     @ManyToOne
     private Account selectedAccount;
 
-    @OneToMany(mappedBy = "members")
-    private List<BusinessInfo> businessInfo;
 
     public Members(MembersRequestDto requestDto) {
         this.email = requestDto.getEmail();
