@@ -14,7 +14,7 @@ public class CommissionCreateResponseDto {
     private int size;
     private HouseType houseType;
     private CleanType cleanType;
-    private String address;
+    private Long addressId;
     private LocalDateTime desiredDate;
     private String significant;
 
@@ -25,7 +25,7 @@ public class CommissionCreateResponseDto {
         this.size = commission.getSize();
         this.houseType = commission.getHouseType();
         this.cleanType = commission.getCleanType();
-        this.address = commission.getAddress().getAddress();
+        this.addressId = commission.getAddress().getId();
         this.desiredDate = commission.getDesiredDate();
         this.significant = commission.getSignificant();
     }
