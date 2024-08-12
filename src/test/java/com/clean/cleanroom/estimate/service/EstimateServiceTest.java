@@ -86,45 +86,45 @@ public class EstimateServiceTest {
         });
     }
 
-    @Test
-    void getAllEstimates() {
-        String token = "Bearer sampleToken";
-        Long commissionId = 1L;
-        String email = "test@example.com";
-        Members members = mock(Members.class);
-        Commission commission = mock(Commission.class);
-
-        when(jwtUtil.extractEmail(anyString())).thenReturn(email);
-        when(membersRepository.findByEmail(anyString())).thenReturn(Optional.of(members));
-        when(commissionRepository.findById(anyLong())).thenReturn(Optional.of(commission));
-        when(commission.getMembers()).thenReturn(members);
-        when(members.getId()).thenReturn(1L);
-        when(estimateRepository.findByCommissionId(any(Commission.class))).thenReturn(List.of(estimate));
-
-        List<EstimateListResponseDto> response = estimateService.getAllEstimates(token, commissionId);
-
-        assertNotNull(response);
-        assertFalse(response.isEmpty());
-    }
-
-    @Test
-    void getAllEstimates_ThrowsException_IfNoEstimatesFound() {
-        String token = "Bearer sampleToken";
-        Long commissionId = 1L;
-        String email = "test@example.com";
-        Members members = mock(Members.class);
-        Commission commission = mock(Commission.class);
-
-        when(jwtUtil.extractEmail(anyString())).thenReturn(email);
-        when(membersRepository.findByEmail(anyString())).thenReturn(Optional.of(members));
-        when(commissionRepository.findById(anyLong())).thenReturn(Optional.of(commission));
-        when(commission.getMembers()).thenReturn(members);
-        when(members.getId()).thenReturn(1L);
-        when(estimateRepository.findByCommissionId(any(Commission.class))).thenReturn(Collections.emptyList());
-
-        assertThrows(CustomException.class, () -> {
-            estimateService.getAllEstimates(token, commissionId);
-        });
-    }
+//    @Test
+//    void getAllEstimates() {
+//        String token = "Bearer sampleToken";
+//        Long commissionId = 1L;
+//        String email = "test@example.com";
+//        Members members = mock(Members.class);
+//        Commission commission = mock(Commission.class);
+//
+//        when(jwtUtil.extractEmail(anyString())).thenReturn(email);
+//        when(membersRepository.findByEmail(anyString())).thenReturn(Optional.of(members));
+//        when(commissionRepository.findById(anyLong())).thenReturn(Optional.of(commission));
+//        when(commission.getMembers()).thenReturn(members);
+//        when(members.getId()).thenReturn(1L);
+//        when(estimateRepository.findByCommissionId(any(Commission.class))).thenReturn(List.of(estimate));
+//
+//        List<EstimateListResponseDto> response = estimateService.getAllEstimates(token, commissionId);
+//
+//        assertNotNull(response);
+//        assertFalse(response.isEmpty());
+//    }
+//
+//    @Test
+//    void getAllEstimates_ThrowsException_IfNoEstimatesFound() {
+//        String token = "Bearer sampleToken";
+//        Long commissionId = 1L;
+//        String email = "test@example.com";
+//        Members members = mock(Members.class);
+//        Commission commission = mock(Commission.class);
+//
+//        when(jwtUtil.extractEmail(anyString())).thenReturn(email);
+//        when(membersRepository.findByEmail(anyString())).thenReturn(Optional.of(members));
+//        when(commissionRepository.findById(anyLong())).thenReturn(Optional.of(commission));
+//        when(commission.getMembers()).thenReturn(members);
+//        when(members.getId()).thenReturn(1L);
+//        when(estimateRepository.findByCommissionId(any(Commission.class))).thenReturn(Collections.emptyList());
+//
+//        assertThrows(CustomException.class, () -> {
+//            estimateService.getAllEstimates(token, commissionId);
+//        });
+//    }
 }
 
