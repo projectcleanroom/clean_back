@@ -3,6 +3,7 @@ package com.clean.cleanroom.estimate.entity;
 import com.clean.cleanroom.commission.entity.Commission;
 import com.clean.cleanroom.partner.entity.Partner;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 @Getter
 @Entity
 @NoArgsConstructor
+@AllArgsConstructor
 public class Estimate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
