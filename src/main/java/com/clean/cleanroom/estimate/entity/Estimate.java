@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Comment;
 
 import java.time.LocalDateTime;
 
@@ -14,28 +15,33 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Estimate {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
     @JoinColumn(name = "commission_id")
-    private Commission commissionId;
+    private Commission commission;
 
     @ManyToOne
     @JoinColumn(name = "partner_id")
-    private Partner partnerId;
+    private Partner partner;
 
     @Column(nullable = false)
+    @Comment("가격")
     private int price;
 
     @Column(nullable = true)
+    @Comment("확정 일자")
     private LocalDateTime fixedDate;
 
     @Column(nullable = true, length = 1000)
+    @Comment("특이사항")
     private String statement;
 
-    private boolean approved = false; //승인 상태
+    @Comment("승인 상태")
+    private boolean approved = false;
 
 
     // 승인 상태 변경 메서드

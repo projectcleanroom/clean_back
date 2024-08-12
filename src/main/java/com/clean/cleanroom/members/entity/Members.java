@@ -1,15 +1,14 @@
 package com.clean.cleanroom.members.entity;
 
 import com.clean.cleanroom.account.entity.Account;
-import com.clean.cleanroom.business.entity.BusinessInfo;
 import com.clean.cleanroom.members.dto.MembersRequestDto;
+import com.clean.cleanroom.members.dto.MembersUpdateProfileRequestDto;
 import com.clean.cleanroom.util.PasswordUtil;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
+import org.hibernate.annotations.Comment;
 
 @AllArgsConstructor
 @Getter
@@ -20,15 +19,19 @@ public class Members {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Comment("이메일")
     @Column(nullable = false, length = 25, unique = true)
     private String email;
 
+    @Comment("비밀번호")
     @Column(nullable = false, length = 255)
     private String password;
 
+    @Comment("닉네임")
     @Column(nullable = false, length = 15, unique = true)
     private String nick;
 
+    @Comment("전화번호")
     @Column(nullable = false, length = 15, unique = true)
     private String phoneNumber;
 
@@ -38,8 +41,6 @@ public class Members {
     @ManyToOne
     private Account selectedAccount;
 
-    @OneToMany(mappedBy = "members")
-    private List<BusinessInfo> businessInfo;
 
     public Members(MembersRequestDto requestDto) {
         this.email = requestDto.getEmail();
@@ -52,6 +53,15 @@ public class Members {
         this.email = requestDto.getEmail();
         this.nick = requestDto.getNick();
         this.phoneNumber = requestDto.getPhoneNumber();
+    }
+
+    public void updateMembers(MembersUpdateProfileRequestDto requestDto) {
+        if(requestDto.getNick() != null){
+            this.nick = requestDto.getNick();
+        }
+        if(requestDto.getPhoneNumber() != null){
+            this.phoneNumber = requestDto.getPhoneNumber();
+        }
     }
 
     public boolean checkPassword(String password) {

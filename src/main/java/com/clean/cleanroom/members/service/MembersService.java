@@ -2,10 +2,7 @@ package com.clean.cleanroom.members.service;
 
 import com.clean.cleanroom.exception.CustomException;
 import com.clean.cleanroom.exception.ErrorMsg;
-import com.clean.cleanroom.members.dto.MembersGetProfileResponseDto;
-import com.clean.cleanroom.members.dto.MembersProfileResponseDto;
-import com.clean.cleanroom.members.dto.MembersRequestDto;
-import com.clean.cleanroom.members.dto.MembersSignupResponseDto;
+import com.clean.cleanroom.members.dto.*;
 import com.clean.cleanroom.members.entity.Members;
 import com.clean.cleanroom.members.repository.MembersRepository;
 import com.clean.cleanroom.util.JwtUtil;
@@ -37,6 +34,7 @@ public class MembersService {
         if (membersRepository.existsByPhoneNumber(requestDto.getPhoneNumber())){
             throw new CustomException(ErrorMsg.DUPLICATE_PHONENUMBER);
         }
+
         // 패스워드 Hashing
         Members members = new Members(requestDto);
         members.setPassword(requestDto.getPassword());
@@ -45,7 +43,7 @@ public class MembersService {
     }
 
     @Transactional
-    public MembersProfileResponseDto profile(String token, MembersRequestDto requestDto) {
+    public MembersProfileResponseDto profile(String token, MembersUpdateProfileRequestDto requestDto) {
         String email = jwtUtil.extractEmail(token);
         // email 유무
         Members members = membersRepository.findByEmail(email).orElseThrow(
@@ -61,10 +59,14 @@ public class MembersService {
             throw new CustomException(ErrorMsg.DUPLICATE_PHONENUMBER);
         }
         // 비밀번호 일치 확인
-        if (!members.checkPassword(requestDto.getPassword())) {
-            throw new CustomException(ErrorMsg.PASSWORD_INCORRECT);
+//        if (!members.checkPassword(requestDto.getPassword())) {
+//            throw new CustomException(ErrorMsg.PASSWORD_INCORRECT);
+//        }
+
+        if (requestDto.getPassword() != null && !requestDto.getPassword().isEmpty()) {
+            members.setPassword(requestDto.getPassword());
         }
-        members.members(requestDto);
+        members.updateMembers(requestDto);
         membersRepository.save(members);
         return new MembersProfileResponseDto(members);
     }
