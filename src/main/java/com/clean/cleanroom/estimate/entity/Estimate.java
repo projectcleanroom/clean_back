@@ -20,11 +20,11 @@ public class Estimate {
 
     @ManyToOne
     @JoinColumn(name = "commission_id")
-    private Commission commissionId;
+    private Commission commission;
 
     @ManyToOne
     @JoinColumn(name = "partner_id")
-    private Partner partnerId;
+    private Partner partner;
 
     @Column(nullable = false)
     @Comment("가격")

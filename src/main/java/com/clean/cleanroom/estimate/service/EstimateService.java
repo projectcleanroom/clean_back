@@ -47,7 +47,7 @@ public class EstimateService {
         Estimate estimate = estimateRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorMsg.ESTIMATE_NOT_FOUND));
 
-        Commission commission = estimate.getCommissionId();// 견적에 연결된 Commission 가져오기
+        Commission commission = estimate.getCommission();// 견적에 연결된 Commission 가져오기
 
         Members owner = commission.getMembers(); // Commission에 연결된 회원 가져오기
 
