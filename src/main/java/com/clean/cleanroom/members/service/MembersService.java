@@ -37,6 +37,7 @@ public class MembersService {
         if (membersRepository.existsByPhoneNumber(requestDto.getPhoneNumber())){
             throw new CustomException(ErrorMsg.DUPLICATE_PHONENUMBER);
         }
+
         // 패스워드 Hashing
         Members members = new Members(requestDto);
         members.setPassword(requestDto.getPassword());
@@ -61,10 +62,11 @@ public class MembersService {
             throw new CustomException(ErrorMsg.DUPLICATE_PHONENUMBER);
         }
         // 비밀번호 일치 확인
-        if (!members.checkPassword(requestDto.getPassword())) {
-            throw new CustomException(ErrorMsg.PASSWORD_INCORRECT);
-        }
-        members.members(requestDto);
+//        if (!members.checkPassword(requestDto.getPassword())) {
+//            throw new CustomException(ErrorMsg.PASSWORD_INCORRECT);
+//        }
+//        members.members(requestDto);
+        members.setPassword(requestDto.getPassword());
         membersRepository.save(members);
         return new MembersProfileResponseDto(members);
     }
