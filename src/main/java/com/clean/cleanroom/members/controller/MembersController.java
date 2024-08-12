@@ -22,8 +22,8 @@ public class MembersController {
         return new ResponseEntity<>(membersSignupResponseDto, HttpStatus.CREATED);
     }
 
-    @PutMapping("/profile")
-    public ResponseEntity<MembersProfileResponseDto> profile(@RequestHeader("Authorization") String token, @RequestBody @Valid MembersRequestDto requestDto) {
+    @PatchMapping("/profile")
+    public ResponseEntity<MembersProfileResponseDto> profile(@RequestHeader("Authorization") String token, @RequestBody MembersUpdateProfileRequestDto requestDto) {
         MembersProfileResponseDto membersProfileResponseDto = membersService.profile(token, requestDto);
         return new ResponseEntity<>(membersProfileResponseDto, HttpStatus.OK);
     }

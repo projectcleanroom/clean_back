@@ -2,6 +2,7 @@ package com.clean.cleanroom.members.entity;
 
 import com.clean.cleanroom.account.entity.Account;
 import com.clean.cleanroom.members.dto.MembersRequestDto;
+import com.clean.cleanroom.members.dto.MembersUpdateProfileRequestDto;
 import com.clean.cleanroom.util.PasswordUtil;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -52,6 +53,15 @@ public class Members {
         this.email = requestDto.getEmail();
         this.nick = requestDto.getNick();
         this.phoneNumber = requestDto.getPhoneNumber();
+    }
+
+    public void updateMembers(MembersUpdateProfileRequestDto requestDto) {
+        if(requestDto.getNick() != null){
+            this.nick = requestDto.getNick();
+        }
+        if(requestDto.getPhoneNumber() != null){
+            this.phoneNumber = requestDto.getPhoneNumber();
+        }
     }
 
     public boolean checkPassword(String password) {
