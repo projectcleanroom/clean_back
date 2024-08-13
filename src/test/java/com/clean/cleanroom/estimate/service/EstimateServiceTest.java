@@ -16,131 +16,163 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.when;
 
 public class EstimateServiceTest {
 
     @InjectMocks
-    private EstimateService estimateService; // 테스트할 서비스 클래스 인스턴스
+    private EstimateService estimateService;
 
     @Mock
-    private EstimateRepository estimateRepository; // 모킹된 EstimateRepository 인스턴스
+    private EstimateRepository estimateRepository;
 
     @Mock
-    private CommissionRepository commissionRepository; // 모킹된 CommissionRepository 인스턴스
+    private CommissionRepository commissionRepository;
 
     @Mock
-    private MembersRepository membersRepository; // 모킹된 MembersRepository 인스턴스
+    private MembersRepository membersRepository;
 
     @Mock
-    private JwtUtil jwtUtil; // 모킹된 JwtUtil 인스턴스
+    private JwtUtil jwtUtil;
+
+    @Mock
+    private Estimate estimate;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this); // Mockito 어노테이션을 초기화하여 목 객체들을 활성화
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
     void approveEstimate() {
-        // given: 테스트 초기 조건 설정
         String token = "Bearer sampleToken";
         Long id = 1L;
         String email = "test@example.com";
-        Members members = mock(Members.class); // 모킹된 Members 인스턴스
-        Estimate estimate = mock(Estimate.class); // 모킹된 Estimate 인스턴스
-        Commission commission = mock(Commission.class); // 모킹된 Commission 인스턴스
+        Members members = mock(Members.class);
+        Commission commission = mock(Commission.class);
 
-        // 모킹된 메서드 반환값 설정
         when(jwtUtil.extractEmail(anyString())).thenReturn(email);
         when(membersRepository.findByEmail(anyString())).thenReturn(Optional.of(members));
         when(estimateRepository.findById(anyLong())).thenReturn(Optional.of(estimate));
-        when(estimate.getCommissionId()).thenReturn(commission);
+        when(estimate.getCommission()).thenReturn(commission);
         when(commission.getMembers()).thenReturn(members);
         when(members.getId()).thenReturn(1L);
 
-        // when: 테스트할 동작 실행
         EstimateResponseDto response = estimateService.approveEstimate(token, id);
 
-        // then: 기대하는 결과 확인
-        assertNotNull(response); // 응답이 null이 아닌지 확인
-        verify(estimate).approve(); // approve 메서드가 호출되었는지 확인
-        verify(estimateRepository).save(estimate); // save 메서드가 호출되었는지 확인
+        assertNotNull(response);
+        verify(estimate).approve();
+        verify(estimateRepository).save(estimate);
     }
 
     @Test
     void approveEstimate_ThrowsException_IfEstimateNotFound() {
-        // given: 테스트 초기 조건 설정
         String token = "Bearer sampleToken";
         Long id = 1L;
         String email = "test@example.com";
 
-        // 모킹된 메서드 반환값 설정
         when(jwtUtil.extractEmail(anyString())).thenReturn(email);
         when(membersRepository.findByEmail(anyString())).thenReturn(Optional.of(mock(Members.class)));
         when(estimateRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        // when & then: 테스트할 동작 실행 및 예외 발생 확인
         assertThrows(CustomException.class, () -> {
             estimateService.approveEstimate(token, id);
         });
     }
 
     @Test
-    void getAllEstimates() {
-        // given: 테스트 초기 조건 설정
+    void getAllEstimates_Success() {
+        // Given
         String token = "Bearer sampleToken";
         Long commissionId = 1L;
         String email = "test@example.com";
-        Members members = mock(Members.class); // 모킹된 Members 인스턴스
-        Commission commission = mock(Commission.class); // 모킹된 Commission 인스턴스
-        Estimate estimate = mock(Estimate.class); // 모킹된 Estimate 인스턴스
+        Members member = mock(Members.class);
+        Commission commission = mock(Commission.class);
+        Estimate estimate = mock(Estimate.class);
+        List<Estimate> estimates = List.of(estimate);
 
-        // 모킹된 메서드 반환값 설정
+        when(jwtUtil.extractEmail(anyString())).thenReturn(email);
+        when(membersRepository.findByEmail(anyString())).thenReturn(Optional.of(member));
+        when(commissionRepository.findById(anyLong())).thenReturn(Optional.of(commission));
+        when(commission.getMembers()).thenReturn(member);
+        when(member.getId()).thenReturn(1L);
+        when(estimateRepository.findByCommissionId(commission)).thenReturn(estimates);
+        when(estimate.getCommission()).thenReturn(commission);
+
+        // When
+        List<EstimateListResponseDto> result = estimateService.getAllEstimates(token, commissionId);
+
+        // Then
+        assertEquals(1, result.size());
+        verify(estimateRepository, times(1)).findByCommissionId(commission);
+    }
+
+    @Test
+    void getAllEstimates_ThrowsException_IfCommissionNotFound() {
+        // Given
+        String token = "Bearer sampleToken";
+        Long commissionId = 1L;
+        String email = "test@example.com";
+
+        when(jwtUtil.extractEmail(anyString())).thenReturn(email);
+        when(membersRepository.findByEmail(anyString())).thenReturn(Optional.of(mock(Members.class)));
+        when(commissionRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThrows(CustomException.class, () -> {
+            estimateService.getAllEstimates(token, commissionId);
+        });
+    }
+
+    @Test
+    void getAllEstimates_ThrowsException_IfUnauthorizedMember() {
+        // Given
+        String token = "Bearer sampleToken";
+        Long commissionId = 1L;
+        String email = "test@example.com";
+        Members members = mock(Members.class);
+        Members otherMember = mock(Members.class);
+        Commission commission = mock(Commission.class);
+
         when(jwtUtil.extractEmail(anyString())).thenReturn(email);
         when(membersRepository.findByEmail(anyString())).thenReturn(Optional.of(members));
         when(commissionRepository.findById(anyLong())).thenReturn(Optional.of(commission));
-        when(commission.getMembers()).thenReturn(members);
+        when(commission.getMembers()).thenReturn(otherMember); // 다른 회원을 반환하도록 설정
+        when(otherMember.getId()).thenReturn(2L); // 다른 ID 설정
         when(members.getId()).thenReturn(1L);
-        when(estimateRepository.findByCommissionId(any(Commission.class))).thenReturn(List.of(estimate));
 
-        // when: 테스트할 동작 실행
-        List<EstimateListResponseDto> response = estimateService.getAllEstimates(token, commissionId);
-
-        // then: 기대하는 결과 확인
-        assertNotNull(response); // 응답이 null이 아닌지 확인
-        assertFalse(response.isEmpty()); // 응답 리스트가 비어있지 않은지 확인
+        // When & Then
+        assertThrows(CustomException.class, () -> {
+            estimateService.getAllEstimates(token, commissionId);
+        });
     }
 
     @Test
     void getAllEstimates_ThrowsException_IfNoEstimatesFound() {
-        // given: 테스트 초기 조건 설정
+        // Given
         String token = "Bearer sampleToken";
         Long commissionId = 1L;
         String email = "test@example.com";
-        Members members = mock(Members.class); // 모킹된 Members 인스턴스
-        Commission commission = mock(Commission.class); // 모킹된 Commission 인스턴스
+        Members members = mock(Members.class);
+        Commission commission = mock(Commission.class);
 
-        // 모킹된 메서드 반환값 설정
         when(jwtUtil.extractEmail(anyString())).thenReturn(email);
         when(membersRepository.findByEmail(anyString())).thenReturn(Optional.of(members));
         when(commissionRepository.findById(anyLong())).thenReturn(Optional.of(commission));
         when(commission.getMembers()).thenReturn(members);
         when(members.getId()).thenReturn(1L);
-        when(estimateRepository.findByCommissionId(any(Commission.class))).thenReturn(Collections.emptyList());
+        when(estimateRepository.findByCommissionId(commission)).thenReturn(Collections.emptyList());
 
-        // when & then: 테스트할 동작 실행 및 예외 발생 확인
+        // When & Then
         assertThrows(CustomException.class, () -> {
             estimateService.getAllEstimates(token, commissionId);
         });
     }
 }
+

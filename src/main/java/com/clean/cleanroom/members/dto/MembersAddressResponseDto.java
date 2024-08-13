@@ -8,9 +8,12 @@ import lombok.Getter;
 public class MembersAddressResponseDto {
     private Long id;
     private String address;
+    private String addressDetail;
+    private String addressCode;
 
     public MembersAddressResponseDto(Address address) {
-        this.id = address.getId();
         this.address = address.getAddress();
+        this.addressDetail = address.getAddressDetail();
+        this.addressCode = address.getAddressCode();
     }
 }

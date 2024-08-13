@@ -2,6 +2,7 @@ package com.clean.cleanroom.members.service;
 
 import com.clean.cleanroom.exception.CustomException;
 import com.clean.cleanroom.exception.ErrorMsg;
+import com.clean.cleanroom.members.dto.MembersAddressDelResponseDto;
 import com.clean.cleanroom.members.dto.MembersAddressRequestDto;
 import com.clean.cleanroom.members.dto.MembersAddressResponseDto;
 import com.clean.cleanroom.members.dto.MembersGetProfileResponseDto;
@@ -39,5 +40,14 @@ public class MembersAddressService {
             addressResponseDtos.add(new MembersAddressResponseDto(a));
         }
         return addressResponseDtos;
+    }
+
+    public MembersAddressDelResponseDto delAddress(String token, Long id) {
+        String email = jwtUtil.extractEmail(token);
+        Address address = addressRepository.findByEmailAndId(email,id).orElseThrow(
+                ()-> new CustomException(ErrorMsg.ADDRESS_NOT_FOUND)
+        );
+        addressRepository.delete(address);
+        return new MembersAddressDelResponseDto();
     }
 }
