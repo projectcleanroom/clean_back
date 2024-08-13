@@ -9,4 +9,5 @@ import java.util.Optional;
 public interface AddressRepository extends JpaRepository<Address, Long> {
     Optional<Address> findByEmail(String email);
     List<Address> findAllByEmail(String email);
+    Optional<Address> findByEmailAndId(String email, Long id);
 }
