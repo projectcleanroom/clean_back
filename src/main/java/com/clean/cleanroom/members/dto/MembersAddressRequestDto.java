@@ -6,6 +6,9 @@ import org.hibernate.annotations.Comment;
 
 @Getter
 public class MembersAddressRequestDto {
+    @Comment("Address ID")
+    private Long id;
+
     @Comment("주소1")
     @NotEmpty(message = "주소는 필수 입력 항목입니다.")
     private String address;
