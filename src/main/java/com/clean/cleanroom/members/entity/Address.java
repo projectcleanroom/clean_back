@@ -27,14 +27,27 @@ public class Address {
     @Column(nullable = false, length = 500)
     private String address;
 
+    @Comment("주소-상세")
+    @Column(nullable = false, length = 500)
+    private String addressDetail;
+
+    @Comment("우편번호")
+    @Column(nullable = false, length = 500)
+    private String addressCode;
+
     public Address(String email, MembersAddressRequestDto requestDto) {
         this.email = email;
         this.address = requestDto.getAddress();
+        this.addressDetail = requestDto.getAddressDetail();
+        this.addressCode = requestDto.getAddressCode();
     }
 
 
-    public void address(MembersAddressRequestDto requestDto) {
+    public void address(String email, MembersAddressRequestDto requestDto) {
+        this.email = email;
         this.address = requestDto.getAddress();
+        this.addressDetail = requestDto.getAddressDetail();
+        this.addressCode = requestDto.getAddressCode();
     }
 
 }
