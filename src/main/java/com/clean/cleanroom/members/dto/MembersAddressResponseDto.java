@@ -12,7 +12,6 @@ public class MembersAddressResponseDto {
     private String addressCode;
 
     public MembersAddressResponseDto(Address address) {
-        this.id = address.getId();
         this.address = address.getAddress();
         this.addressDetail = address.getAddressDetail();
         this.addressCode = address.getAddressCode();

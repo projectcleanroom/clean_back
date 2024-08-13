@@ -1,5 +1,6 @@
 package com.clean.cleanroom.members.controller;
 
+import com.clean.cleanroom.members.dto.MembersAddressDelResponseDto;
 import com.clean.cleanroom.members.dto.MembersAddressRequestDto;
 import com.clean.cleanroom.members.dto.MembersAddressResponseDto;
 import com.clean.cleanroom.members.dto.MembersGetProfileResponseDto;
@@ -30,6 +31,12 @@ public class MembersAddressController {
     public ResponseEntity<List<MembersAddressResponseDto>> getAddress(@RequestHeader("Authorization") String token) {
         List<MembersAddressResponseDto> membersAddressResponseDto = membersAddressService.getAddress(token);
         return new ResponseEntity<>(membersAddressResponseDto, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<MembersAddressDelResponseDto> delAddress(@RequestHeader("Authorization") String token, @RequestParam Long id) {
+        MembersAddressDelResponseDto membersAddressDelResponseDto = membersAddressService.delAddress(token,id);
+        return new ResponseEntity<>(membersAddressDelResponseDto, HttpStatus.OK);
     }
 
 
