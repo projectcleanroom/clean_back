@@ -4,6 +4,7 @@ import com.clean.cleanroom.commission.dto.CommissionCreateRequestDto;
 import com.clean.cleanroom.commission.dto.CommissionUpdateRequestDto;
 import com.clean.cleanroom.enums.CleanType;
 import com.clean.cleanroom.enums.HouseType;
+import com.clean.cleanroom.enums.StatusType;
 import com.clean.cleanroom.estimate.entity.Estimate;
 import com.clean.cleanroom.members.entity.Address;
 import com.clean.cleanroom.members.entity.Members;
@@ -55,6 +56,11 @@ public class Commission {
     private CleanType cleanType;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    @Comment("의뢰 상태")
+    private StatusType status;
+
+    @Column(nullable = false)
     @Comment("희망 날짜")
     private LocalDateTime desiredDate;
 
@@ -63,7 +69,7 @@ public class Commission {
     private String significant;
 
 
-    public Commission(Members members, Address address,CommissionCreateRequestDto requestDto) {
+    public Commission(Members members, Address address, CommissionCreateRequestDto requestDto) {
         this.members = members;
         this.address = address;
         this.image = requestDto.getImage();
@@ -72,6 +78,7 @@ public class Commission {
         this.cleanType = requestDto.getCleanType();
         this.desiredDate = requestDto.getDesiredDate();
         this.significant = requestDto.getSignificant();
+        this.status = StatusType.CHECK;
     }
 
     public void update(CommissionUpdateRequestDto requestDto, Address address) {
@@ -82,5 +89,6 @@ public class Commission {
         this.cleanType = requestDto.getCleanType();
         this.desiredDate = requestDto.getDesiredDate();
         this.significant = requestDto.getSignificant();
+        this.status = requestDto.getStatus();
     }
 }
