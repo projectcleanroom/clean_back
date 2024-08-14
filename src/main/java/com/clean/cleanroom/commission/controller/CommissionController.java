@@ -2,7 +2,6 @@ package com.clean.cleanroom.commission.controller;
 
 import com.clean.cleanroom.commission.dto.*;
 import com.clean.cleanroom.commission.service.CommissionService;
-import com.clean.cleanroom.util.JwtUtil;
 import com.clean.cleanroom.util.TokenService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -72,6 +71,13 @@ public class CommissionController {
 
         List<CommissionConfirmListResponseDto> responseDtoList = commissionService.getCommissionConfirmList(email);
         return new ResponseEntity<>(responseDtoList, HttpStatus.OK);
+    }
+
+    //
+    @GetMapping("/confirmdetail")
+    public ResponseEntity<CommissionConfirmDetailResponseDto> getConfirmDetailCommissions(@RequestParam Long estimateId, Long commissionId) {
+        CommissionConfirmDetailResponseDto responseDto = commissionService.getCommissionDetailConfirm(estimateId, commissionId);
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
 }
