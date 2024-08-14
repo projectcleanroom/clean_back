@@ -84,7 +84,6 @@ public class CommissionService {
         return getMemberCommissionsByEmail(email, CommissionCancelResponseDto.class);
     }
 
-
     // 특정 회원(나) 청소의뢰 내역 전체조회
     public <T> List<T> getMemberCommissionsByEmail(String email, Class<T> responseType) {
 
