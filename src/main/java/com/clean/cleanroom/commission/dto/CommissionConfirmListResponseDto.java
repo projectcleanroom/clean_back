@@ -20,13 +20,14 @@ public class CommissionConfirmListResponseDto {
     private CleanType cleanType;
     private LocalDateTime desiredDate;
     private String significant;
+    private String image;
 
     private List<EstimateResponseDto> estimates;
 
 
     // 생성자 추가
     public CommissionConfirmListResponseDto(Long id, int size, HouseType houseType, CleanType cleanType,
-                                            LocalDateTime desiredDate, String significant,
+                                            LocalDateTime desiredDate, String significant, String image,
                                             List<EstimateResponseDto> estimates) {
         this.id = id;
         this.size = size;
@@ -34,6 +35,7 @@ public class CommissionConfirmListResponseDto {
         this.cleanType = cleanType;
         this.desiredDate = desiredDate;
         this.significant = significant;
+        this.image = image;
         this.estimates = estimates;
     }
 }
