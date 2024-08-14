@@ -1,6 +1,7 @@
 package com.clean.cleanroom.estimate.entity;
 
 import com.clean.cleanroom.commission.entity.Commission;
+import com.clean.cleanroom.enums.StatusType;
 import com.clean.cleanroom.partner.entity.Partner;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -29,8 +30,12 @@ public class Estimate {
     private Partner partner;
 
     @Column(nullable = false)
-    @Comment("가격")
+    @Comment("확정 가격")
     private int price;
+
+    @Column(nullable = false)
+    @Comment("임시 가격")
+    private int tmpPrice;
 
     @Column(nullable = true)
     @Comment("확정 일자")
@@ -43,6 +48,10 @@ public class Estimate {
     @Comment("승인 상태")
     private boolean approved = false;
 
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    @Comment("견적 상태")
+    private StatusType status;
 
     // 승인 상태 변경 메서드
     public void approve() {

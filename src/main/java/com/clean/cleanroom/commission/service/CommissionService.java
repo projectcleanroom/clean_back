@@ -11,6 +11,7 @@ import com.clean.cleanroom.members.entity.Address;
 import com.clean.cleanroom.members.entity.Members;
 import com.clean.cleanroom.members.repository.AddressRepository;
 import com.clean.cleanroom.members.repository.MembersRepository;
+import com.clean.cleanroom.util.JwtUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,11 +25,13 @@ public class CommissionService {
     private final CommissionRepository commissionRepository;
     private final MembersRepository membersRepository;
     private final AddressRepository addressRepository;
+    private final JwtUtil jwtUtil;
 
-    public CommissionService(CommissionRepository commissionRepository, MembersRepository membersRepository, AddressRepository addressRepository) {
+    public CommissionService(CommissionRepository commissionRepository, MembersRepository membersRepository, AddressRepository addressRepository, JwtUtil jwtUtil) {
         this.commissionRepository = commissionRepository;
         this.membersRepository = membersRepository;
         this.addressRepository = addressRepository;
+        this.jwtUtil = jwtUtil;
     }
 
     //청소의뢰 생성 서비스
@@ -103,8 +106,6 @@ public class CommissionService {
         return responseList;
 
     }
-
-
 
 
     // 특정 회원(나) 청소의뢰 내역 전체조회
@@ -190,4 +191,13 @@ public class CommissionService {
         );
     }
 
+    public CommissionConfirmDetailResponseDto getCommissionDetailConfirm(Long estimateId, Long commissionId) {
+
+        Commission commission = commissionRepository.findByEstimatesIdAndId(estimateId,commissionId);
+
+        Estimate estimate = new Estimate();
+        Address address = new Address();
+        CommissionConfirmDetailResponseDto commissionConfirmDetailResponseDto = new CommissionConfirmDetailResponseDto(commission, estimate, address);
+        return commissionConfirmDetailResponseDto;
+    }
 }
