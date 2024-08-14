@@ -25,6 +25,7 @@ public class CommissionConfirmDetailResponseDto {
     private int Price;
     private String statment;
     private LocalDateTime fixedDate;
+    private String image;
 
 
 
@@ -42,5 +43,6 @@ public class CommissionConfirmDetailResponseDto {
         this.Price = estimate.getPrice();
         this.statment = estimate.getStatement();
         this.fixedDate = estimate.getFixedDate();
+        this.image = commission.getImage();
     }
 }
