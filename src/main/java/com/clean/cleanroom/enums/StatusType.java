@@ -4,6 +4,7 @@ public enum StatusType {
 
     CHECK,
     SEND,
-    FINISH
+    FINISH,
+    CONTACT
 
 }
