@@ -35,7 +35,7 @@ public class CommissionController {
 
 
     //청소의뢰 수정
-    @PutMapping
+    @PatchMapping
     public ResponseEntity<List<CommissionUpdateResponseDto>> updateCommission(
             HttpServletRequest request,
             @RequestParam Long commissionId,
