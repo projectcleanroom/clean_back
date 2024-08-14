@@ -65,6 +65,14 @@ public class CommissionController {
         return new ResponseEntity<>(responseDtoList, HttpStatus.OK);
     }
 
+    // 견적을 받은 청소 의뢰 리스트 조회
+    @GetMapping("/confirmed")
+    public ResponseEntity<List<CommissionConfirmListResponseDto>> getConfirmedCommissions(HttpServletRequest request) {
+        String email = tokenService.getEmailFromRequest(request); // 헤더의 토큰에서 이메일 추출
+
+        List<CommissionConfirmListResponseDto> responseDtoList = commissionService.getCommissionConfirmList(email);
+        return new ResponseEntity<>(responseDtoList, HttpStatus.OK);
+    }
 
 }
 
