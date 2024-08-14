@@ -187,7 +187,6 @@ public class CommissionService {
                 commission.getCleanType(),
                 commission.getDesiredDate(),
                 commission.getSignificant(),
-                commission.getImage(),
                 estimateResponseDtos
         );
     }
