@@ -17,6 +17,7 @@ public class MyCommissionResponseDto {
     private Long addressId;
     private LocalDateTime desiredDate;
     private String significant;
+    private String image;
 
 
     public MyCommissionResponseDto(Commission commission) {
@@ -28,6 +29,7 @@ public class MyCommissionResponseDto {
         this.addressId = commission.getAddress().getId();
         this.desiredDate = commission.getDesiredDate();
         this.significant = commission.getSignificant();
+        this.image = commission.getImage();
     }
 
 }
