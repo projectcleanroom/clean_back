@@ -3,12 +3,15 @@ package com.clean.cleanroom.commission.service;
 import com.clean.cleanroom.commission.dto.*;
 import com.clean.cleanroom.commission.entity.Commission;
 import com.clean.cleanroom.commission.repository.CommissionRepository;
+import com.clean.cleanroom.estimate.dto.EstimateResponseDto;
+import com.clean.cleanroom.estimate.entity.Estimate;
 import com.clean.cleanroom.exception.CustomException;
 import com.clean.cleanroom.exception.ErrorMsg;
 import com.clean.cleanroom.members.entity.Address;
 import com.clean.cleanroom.members.entity.Members;
 import com.clean.cleanroom.members.repository.AddressRepository;
 import com.clean.cleanroom.members.repository.MembersRepository;
+import com.clean.cleanroom.util.JwtUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,11 +25,13 @@ public class CommissionService {
     private final CommissionRepository commissionRepository;
     private final MembersRepository membersRepository;
     private final AddressRepository addressRepository;
+    private final JwtUtil jwtUtil;
 
-    public CommissionService(CommissionRepository commissionRepository, MembersRepository membersRepository, AddressRepository addressRepository) {
+    public CommissionService(CommissionRepository commissionRepository, MembersRepository membersRepository, AddressRepository addressRepository, JwtUtil jwtUtil) {
         this.commissionRepository = commissionRepository;
         this.membersRepository = membersRepository;
         this.addressRepository = addressRepository;
+        this.jwtUtil = jwtUtil;
     }
 
     //청소의뢰 생성 서비스
@@ -82,6 +87,24 @@ public class CommissionService {
 
         //내 청소의뢰내역 전체조회
         return getMemberCommissionsByEmail(email, CommissionCancelResponseDto.class);
+    }
+
+    //견적이 있는 청소의뢰 리스트 조회
+    public List<CommissionConfirmListResponseDto> getCommissionConfirmList(String email) {
+        Members members = getMemberByEmail(email);
+
+        List<Commission> commissions = commissionRepository.findByMembers(members);
+
+        // 견적이 있는 청소 의뢰 필터링 및 모든 견적 추가
+        List<CommissionConfirmListResponseDto> responseList = new ArrayList<>();
+        for (Commission commission : commissions) {
+            for (Estimate estimate : commission.getEstimates()) {
+                CommissionConfirmListResponseDto dto = convertToConfirmListDto(commission, estimate); // dto 변환
+                responseList.add(dto); // 변환된 dto를 리스트에 추가
+            }
+        }
+        return responseList;
+
     }
 
 
@@ -149,5 +172,33 @@ public class CommissionService {
             }
         }
         return responseDtoList;
+    }
+
+
+    // Commission과 Estimate를 받아서 CommissionConfirmListResponseDto로 변환하는 메서드
+    private CommissionConfirmListResponseDto convertToConfirmListDto(Commission commission, Estimate estimate) {
+        List<EstimateResponseDto> estimateResponseDtos = new ArrayList<>();
+        estimateResponseDtos.add(new EstimateResponseDto(estimate));
+
+        return new CommissionConfirmListResponseDto(
+                commission.getId(),
+                commission.getSize(),
+                commission.getHouseType(),
+                commission.getCleanType(),
+                commission.getDesiredDate(),
+                commission.getSignificant(),
+                commission.getImage(),
+                estimateResponseDtos
+        );
+    }
+
+    public CommissionConfirmDetailResponseDto getCommissionDetailConfirm(Long estimateId, Long commissionId) {
+
+        Commission commission = commissionRepository.findByEstimatesIdAndId(estimateId,commissionId);
+
+        Estimate estimate = new Estimate();
+        Address address = new Address();
+        CommissionConfirmDetailResponseDto commissionConfirmDetailResponseDto = new CommissionConfirmDetailResponseDto(commission, estimate, address);
+        return commissionConfirmDetailResponseDto;
     }
 }
