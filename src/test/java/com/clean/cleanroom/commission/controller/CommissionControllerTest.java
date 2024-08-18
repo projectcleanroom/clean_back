@@ -59,6 +59,7 @@ class CommissionControllerTest {
 
     @Test
     void updateCommission() {
+
         // Given
         String email = "test@example.com";
         Long commissionId = 1L;
@@ -80,6 +81,7 @@ class CommissionControllerTest {
 
     @Test
     void cancelCommission() {
+
         // Given
         String email = "test@example.com";
         Long commissionId = 1L;
@@ -98,6 +100,7 @@ class CommissionControllerTest {
 
     @Test
     void getMyCommission() {
+
         // Given
         String email = "test@example.com";
         List<MyCommissionResponseDto> responseDtoList = mock(List.class);
@@ -107,13 +110,47 @@ class CommissionControllerTest {
 
         // When
         // @SuppressWarnings :컴파일러 경고를 억제하는 어노테이션
-        //  mock(List.class)는 제네릭 타입 정보를 무시하고 단순히 List로 취급하기 때문에 컴파일러가 타입 경고를 발생
-        @SuppressWarnings("unchecked")
+        // mock(List.class)는 제네릭 타입 정보를 무시하고 단순히 List로 취급하기 때문에 컴파일러가 타입 경고를 발생
         ResponseEntity<List<MyCommissionResponseDto>> response = commissionController.getMyCommission(request);
 
         // Then
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(responseDtoList, response.getBody());
+    }
+
+    @Test
+    void getConfirmedCommissions() {
+        // Given
+        String email = "test@example.com";
+        List<CommissionConfirmListResponseDto> responseDtoList = mock(List.class);
+
+        when(tokenService.getEmailFromRequest(request)).thenReturn(email);
+        when(commissionService.getCommissionConfirmList(anyString())).thenReturn(responseDtoList);
+
+        // When
+        ResponseEntity<List<CommissionConfirmListResponseDto>> response = commissionController.getConfirmedCommissions(request);
+
+        // Then
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(responseDtoList, response.getBody());
+    }
+
+
+    @Test
+    void getConfirmDetailCommissions() {
+        // Given
+        Long estimateId = 1L;
+        Long commissionId = 2L;
+        CommissionConfirmDetailResponseDto responseDto = mock(CommissionConfirmDetailResponseDto.class);
+
+        when(commissionService.getCommissionDetailConfirm(anyLong(), anyLong())).thenReturn(responseDto);
+
+        // When
+        ResponseEntity<CommissionConfirmDetailResponseDto> response = commissionController.getConfirmDetailCommissions(estimateId, commissionId);
+
+        // Then
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(responseDto, response.getBody());
     }
 }

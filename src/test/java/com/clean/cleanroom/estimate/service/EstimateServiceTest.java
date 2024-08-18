@@ -9,6 +9,7 @@ import com.clean.cleanroom.estimate.repository.EstimateRepository;
 import com.clean.cleanroom.exception.CustomException;
 import com.clean.cleanroom.members.entity.Members;
 import com.clean.cleanroom.members.repository.MembersRepository;
+import com.clean.cleanroom.partner.entity.Partner;
 import com.clean.cleanroom.util.JwtUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,7 +17,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -56,13 +56,19 @@ public class EstimateServiceTest {
         String email = "test@example.com";
         Members members = mock(Members.class);
         Commission commission = mock(Commission.class);
+        Partner partner =  mock(Partner.class);
 
         when(jwtUtil.extractEmail(anyString())).thenReturn(email);
         when(membersRepository.findByEmail(anyString())).thenReturn(Optional.of(members));
         when(estimateRepository.findById(anyLong())).thenReturn(Optional.of(estimate));
         when(estimate.getCommission()).thenReturn(commission);
+
+        //연관관계 필드 가져오기
         when(commission.getMembers()).thenReturn(members);
         when(members.getId()).thenReturn(1L);
+
+        when(estimate.getPartner()).thenReturn(partner);
+        when(partner.getId()).thenReturn(1L);
 
         EstimateResponseDto response = estimateService.approveEstimate(token, id);
 
@@ -88,6 +94,7 @@ public class EstimateServiceTest {
 
     @Test
     void getAllEstimates_Success() {
+
         // Given
         String token = "Bearer sampleToken";
         Long commissionId = 1L;
@@ -115,6 +122,7 @@ public class EstimateServiceTest {
 
     @Test
     void getAllEstimates_ThrowsException_IfCommissionNotFound() {
+
         // Given
         String token = "Bearer sampleToken";
         Long commissionId = 1L;
@@ -132,6 +140,7 @@ public class EstimateServiceTest {
 
     @Test
     void getAllEstimates_ThrowsException_IfUnauthorizedMember() {
+
         // Given
         String token = "Bearer sampleToken";
         Long commissionId = 1L;
@@ -143,8 +152,8 @@ public class EstimateServiceTest {
         when(jwtUtil.extractEmail(anyString())).thenReturn(email);
         when(membersRepository.findByEmail(anyString())).thenReturn(Optional.of(members));
         when(commissionRepository.findById(anyLong())).thenReturn(Optional.of(commission));
-        when(commission.getMembers()).thenReturn(otherMember); // 다른 회원을 반환하도록 설정
-        when(otherMember.getId()).thenReturn(2L); // 다른 ID 설정
+        when(commission.getMembers()).thenReturn(otherMember);
+        when(otherMember.getId()).thenReturn(2L);
         when(members.getId()).thenReturn(1L);
 
         // When & Then

@@ -1,32 +1,70 @@
-//package com.clean.cleanroom.estimate.dto;
-//
-//import com.clean.cleanroom.estimate.entity.Estimate;
-//import org.junit.jupiter.api.Test;
-//
-//import static org.junit.jupiter.api.Assertions.*;
-//
-//class EstimateResponseDtoTest {
-//
-//    @Test
-//    void testEstimateResponseDtoConstructor() {
-//        // given: 모의 Estimate 객체를 생성
-//        Estimate estimate = new Estimate();
-//
-//        // when: EstimateResponseDto 객체를 생성
-//        EstimateResponseDto estimateResponseDto = new EstimateResponseDto(estimate);
-//
-//        // then: 필드 값이 예상대로 설정되었는지 확인
-//        assertTrue(estimateResponseDto.isApprove()); // approve 필드가 true인지 확인
-//        assertEquals("견적이 승인 되었습니다.", estimateResponseDto.getMessage()); // message 필드가 예상 메시지와 일치하는지 확인
-//    }
-//
-//    @Test
-//    void testEstimateResponseDtoNoArgsConstructor() {
-//        // when: 기본 생성자를 사용하여 EstimateResponseDto 객체를 생성
-//        EstimateResponseDto estimateResponseDto = new EstimateResponseDto();
-//
-//        // then: 기본 필드 값이 예상대로 설정되었는지 확인
-//        assertFalse(estimateResponseDto.isApprove()); // approve 필드의 기본값이 false일 것으로 기대
-//        assertNull(estimateResponseDto.getMessage()); // message 필드의 기본값이 null일 것으로 기대
-//    }
-//}
+package com.clean.cleanroom.estimate.dto;
+
+import com.clean.cleanroom.estimate.entity.Estimate;
+import com.clean.cleanroom.partner.entity.Partner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.time.LocalDateTime;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+class EstimateResponseDtoTest {
+
+    @Mock
+    private Estimate estimate;
+
+    @Mock
+    private Partner partner;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+
+        when(partner.getId()).thenReturn(3L);
+        when(partner.getCompanyName()).thenReturn("Test Company");
+
+
+        when(estimate.getId()).thenReturn(1L);
+        when(estimate.getPrice()).thenReturn(10000);
+        when(estimate.getFixedDate()).thenReturn(LocalDateTime.of(2024, 8, 1, 10, 0));
+        when(estimate.getStatement()).thenReturn("Test Statement");
+        when(estimate.isApproved()).thenReturn(false);
+        when(estimate.getPartner()).thenReturn(partner);
+    }
+
+    @Test
+    void testEstimateResponseDtoConstructor() {
+
+        // Given
+        EstimateResponseDto estimateResponseDto = new EstimateResponseDto(estimate);
+
+        // Then
+        assertEquals(1L, estimateResponseDto.getId());
+        assertEquals(10000, estimateResponseDto.getPrice());
+        assertEquals(LocalDateTime.of(2024, 8, 1, 10, 0), estimateResponseDto.getFixedDate());
+        assertEquals("Test Statement", estimateResponseDto.getStatement());
+        assertFalse(estimateResponseDto.isApproved());
+        assertEquals(3L, estimateResponseDto.getPartnerId());
+        assertEquals("Test Company", estimateResponseDto.getPartnerName());
+    }
+
+    @Test
+    void testEstimateResponseDtoNoArgsConstructor() {
+
+        // When
+        EstimateResponseDto estimateResponseDto = new EstimateResponseDto();
+
+        // Then
+        assertNull(estimateResponseDto.getId());
+        assertEquals(0, estimateResponseDto.getPrice());
+        assertNull(estimateResponseDto.getFixedDate());
+        assertNull(estimateResponseDto.getStatement());
+        assertFalse(estimateResponseDto.isApproved());
+        assertNull(estimateResponseDto.getPartnerId());
+        assertNull(estimateResponseDto.getPartnerName());
+    }
+}

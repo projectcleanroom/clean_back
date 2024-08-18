@@ -19,12 +19,12 @@ class CommissionUpdateResponseDtoTest {
         // given: 모의 Commission, Members, Address 객체를 생성 및 설정
         Long commissionId = 1L;
         String memberNick = "TestNick";
-        int size = 50;
-        HouseType houseType = HouseType.APT;  // HouseType.APT를 사용
-        CleanType cleanType = CleanType.NORMAL;  // CleanType.NORMAL를 사용
+        int size = 100;
+        HouseType houseType = HouseType.APT;
+        CleanType cleanType = CleanType.NORMAL;
         Long addressId = 2L;
         LocalDateTime desiredDate = LocalDateTime.of(2024, 8, 1, 10, 0);
-        String significant = "Test Significant";
+        String significant = "Test significant note";
 
         Members members = mock(Members.class);
         Address address = mock(Address.class);
@@ -53,5 +53,33 @@ class CommissionUpdateResponseDtoTest {
         assertEquals(addressId, responseDto.getAddressId());
         assertEquals(desiredDate, responseDto.getDesiredDate());
         assertEquals(significant, responseDto.getSignificant());
+    }
+
+    @Test
+    void testCommissionUpdateResponseDtoWithNullValues() {
+        // given: null 필드를 가진 모의 Commission, Members, Address 객체
+        Members members = mock(Members.class);
+        Address address = mock(Address.class);
+        Commission commission = mock(Commission.class);
+
+        when(commission.getMembers()).thenReturn(members);
+        when(commission.getAddress()).thenReturn(address);
+        when(members.getNick()).thenReturn(null);
+        when(commission.getSize()).thenReturn(0);
+        when(commission.getHouseType()).thenReturn(null);
+        when(commission.getCleanType()).thenReturn(null);
+        when(commission.getDesiredDate()).thenReturn(null);
+        when(commission.getSignificant()).thenReturn(null);
+
+        // when: CommissionUpdateResponseDto 객체를 생성
+        CommissionUpdateResponseDto responseDto = new CommissionUpdateResponseDto(commission);
+
+        // then: 필드 값이 예상대로 null 또는 기본값으로 설정되었는지 확인
+        assertNull(responseDto.getMemberNick());
+        assertEquals(0, responseDto.getSize());
+        assertNull(responseDto.getHouseType());
+        assertNull(responseDto.getCleanType());
+        assertNull(responseDto.getDesiredDate());
+        assertNull(responseDto.getSignificant());
     }
 }

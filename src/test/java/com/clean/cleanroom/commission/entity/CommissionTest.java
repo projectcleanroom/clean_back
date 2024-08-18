@@ -4,6 +4,7 @@ import com.clean.cleanroom.commission.dto.CommissionCreateRequestDto;
 import com.clean.cleanroom.commission.dto.CommissionUpdateRequestDto;
 import com.clean.cleanroom.enums.CleanType;
 import com.clean.cleanroom.enums.HouseType;
+import com.clean.cleanroom.enums.StatusType;
 import com.clean.cleanroom.members.entity.Address;
 import com.clean.cleanroom.members.entity.Members;
 import org.junit.jupiter.api.BeforeEach;
@@ -54,6 +55,7 @@ class CommissionTest {
         assertEquals(CleanType.NORMAL, commission.getCleanType());
         assertEquals(LocalDateTime.of(2024, 8, 1, 10, 0), commission.getDesiredDate());
         assertEquals("Test significant", commission.getSignificant());
+        assertEquals(StatusType.CHECK, commission.getStatus());
     }
 
     @Test
@@ -66,6 +68,7 @@ class CommissionTest {
         when(updateRequestDto.getCleanType()).thenReturn(CleanType.NORMAL);
         when(updateRequestDto.getDesiredDate()).thenReturn(LocalDateTime.of(2024, 9, 1, 10, 0));
         when(updateRequestDto.getSignificant()).thenReturn("Updated significant");
+        when(updateRequestDto.getStatus()).thenReturn(StatusType.CHECK);
 
         Address newAddress = mock(Address.class);
 
@@ -80,5 +83,6 @@ class CommissionTest {
         assertEquals(CleanType.NORMAL, commission.getCleanType());
         assertEquals(LocalDateTime.of(2024, 9, 1, 10, 0), commission.getDesiredDate());
         assertEquals("Updated significant", commission.getSignificant());
+        assertEquals(StatusType.CHECK, commission.getStatus());
     }
 }

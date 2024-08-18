@@ -3,11 +3,13 @@ package com.clean.cleanroom.commission.service;
 import com.clean.cleanroom.commission.dto.*;
 import com.clean.cleanroom.commission.entity.Commission;
 import com.clean.cleanroom.commission.repository.CommissionRepository;
+import com.clean.cleanroom.estimate.entity.Estimate;
 import com.clean.cleanroom.exception.CustomException;
 import com.clean.cleanroom.members.entity.Address;
 import com.clean.cleanroom.members.entity.Members;
 import com.clean.cleanroom.members.repository.AddressRepository;
 import com.clean.cleanroom.members.repository.MembersRepository;
+import com.clean.cleanroom.partner.entity.Partner;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -187,5 +189,47 @@ class CommissionServiceTest {
         assertNotNull(result);
         assertFalse(result.isEmpty());
         verify(commissionRepository).findAll();
+    }
+
+    @Test
+    void getCommissionConfirmList_Success() {
+        // Given
+        String email = "test@example.com";
+        Members member = mock(Members.class);
+        Commission commission = mock(Commission.class);
+        Estimate estimate = mock(Estimate.class);
+        Partner partner = mock(Partner.class);
+
+        when(membersRepository.findByEmail(anyString())).thenReturn(Optional.of(member));
+        when(commissionRepository.findByMembers(any(Members.class))).thenReturn(List.of(commission));
+        when(commission.getEstimates()).thenReturn(List.of(estimate));
+        when(estimate.getPartner()).thenReturn(partner); // 모킹된 Partner 객체를 반환하도록 설정합니다.
+        when(partner.getId()).thenReturn(1L);
+
+        // When
+        List<CommissionConfirmListResponseDto> result = commissionService.getCommissionConfirmList(email);
+
+        // Then
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
+        verify(membersRepository, times(1)).findByEmail(email);
+        verify(commissionRepository, times(1)).findByMembers(member);
+    }
+
+    @Test
+    void getCommissionDetailConfirm_Success() {
+        // Given
+        Long estimateId = 1L;
+        Long commissionId = 1L;
+        Commission commission = mock(Commission.class);
+
+        when(commissionRepository.findByEstimatesIdAndId(anyLong(), anyLong())).thenReturn(commission);
+
+        // When
+        CommissionConfirmDetailResponseDto result = commissionService.getCommissionDetailConfirm(estimateId, commissionId);
+
+        // Then
+        assertNotNull(result);
+        verify(commissionRepository, times(1)).findByEstimatesIdAndId(estimateId, commissionId);
     }
 }
