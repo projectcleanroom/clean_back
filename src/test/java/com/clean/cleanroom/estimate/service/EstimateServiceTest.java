@@ -7,6 +7,7 @@ import com.clean.cleanroom.estimate.dto.EstimateResponseDto;
 import com.clean.cleanroom.estimate.entity.Estimate;
 import com.clean.cleanroom.estimate.repository.EstimateRepository;
 import com.clean.cleanroom.exception.CustomException;
+import com.clean.cleanroom.exception.ErrorMsg;
 import com.clean.cleanroom.members.entity.Members;
 import com.clean.cleanroom.members.repository.MembersRepository;
 import com.clean.cleanroom.partner.entity.Partner;
@@ -91,6 +92,36 @@ public class EstimateServiceTest {
             estimateService.approveEstimate(token, id);
         });
     }
+
+    @Test
+    void approveEstimate_ThrowsException_IfCommissionMemberMismatch() {
+        // Given
+        String token = "Bearer sampleToken";
+        Long id = 1L;
+        String email = "test@example.com";
+        Members members = mock(Members.class);
+        Members otherMembers = mock(Members.class);
+        Commission commission = mock(Commission.class);
+
+        when(jwtUtil.extractEmail(anyString())).thenReturn(email);
+        when(membersRepository.findByEmail(anyString())).thenReturn(Optional.of(members));
+        when(estimateRepository.findById(anyLong())).thenReturn(Optional.of(estimate));
+        when(estimate.getCommission()).thenReturn(commission);
+        when(commission.getMembers()).thenReturn(otherMembers);
+        when(otherMembers.getId()).thenReturn(2L); // 다른 회원 ID 설정
+        when(members.getId()).thenReturn(1L); // 현재 로그인된 회원의 ID 설정
+
+        // When & Then
+        CustomException exception = assertThrows(CustomException.class, () -> {
+            estimateService.approveEstimate(token, id);
+        });
+
+        // Then
+        assertEquals(2001, exception.getCode());
+    }
+
+
+
 
     @Test
     void getAllEstimates_Success() {

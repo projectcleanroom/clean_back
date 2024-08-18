@@ -20,8 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -116,6 +115,26 @@ class CommissionServiceTest {
         verify(commission).update(any(CommissionUpdateRequestDto.class), any(Address.class)); // 업데이트 메서드 호출 확인
     }
 
+    @Test
+    void updateCommission_ThrowsException_IfCommissionNotFound() {
+        // Given
+        String email = "test@example.com";
+        Long commissionId = 1L;
+        Long addressId = 1L;
+        CommissionUpdateRequestDto requestDto = mock(CommissionUpdateRequestDto.class);
+        Members member = mock(Members.class);
+
+        when(membersRepository.findByEmail(anyString())).thenReturn(Optional.of(member));
+        when(commissionRepository.findByIdAndMembersId(anyLong(), anyLong())).thenReturn(Optional.empty());
+
+        // Then
+        assertThrows(CustomException.class, () -> {
+            // When
+            commissionService.updateCommission(email, commissionId, addressId, requestDto);
+        });
+    }
+
+
 
 
     @Test
@@ -147,6 +166,24 @@ class CommissionServiceTest {
         verify(commissionRepository).delete(any(Commission.class));
     }
 
+    @Test
+    void cancelCommission_ThrowsException_IfCommissionNotFound() {
+        // Given
+        String email = "test@example.com";
+        Long commissionId = 1L;
+        Members member = mock(Members.class);
+
+        when(membersRepository.findByEmail(anyString())).thenReturn(Optional.of(member));
+        when(commissionRepository.findByIdAndMembersId(anyLong(), anyLong())).thenReturn(Optional.empty());
+
+        // Then
+        assertThrows(CustomException.class, () -> {
+            // When
+            commissionService.cancelCommission(email, commissionId);
+        });
+    }
+
+
 
     @Test
     void getMemberCommissionsByEmail() {
@@ -170,6 +207,21 @@ class CommissionServiceTest {
         verify(commissionRepository).findByMembersId(anyLong());
     }
 
+    @Test
+    void getMemberCommissionsByEmail_ThrowsException_IfMemberNotFound() {
+        // Given
+        String email = "test@example.com";
+
+        when(membersRepository.findByEmail(anyString())).thenReturn(Optional.empty());
+
+        // Then
+        assertThrows(CustomException.class, () -> {
+            // When
+            commissionService.getMemberCommissionsByEmail(email, CommissionCreateResponseDto.class);
+        });
+    }
+
+
 
     @Test
     void getAllCommissions() {
@@ -190,6 +242,21 @@ class CommissionServiceTest {
         assertFalse(result.isEmpty());
         verify(commissionRepository).findAll();
     }
+
+    @Test
+    void getAllCommissions_EmptyList() {
+        // Given
+        when(commissionRepository.findAll()).thenReturn(List.of());
+
+        // When
+        List<CommissionCreateResponseDto> result = commissionService.getAllCommissions();
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verify(commissionRepository).findAll();
+    }
+
 
     @Test
     void getCommissionConfirmList_Success() {
@@ -215,6 +282,28 @@ class CommissionServiceTest {
         verify(membersRepository, times(1)).findByEmail(email);
         verify(commissionRepository, times(1)).findByMembers(member);
     }
+
+    @Test
+    void getCommissionConfirmList_EmptyEstimates() {
+        // Given
+        String email = "test@example.com";
+        Members member = mock(Members.class);
+        Commission commission = mock(Commission.class);
+
+        when(membersRepository.findByEmail(anyString())).thenReturn(Optional.of(member));
+        when(commissionRepository.findByMembers(any(Members.class))).thenReturn(List.of(commission));
+        when(commission.getEstimates()).thenReturn(List.of()); // 빈 리스트를 반환하도록 설정
+
+        // When
+        List<CommissionConfirmListResponseDto> result = commissionService.getCommissionConfirmList(email);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verify(membersRepository, times(1)).findByEmail(email);
+        verify(commissionRepository, times(1)).findByMembers(member);
+    }
+
 
     @Test
     void getCommissionDetailConfirm_Success() {
