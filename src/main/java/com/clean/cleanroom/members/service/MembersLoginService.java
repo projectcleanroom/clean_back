@@ -37,8 +37,8 @@ public class MembersLoginService {
         String token = jwtUtil.generateAccessToken(member.getEmail());
         String refreshToken = jwtUtil.generateRefreshToken(member.getEmail());
 
-        // 토큰 저장
-        tokenService.saveToken(member, refreshToken);
+        // 비동기적으로 토큰 저장
+        tokenService.saveTokenAsync(member, refreshToken);
 
         // HTTP 헤더에 토큰 추가
         HttpHeaders headers = new HttpHeaders();
