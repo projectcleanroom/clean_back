@@ -5,6 +5,7 @@ import com.clean.cleanroom.jwt.entity.RefreshToken;
 import com.clean.cleanroom.jwt.repository.RefreshTokenRepository;
 import com.clean.cleanroom.members.entity.Members;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
@@ -37,5 +38,10 @@ public class TokenService {
             });
             refreshTokenRepository.saveAll(validTokens);
         }
+    }
+    // 비동기 토큰 저장 메서드
+    @Async
+    public void saveTokenAsync(Members member, String refreshToken) {
+        saveToken(member, refreshToken); // 기존 동기적 메서드 호출
     }
 }

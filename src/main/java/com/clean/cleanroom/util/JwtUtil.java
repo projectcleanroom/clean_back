@@ -65,6 +65,30 @@ public class JwtUtil {
                 .compact();
     }
 
+    // Authorization 헤더에서 Bearer 토큰을 추출합니다.
+    // Bearer 토큰이 없거나 올바르지 않으면 CustomException을 던집니다.
+    public String extractBearerToken(String header) {
+        if (header == null || !header.startsWith("Bearer ")) {
+            throw new CustomException(ErrorMsg.MISSING_AUTHORIZATION_HEADER);
+        }
+        return header.substring(7);
+    }
+
+    // JWT 토큰을 파싱하여 Claims 객체를 반환합니다.
+    // 이 메서드는 토큰의 유효성을 확인하지 않습니다.
+    public Claims parseToken(String token) {
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (Exception e) {
+            log.error("Exception occurred while parsing token: {}", e.getMessage());
+            throw new CustomException(ErrorMsg.INVALID_TOKEN);
+        }
+    }
+
     public String getEmailFromToken(String token) {
         try {
             Claims claims = Jwts.parserBuilder()
@@ -80,11 +104,18 @@ public class JwtUtil {
         }
     }
 
+    // 이메일을 추출하는 메서드, 유효성 검증은 이미 필터에서 진행한 것으로 가정합니다.
+    // Bearer 토큰에서 이메일을 추출하는 간단한 메서드로, 유효성 검증은 하지 않습니다.
     public String extractEmail(String token) {
         if (token.startsWith("Bearer ")) {
             token = token.substring(7);
         }
-        return getEmailFromToken(token);
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject(); // 이메일을 반환
     }
 
 
@@ -105,47 +136,6 @@ public class JwtUtil {
             refreshToken.expire();
             refreshToken.revoke();
             refreshTokenRepository.save(refreshToken);
-        }
-    }
-
-    // 리프레시 토큰을 사용하여 새로운 액세스 토큰을 발급합니다.
-    public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        // Authorization 헤더에서 리프레시 토큰 추출
-        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        final String refreshToken;
-        final String userEmail;
-
-        // Authorization 헤더가 존재하지 않거나 Bearer 토큰이 아니면 401 Unauthorized 응답
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
-        }
-
-        // Bearer 토큰에서 실제 리프레시 토큰 값 추출
-        refreshToken = authHeader.substring(7);
-        userEmail = getEmailFromToken(refreshToken);
-
-        // 이메일이 존재하고 리프레시 토큰이 유효한 경우
-        if (userEmail != null) {
-            Members member = this.membersRepository.findByEmail(userEmail).orElse(null);
-
-            // 사용자가 존재하고 리프레시 토큰이 유효한 경우 새로운 액세스 토큰 발급
-            if (member != null && validateToken(refreshToken)) {
-                String accessToken = generateAccessToken(member.getEmail());
-                TokenResponseDto authResponse = new TokenResponseDto(accessToken, refreshToken);
-
-                // 응답 헤더에 새로운 액세스 토큰 추가
-                response.setHeader("Authorization", "Bearer " + accessToken);
-
-                // 응답 본문에 액세스 토큰과 리프레시 토큰을 JSON 형식으로 작성
-                new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
-            } else {
-                // 사용자가 없거나 리프레시 토큰이 유효하지 않은 경우 401 Unauthorized 응답
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            }
-        } else {
-            // 이메일이 존재하지 않는 경우 401 Unauthorized 응답
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         }
     }
 }
