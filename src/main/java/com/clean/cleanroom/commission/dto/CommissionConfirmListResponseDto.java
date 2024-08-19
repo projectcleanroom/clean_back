@@ -3,6 +3,7 @@ package com.clean.cleanroom.commission.dto;
 import com.clean.cleanroom.commission.entity.Commission;
 import com.clean.cleanroom.enums.CleanType;
 import com.clean.cleanroom.enums.HouseType;
+import com.clean.cleanroom.enums.StatusType;
 import com.clean.cleanroom.estimate.dto.EstimateResponseDto;
 import com.clean.cleanroom.estimate.entity.Estimate;
 import lombok.Getter;
@@ -21,13 +22,14 @@ public class CommissionConfirmListResponseDto {
     private LocalDateTime desiredDate;
     private String significant;
     private String image;
+    private StatusType statusType;
 
     private List<EstimateResponseDto> estimates;
 
 
     // 생성자 추가
     public CommissionConfirmListResponseDto(Long id, int size, HouseType houseType, CleanType cleanType,
-                                            LocalDateTime desiredDate, String significant, String image,
+                                            LocalDateTime desiredDate, String significant, String image, StatusType statusType,
                                             List<EstimateResponseDto> estimates) {
         this.id = id;
         this.size = size;
@@ -37,5 +39,6 @@ public class CommissionConfirmListResponseDto {
         this.significant = significant;
         this.image = image;
         this.estimates = estimates;
+        this.statusType = statusType;
     }
 }
