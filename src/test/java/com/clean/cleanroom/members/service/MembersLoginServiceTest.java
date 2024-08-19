@@ -1,5 +1,4 @@
 package com.clean.cleanroom.members.service;
-
 import com.clean.cleanroom.exception.CustomException;
 import com.clean.cleanroom.exception.ErrorMsg;
 import com.clean.cleanroom.jwt.service.TokenService;
@@ -14,7 +13,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 
 import java.util.Optional;
@@ -66,9 +64,6 @@ class MembersLoginServiceTest {
         assertEquals(member.getEmail(), response.getBody().getEmail());
         verify(membersRepository, times(1)).findByEmail(anyString());
     }
-
-
-
 
     @Test
     void login_ThrowsException_WhenEmailNotFound() {
@@ -130,6 +125,7 @@ class MembersLoginServiceTest {
         verify(jwtUtil, times(2)).revokeToken(anyString());
     }
 
+    // 추가된 테스트: Access Token이 유효하지 않은 경우의 테스트
     @Test
     void logout_WithInvalidAccessToken_Success() {
         // Given
@@ -150,6 +146,7 @@ class MembersLoginServiceTest {
         verify(jwtUtil, times(1)).revokeToken("validRefreshToken");
     }
 
+    // 추가된 테스트: Refresh Token이 유효하지 않은 경우의 테스트
     @Test
     void logout_WithInvalidRefreshToken_Success() {
         // Given
@@ -169,4 +166,54 @@ class MembersLoginServiceTest {
         verify(jwtUtil, times(1)).validateToken("invalidRefreshToken");
         verify(jwtUtil, times(1)).revokeToken("validAccessToken");
     }
+
+    // Access Token이 null인 경우의 테스트
+    @Test
+    void logout_WithNullAccessToken() {
+        // Given: 테스트에 필요한 값 설정
+        String accessToken = null;
+        String refreshToken = "Bearer validRefreshToken";
+
+        when(jwtUtil.validateToken("validRefreshToken")).thenReturn(true);
+
+        // When: 로그아웃 메서드 호출
+        ResponseEntity<MembersLogoutResponseDto> response = membersLoginService.logout(accessToken, refreshToken);
+
+        // Then: 결과 확인
+        assertNotNull(response);
+        assertEquals("로그아웃 되었습니다.", response.getBody().getMessage());
+
+        // access token이 null이므로 검증되지 않음을 확인
+        verify(jwtUtil, never()).validateToken(eq("validAccessToken"));  // accessToken이 null이기 때문에 호출되지 않는 것을 확인
+
+        // refresh token이 검증되고 무효화되었는지 확인
+        verify(jwtUtil, times(1)).validateToken("validRefreshToken");
+        verify(jwtUtil, times(1)).revokeToken("validRefreshToken");
+    }
+
+
+
+    @Test
+    void logout_WithNullRefreshToken() {
+        // Given: 테스트에 필요한 값 설정
+        String accessToken = "Bearer validAccessToken";
+        String refreshToken = null;
+
+        when(jwtUtil.validateToken("validAccessToken")).thenReturn(true);
+
+        // When: 로그아웃 메서드 호출
+        ResponseEntity<MembersLogoutResponseDto> response = membersLoginService.logout(accessToken, refreshToken);
+
+        // Then: 결과 확인
+        assertNotNull(response);
+        assertEquals("로그아웃 되었습니다.", response.getBody().getMessage());
+
+        // access token이 검증되고 무효화되었는지 확인
+        verify(jwtUtil, times(1)).validateToken("validAccessToken");
+        verify(jwtUtil, times(1)).revokeToken("validAccessToken");
+
+        // refresh token이 null이므로 검증되지 않음을 확인
+        verify(jwtUtil, times(0)).validateToken("validRefreshToken");  // refreshToken이 null이기 때문에 검증되지 않는 것을 확인
+    }
+
 }

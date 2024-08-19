@@ -86,6 +86,39 @@ class MembersTest {
     }
 
     @Test
+    void testUpdateMembers_WithNullNick() {
+        when(updateProfileRequestDto.getNick()).thenReturn(null);
+        when(updateProfileRequestDto.getPhoneNumber()).thenReturn("01087654321");
+
+        members.updateMembers(updateProfileRequestDto);
+
+        assertEquals("TestNick", members.getNick()); // 기존 nick 유지
+        assertEquals("01087654321", members.getPhoneNumber());
+    }
+
+    @Test
+    void testUpdateMembers_WithNullPhoneNumber() {
+        when(updateProfileRequestDto.getNick()).thenReturn("UpdatedNick");
+        when(updateProfileRequestDto.getPhoneNumber()).thenReturn(null);
+
+        members.updateMembers(updateProfileRequestDto);
+
+        assertEquals("UpdatedNick", members.getNick());
+        assertEquals("01012345678", members.getPhoneNumber()); // 기존 phoneNumber 유지
+    }
+
+    @Test
+    void testUpdateMembers_WithNullNickAndPhoneNumber() {
+        when(updateProfileRequestDto.getNick()).thenReturn(null);
+        when(updateProfileRequestDto.getPhoneNumber()).thenReturn(null);
+
+        members.updateMembers(updateProfileRequestDto);
+
+        assertEquals("TestNick", members.getNick()); // 기존 nick 유지
+        assertEquals("01012345678", members.getPhoneNumber()); // 기존 phoneNumber 유지
+    }
+
+    @Test
     void testCheckPassword() {
         // When & Then: 비밀번호가 일치하는지 확인
         assertTrue(members.checkPassword("password123"));

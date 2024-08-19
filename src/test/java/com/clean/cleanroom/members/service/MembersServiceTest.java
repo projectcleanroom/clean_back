@@ -224,4 +224,49 @@ class MembersServiceTest {
         assertEquals(ErrorMsg.INVALID_ID.getCode(), exception.getCode());
         verify(membersRepository, times(1)).findByEmail(anyString());
     }
+
+    @Test
+    void profile_DoesNotUpdateNick_WhenNickIsSame() {
+        // Given: 설정된 nick이 기존 nick과 동일한 경우
+        String token = "Bearer sampleToken";
+        MembersUpdateProfileRequestDto requestDto = mock(MembersUpdateProfileRequestDto.class);
+        when(requestDto.getNick()).thenReturn("sameNick");
+
+        when(jwtUtil.extractEmail(anyString())).thenReturn("test@example.com");
+        when(membersRepository.findByEmail(anyString())).thenReturn(Optional.of(members));
+        when(members.getNick()).thenReturn("sameNick"); // 기존 nick과 동일
+        when(members.getPhoneNumber()).thenReturn("01012345678"); // PhoneNumber가 null이 아닌 값을 반환하도록 설정
+
+        // When: profile 메서드 호출
+        MembersProfileResponseDto response = membersService.profile(token, requestDto);
+
+        // Then: 응답 객체가 null이 아닌지 확인하고, nick이 동일한 경우 existsByNick이 호출되지 않았는지 확인
+        assertNotNull(response);
+        verify(membersRepository, times(1)).save(members);
+        verify(membersRepository, never()).existsByNick(anyString());
+    }
+
+
+    @Test
+    void profile_DoesNotUpdatePhoneNumber_WhenPhoneNumberIsSame() {
+        // Given: 설정된 phoneNumber가 기존 phoneNumber와 동일한 경우
+        String token = "Bearer sampleToken";
+        MembersUpdateProfileRequestDto requestDto = mock(MembersUpdateProfileRequestDto.class);
+        when(requestDto.getPhoneNumber()).thenReturn("01012345678");
+
+        when(jwtUtil.extractEmail(anyString())).thenReturn("test@example.com");
+        when(membersRepository.findByEmail(anyString())).thenReturn(Optional.of(members));
+
+        // 수정된 부분: members 객체의 기존 Nick과 PhoneNumber를 설정
+        when(members.getNick()).thenReturn("oldNick"); // 기존 Nick을 설정
+        when(members.getPhoneNumber()).thenReturn("01012345678"); // 기존 phoneNumber와 동일하게 설정
+
+        // When: profile 메서드 호출
+        MembersProfileResponseDto response = membersService.profile(token, requestDto);
+
+        // Then: 응답 객체가 null이 아닌지 확인하고, phoneNumber가 동일한 경우 existsByPhoneNumber가 호출되지 않았는지 확인
+        assertNotNull(response);
+        verify(membersRepository, times(1)).save(members);
+        verify(membersRepository, never()).existsByPhoneNumber(anyString());
+    }
 }
