@@ -76,4 +76,5 @@ class CommissionConfirmListResponseDtoTest {
         assertNull(responseDto.getStatusType()); // statusType 검증 추가
         assertEquals(estimates, responseDto.getEstimates());
     }
+
 }
