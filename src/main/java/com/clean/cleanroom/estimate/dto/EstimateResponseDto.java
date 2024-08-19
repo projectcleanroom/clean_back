@@ -1,5 +1,6 @@
 package com.clean.cleanroom.estimate.dto;
 
+import com.clean.cleanroom.enums.StatusType;
 import com.clean.cleanroom.estimate.entity.Estimate;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,6 +17,7 @@ public class EstimateResponseDto {
     private LocalDateTime fixedDate;
     private String statement;
     private boolean approved;
+    private StatusType statusType;
 
     // 필요한 추가 정보들
     private Long partnerId;
@@ -29,6 +31,7 @@ public class EstimateResponseDto {
         this.approved = estimate.isApproved();
         this.partnerId = estimate.getPartner().getId();
         this.partnerName = estimate.getPartner().getCompanyName();
+        this.statusType = estimate.getStatus();
     }
 }
 

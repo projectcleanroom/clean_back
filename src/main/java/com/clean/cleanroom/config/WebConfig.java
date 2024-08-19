@@ -21,7 +21,7 @@ public class WebConfig {
         FilterRegistrationBean<JwtAuthenticationFilter> registrationBean = new FilterRegistrationBean<>();
 
         // JWT 인증 필터 설정
-        registrationBean.setFilter(new JwtAuthenticationFilter(jwtUtil, tokenService)); // 두 인자 전달
+        registrationBean.setFilter(new JwtAuthenticationFilter(jwtUtil)); // 두 인자 전달
 
         // 필터가 적용될 URL 패턴 설정
         registrationBean.addUrlPatterns("/api/*");
