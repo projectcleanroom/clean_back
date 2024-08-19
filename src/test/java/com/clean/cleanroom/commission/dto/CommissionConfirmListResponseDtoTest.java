@@ -2,6 +2,7 @@ package com.clean.cleanroom.commission.dto;
 
 import com.clean.cleanroom.enums.CleanType;
 import com.clean.cleanroom.enums.HouseType;
+import com.clean.cleanroom.enums.StatusType;
 import com.clean.cleanroom.estimate.dto.EstimateResponseDto;
 import org.junit.jupiter.api.Test;
 
@@ -24,13 +25,14 @@ class CommissionConfirmListResponseDtoTest {
         LocalDateTime desiredDate = LocalDateTime.of(2024, 8, 1, 10, 0);
         String significant = "Test Significant";
         String image = "testImage.jpg";
+        StatusType statusType = StatusType.CHECK; // 새로운 필드 statusType 추가
         EstimateResponseDto estimateResponseDto = mock(EstimateResponseDto.class);
 
         List<EstimateResponseDto> estimates = List.of(estimateResponseDto);
 
         // When
         CommissionConfirmListResponseDto responseDto = new CommissionConfirmListResponseDto(
-                id, size, houseType, cleanType, desiredDate, significant, image, estimates
+                id, size, houseType, cleanType, desiredDate, significant, image, statusType, estimates // statusType 추가
         );
 
         // Then: 필드 값이 예상대로 설정되었는지 확인
@@ -41,6 +43,7 @@ class CommissionConfirmListResponseDtoTest {
         assertEquals(desiredDate, responseDto.getDesiredDate());
         assertEquals(significant, responseDto.getSignificant());
         assertEquals(image, responseDto.getImage());
+        assertEquals(statusType, responseDto.getStatusType()); // statusType 검증 추가
         assertEquals(estimates, responseDto.getEstimates());
     }
 
@@ -54,11 +57,12 @@ class CommissionConfirmListResponseDtoTest {
         LocalDateTime desiredDate = null;
         String significant = null;
         String image = null;
+        StatusType statusType = null; // statusType null 값 테스트 추가
         List<EstimateResponseDto> estimates = new ArrayList<>();
 
         // When
         CommissionConfirmListResponseDto responseDto = new CommissionConfirmListResponseDto(
-                id, size, houseType, cleanType, desiredDate, significant, image, estimates
+                id, size, houseType, cleanType, desiredDate, significant, image, statusType, estimates // statusType 추가
         );
 
         // Then: 필드 값이 예상대로 설정되었는지 확인
@@ -69,6 +73,7 @@ class CommissionConfirmListResponseDtoTest {
         assertNull(responseDto.getDesiredDate());
         assertNull(responseDto.getSignificant());
         assertNull(responseDto.getImage());
+        assertNull(responseDto.getStatusType()); // statusType 검증 추가
         assertEquals(estimates, responseDto.getEstimates());
     }
 }
