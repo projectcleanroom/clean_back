@@ -3,6 +3,7 @@ package com.clean.cleanroom.commission.dto;
 import com.clean.cleanroom.commission.entity.Commission;
 import com.clean.cleanroom.enums.CleanType;
 import com.clean.cleanroom.enums.HouseType;
+import com.clean.cleanroom.enums.StatusType;
 import lombok.Getter;
 import java.time.LocalDateTime;
 
@@ -18,6 +19,7 @@ public class MyCommissionResponseDto {
     private LocalDateTime desiredDate;
     private String significant;
     private String image;
+    private StatusType statusType;
 
 
     public MyCommissionResponseDto(Commission commission) {
@@ -30,6 +32,7 @@ public class MyCommissionResponseDto {
         this.desiredDate = commission.getDesiredDate();
         this.significant = commission.getSignificant();
         this.image = commission.getImage();
+        this.statusType = commission.getStatus();
     }
 
 }
