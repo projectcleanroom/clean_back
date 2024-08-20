@@ -216,6 +216,11 @@ public class CommissionService {
     public CommissionFileResponseDto imgUpload(String token, MultipartFile file) {
         String email = jwtUtil.extractEmail(token);
         try {
+            // 이미지 파일만 허용
+            if (!isImageFile(file)) {
+                return new CommissionFileResponseDto(null, "Only image files are allowed.");
+            }
+
             // 파일 저장 로직
             saveFile(file);
             String filePath = UPLOAD_DIR + file.getOriginalFilename(); // 파일 경로
@@ -235,6 +240,13 @@ public class CommissionService {
         File destinationFile = new File(UPLOAD_DIR + file.getOriginalFilename());
         file.transferTo(destinationFile);  // 파일 저장
         logger.info("File transferred to: " + destinationFile.getAbsolutePath());
+    }
+    private boolean isImageFile(MultipartFile file) {
+        String contentType = file.getContentType();
+        return contentType != null && (
+                contentType.equals("image/jpeg") ||
+                        contentType.equals("image/png") ||
+                        contentType.equals("image/gif"));
     }
 
 
