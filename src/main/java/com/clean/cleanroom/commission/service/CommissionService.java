@@ -12,9 +12,14 @@ import com.clean.cleanroom.members.entity.Members;
 import com.clean.cleanroom.members.repository.AddressRepository;
 import com.clean.cleanroom.members.repository.MembersRepository;
 import com.clean.cleanroom.util.JwtUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -195,11 +200,42 @@ public class CommissionService {
 
     public CommissionConfirmDetailResponseDto getCommissionDetailConfirm(Long estimateId, Long commissionId) {
 
-        Commission commission = commissionRepository.findByEstimatesIdAndId(estimateId,commissionId);
+        Commission commission = commissionRepository.findByEstimatesIdAndId(estimateId, commissionId);
 
         Estimate estimate = new Estimate();
         Address address = new Address();
         CommissionConfirmDetailResponseDto commissionConfirmDetailResponseDto = new CommissionConfirmDetailResponseDto(commission, estimate, address);
         return commissionConfirmDetailResponseDto;
     }
+
+
+
+
+    private static final Logger logger = LoggerFactory.getLogger(CommissionService.class);
+    private static final String UPLOAD_DIR = "uploads/";
+    public CommissionFileResponseDto imgUpload(String token, MultipartFile file) {
+        String email = jwtUtil.extractEmail(token);
+        try {
+            // 파일 저장 로직
+            saveFile(file);
+            String filePath = UPLOAD_DIR + file.getOriginalFilename(); // 파일 경로
+            logger.info("File successfully uploaded to: " + filePath);
+            return new CommissionFileResponseDto(file.getOriginalFilename(), "File uploaded successfully");
+        } catch (IOException e) {
+            logger.error("File upload failed due to IOException: ", e);
+            return new CommissionFileResponseDto(null, "File upload failed");
+        }
+    }
+
+    private void saveFile(MultipartFile file) throws IOException {
+        File directory = new File(UPLOAD_DIR);
+        if (!directory.exists()) {
+            directory.mkdir();  // 디렉토리가 없으면 생성
+        }
+        File destinationFile = new File(UPLOAD_DIR + file.getOriginalFilename());
+        file.transferTo(destinationFile);  // 파일 저장
+        logger.info("File transferred to: " + destinationFile.getAbsolutePath());
+    }
+
+
 }
