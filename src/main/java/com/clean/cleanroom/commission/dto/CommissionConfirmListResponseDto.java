@@ -29,7 +29,7 @@ public class CommissionConfirmListResponseDto {
 
     // 생성자 추가
     public CommissionConfirmListResponseDto(Long id, int size, HouseType houseType, CleanType cleanType,
-                                            LocalDateTime desiredDate, String significant, String image, StatusType statusType,
+                                            LocalDateTime desiredDate, String significant, String image, StatusType status,
                                             List<EstimateResponseDto> estimates) {
         this.id = id;
         this.size = size;
