@@ -212,7 +212,7 @@ public class CommissionService {
 
 
     private static final Logger logger = LoggerFactory.getLogger(CommissionService.class);
-    private static final String UPLOAD_DIR = "uploads/";
+    private static final String UPLOAD_DIR = "/uploads/";
     public CommissionFileResponseDto imgUpload(String token, MultipartFile file) {
         String email = jwtUtil.extractEmail(token);
         try {
@@ -230,7 +230,7 @@ public class CommissionService {
     private void saveFile(MultipartFile file) throws IOException {
         File directory = new File(UPLOAD_DIR);
         if (!directory.exists()) {
-            directory.mkdir();  // 디렉토리가 없으면 생성
+            directory.mkdirs();  // 디렉토리가 없으면 생성
         }
         File destinationFile = new File(UPLOAD_DIR + file.getOriginalFilename());
         file.transferTo(destinationFile);  // 파일 저장
