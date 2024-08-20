@@ -212,7 +212,7 @@ public class CommissionService {
 
 
     private static final Logger logger = LoggerFactory.getLogger(CommissionService.class);
-    private static final String UPLOAD_DIR = "/uploads";
+    private static final String UPLOAD_DIR = "uploads/";
     public CommissionFileResponseDto imgUpload(String token, MultipartFile file) {
         String email = jwtUtil.extractEmail(token);
         try {
