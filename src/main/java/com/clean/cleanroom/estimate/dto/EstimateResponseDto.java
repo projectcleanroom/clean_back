@@ -17,7 +17,7 @@ public class EstimateResponseDto {
     private LocalDateTime fixedDate;
     private String statement;
     private boolean approved;
-    private StatusType statusType;
+    private StatusType status;
 
     // 필요한 추가 정보들
     private Long partnerId;
@@ -31,7 +31,7 @@ public class EstimateResponseDto {
         this.approved = estimate.isApproved();
         this.partnerId = estimate.getPartner().getId();
         this.partnerName = estimate.getPartner().getCompanyName();
-        this.statusType = estimate.getStatus();
+        this.status = estimate.getStatus();
     }
 }
 
