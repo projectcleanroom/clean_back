@@ -2,11 +2,14 @@ package com.clean.cleanroom.commission.controller;
 
 import com.clean.cleanroom.commission.dto.*;
 import com.clean.cleanroom.commission.service.CommissionService;
+import com.clean.cleanroom.members.dto.MembersAddressRequestDto;
+import com.clean.cleanroom.members.dto.MembersAddressResponseDto;
 import com.clean.cleanroom.util.TokenService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -73,12 +76,18 @@ public class CommissionController {
         return new ResponseEntity<>(responseDtoList, HttpStatus.OK);
     }
 
-    //
+
     @GetMapping("/confirmdetail")
     public ResponseEntity<CommissionConfirmDetailResponseDto> getConfirmDetailCommissions(@RequestParam Long estimateId, Long commissionId) {
         CommissionConfirmDetailResponseDto responseDto = commissionService.getCommissionDetailConfirm(estimateId, commissionId);
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
-}
+    //img 업로드
+    @PostMapping("/upload")
+    public ResponseEntity<CommissionFileResponseDto> imgUpload(@RequestHeader("Authorization") String token, @RequestParam("file") MultipartFile file) {
+        CommissionFileResponseDto commissionFileResponseDto = commissionService.imgUpload(token, file);
+        return new ResponseEntity<>(commissionFileResponseDto, HttpStatus.OK);
+    }
 
+}
