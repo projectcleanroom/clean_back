@@ -22,7 +22,7 @@ public class CommissionConfirmListResponseDto {
     private LocalDateTime desiredDate;
     private String significant;
     private String image;
-    private StatusType statusType;
+    private StatusType status;
 
     private List<EstimateResponseDto> estimates;
 
@@ -39,6 +39,6 @@ public class CommissionConfirmListResponseDto {
         this.significant = significant;
         this.image = image;
         this.estimates = estimates;
-        this.statusType = statusType;
+        this.status = status;
     }
 }

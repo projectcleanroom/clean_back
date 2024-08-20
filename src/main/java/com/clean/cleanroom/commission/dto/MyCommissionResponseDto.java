@@ -19,7 +19,7 @@ public class MyCommissionResponseDto {
     private LocalDateTime desiredDate;
     private String significant;
     private String image;
-    private StatusType statusType;
+    private StatusType status;
 
 
     public MyCommissionResponseDto(Commission commission) {
@@ -32,7 +32,7 @@ public class MyCommissionResponseDto {
         this.desiredDate = commission.getDesiredDate();
         this.significant = commission.getSignificant();
         this.image = commission.getImage();
-        this.statusType = commission.getStatus();
+        this.status = commission.getStatus();
     }
 
 }
