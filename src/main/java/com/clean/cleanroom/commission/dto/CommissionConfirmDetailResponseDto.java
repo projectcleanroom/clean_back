@@ -21,6 +21,7 @@ public class CommissionConfirmDetailResponseDto {
     private LocalDateTime desiredDate;
     private String significant;
     private StatusType status;
+    private String image;
 
 
     public CommissionConfirmDetailResponseDto(Commission commission) {
@@ -33,5 +34,6 @@ public class CommissionConfirmDetailResponseDto {
         this.desiredDate = commission.getDesiredDate();
         this.significant = commission.getSignificant();
         this.status = commission.getStatus();
+        this.image = commission.getImage();
     }
 }

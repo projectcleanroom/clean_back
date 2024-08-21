@@ -2,8 +2,6 @@ package com.clean.cleanroom.commission.controller;
 
 import com.clean.cleanroom.commission.dto.*;
 import com.clean.cleanroom.commission.service.CommissionService;
-import com.clean.cleanroom.members.dto.MembersAddressRequestDto;
-import com.clean.cleanroom.members.dto.MembersAddressResponseDto;
 import com.clean.cleanroom.util.TokenService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpHeaders;
@@ -71,13 +69,13 @@ public class CommissionController {
         return new ResponseEntity<>(responseDtoList, HttpStatus.OK);
     }
 
-    // 견적을 받은 청소 의뢰 리스트 조회
+    //청소견적이 리스트로 붙어있는 청소의뢰 단건조회
     @GetMapping("/confirmed")
-    public ResponseEntity<List<CommissionConfirmListResponseDto>> getConfirmedCommissions(HttpServletRequest request) {
+    public ResponseEntity<CommissionConfirmListResponseDto> getConfirmedCommissions(HttpServletRequest request, @RequestParam Long commissionId) {
         String email = tokenService.getEmailFromRequest(request); // 헤더의 토큰에서 이메일 추출
 
-        List<CommissionConfirmListResponseDto> responseDtoList = commissionService.getCommissionConfirmList(email);
-        return new ResponseEntity<>(responseDtoList, HttpStatus.OK);
+        CommissionConfirmListResponseDto responseDto = commissionService.getCommissionConfirmList(email, commissionId);
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
 
