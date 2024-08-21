@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 
 @RestController
@@ -88,6 +90,12 @@ public class CommissionController {
     public ResponseEntity<CommissionFileResponseDto> imgUpload(@RequestHeader("Authorization") String token, @RequestParam("file") MultipartFile file) {
         CommissionFileResponseDto commissionFileResponseDto = commissionService.imgUpload(token, file);
         return new ResponseEntity<>(commissionFileResponseDto, HttpStatus.OK);
+    }
+
+    @GetMapping("/upload")
+    public ResponseEntity<byte[]> imgGet(@RequestHeader ("Authorization") String token, @RequestParam String file) {
+        CommissionFileGetResponseDto commissionFileGetResponseDto = commissionService.imgGet(token, file);
+        return new ResponseEntity<>(commissionFileGetResponseDto.getFileData(), HttpStatus.OK);
     }
 
 }

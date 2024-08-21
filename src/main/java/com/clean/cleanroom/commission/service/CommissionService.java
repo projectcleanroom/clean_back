@@ -20,6 +20,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -250,4 +253,28 @@ public class CommissionService {
     }
 
 
+    public CommissionFileGetResponseDto imgGet(String token, String file) {
+        String email = jwtUtil.extractEmail(token);
+        Path filePath = Paths.get(UPLOAD_DIR + file);
+        try {
+            // 파일이 존재하는지 확인
+            if (!Files.exists(filePath)) {
+                logger.error("File not found: " + file);
+                return new CommissionFileGetResponseDto(file, "File not found", null);
+            }
+
+            // 파일을 읽어 바이트 배열로 변환
+            byte[] fileData = Files.readAllBytes(filePath);
+            logger.info("File successfully retrieved: " + file);
+
+            // 성공 메시지와 함께 DTO 반환
+            return new CommissionFileGetResponseDto(file, "File retrieved successfully", fileData);
+
+        } catch (IOException e) {
+            // 파일 읽기 실패 시 처리
+            logger.error("Failed to read file: " + file, e);
+            return new CommissionFileGetResponseDto(file, "Failed to retrieve file", null);
+        }
+
+    }
 }
