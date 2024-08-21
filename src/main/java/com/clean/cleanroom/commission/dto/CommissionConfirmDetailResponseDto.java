@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @Getter
 public class CommissionConfirmDetailResponseDto {
     private Long commissionId;
+    private String memberNick;
     private int size;
     private HouseType houseType;
     private CleanType cleanType;
@@ -20,29 +21,17 @@ public class CommissionConfirmDetailResponseDto {
     private LocalDateTime desiredDate;
     private String significant;
     private StatusType status;
-    private StatusType estimatedStatus;
-    private int tmpPrice;
-    private int Price;
-    private String statment;
-    private LocalDateTime fixedDate;
-    private String image;
 
 
-
-    public CommissionConfirmDetailResponseDto(Commission commission, Estimate estimate, Address address) {
+    public CommissionConfirmDetailResponseDto(Commission commission) {
         this.commissionId = commission.getId();
+        this.memberNick = commission.getMembers().getNick();
         this.size = commission.getSize();
         this.houseType = commission.getHouseType();
         this.cleanType = commission.getCleanType();
-        this.addressId = address.getId();
-        this.desiredDate = getDesiredDate();
-        this.significant = getSignificant();
-        this.status = getStatus();
-        this.estimatedStatus = estimate.getStatus();
-        this.tmpPrice = estimate.getTmpPrice();
-        this.Price = estimate.getPrice();
-        this.statment = estimate.getStatement();
-        this.fixedDate = estimate.getFixedDate();
-        this.image = commission.getImage();
+        this.addressId = commission.getAddress().getId();
+        this.desiredDate = commission.getDesiredDate();
+        this.significant = commission.getSignificant();
+        this.status = commission.getStatus();
     }
 }

@@ -146,6 +146,23 @@ public class CommissionService {
 
     }
 
+    //청소의뢰 단건조회
+    public CommissionConfirmDetailResponseDto getCommissionDetailConfirm(String email, Long commissionId) {
+
+        //이메일로 회원찾기
+        Members members = getMemberByEmail(email);
+
+        //청소의뢰 객체 찾기
+        Commission commission = getCommissionByIdAndMember(commissionId, members);
+
+        //DTO로 변환하기
+        CommissionConfirmDetailResponseDto responseDto = new CommissionConfirmDetailResponseDto(commission);
+
+        //반환하기
+        return responseDto;
+
+    }
+
     //이메일로 회원은 찾는 메서드
     private Members getMemberByEmail(String email) {
         return membersRepository.findByEmail(email)
@@ -200,18 +217,6 @@ public class CommissionService {
                 estimateResponseDtos
         );
     }
-
-    public CommissionConfirmDetailResponseDto getCommissionDetailConfirm(Long estimateId, Long commissionId) {
-
-        Commission commission = commissionRepository.findByEstimatesIdAndId(estimateId, commissionId);
-
-        Estimate estimate = new Estimate();
-        Address address = new Address();
-        CommissionConfirmDetailResponseDto commissionConfirmDetailResponseDto = new CommissionConfirmDetailResponseDto(commission, estimate, address);
-        return commissionConfirmDetailResponseDto;
-    }
-
-
 
 
     private static final Logger logger = LoggerFactory.getLogger(CommissionService.class);

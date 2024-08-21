@@ -81,9 +81,12 @@ public class CommissionController {
     }
 
 
+    //청소의뢰 단건조회
     @GetMapping("/confirmdetail")
-    public ResponseEntity<CommissionConfirmDetailResponseDto> getConfirmDetailCommissions(@RequestParam Long estimateId, Long commissionId) {
-        CommissionConfirmDetailResponseDto responseDto = commissionService.getCommissionDetailConfirm(estimateId, commissionId);
+    public ResponseEntity<CommissionConfirmDetailResponseDto> getConfirmDetailCommissions(HttpServletRequest request, @RequestParam Long commissionId) {
+        String email = tokenService.getEmailFromRequest(request); //헤더의 토큰에서 이메일 추출
+
+        CommissionConfirmDetailResponseDto responseDto = commissionService.getCommissionDetailConfirm(email, commissionId);
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
