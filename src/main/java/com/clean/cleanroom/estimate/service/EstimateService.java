@@ -2,6 +2,7 @@ package com.clean.cleanroom.estimate.service;
 
 import com.clean.cleanroom.commission.entity.Commission;
 import com.clean.cleanroom.commission.repository.CommissionRepository;
+import com.clean.cleanroom.estimate.dto.EstimateDetailResponseDto;
 import com.clean.cleanroom.estimate.dto.EstimateResponseDto;
 import com.clean.cleanroom.estimate.dto.EstimateListResponseDto;
 import com.clean.cleanroom.estimate.entity.Estimate;
@@ -10,6 +11,7 @@ import com.clean.cleanroom.exception.CustomException;
 import com.clean.cleanroom.exception.ErrorMsg;
 import com.clean.cleanroom.members.entity.Members;
 import com.clean.cleanroom.members.repository.MembersRepository;
+import com.clean.cleanroom.partner.entity.Partner;
 import com.clean.cleanroom.util.JwtUtil;
 import org.springframework.stereotype.Service;
 
@@ -102,6 +104,32 @@ public class EstimateService {
         }
         return estimateListResponseDtos;
     }
+
+
+    // 견적 단건 조회
+    public EstimateDetailResponseDto getEstimateById (String token, Long id) {
+
+        String email = jwtUtil.extractEmail(token);
+
+        Members members = getMemberByEmail(email);
+
+        Estimate estimate = estimateRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorMsg.ESTIMATE_NOT_FOUND));
+
+        // 견적에 연결된 의뢰 가져오기
+        Commission commission = estimate.getCommission();
+
+        // 의뢰의 소유자 가져오기
+        Members owner = commission.getMembers();
+
+        // 의뢰의 소유자와 이용자가 같은 사람인지 확인
+        if (!owner.getId().equals(members.getId())) {
+            throw new CustomException(ErrorMsg.UNAUTHORIZED_MEMBER);
+        }
+
+        return new EstimateDetailResponseDto (estimate);
+    }
+
 
 
     //email로 회원 찾기
