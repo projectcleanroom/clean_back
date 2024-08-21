@@ -6,11 +6,13 @@ import com.clean.cleanroom.members.dto.MembersAddressRequestDto;
 import com.clean.cleanroom.members.dto.MembersAddressResponseDto;
 import com.clean.cleanroom.util.TokenService;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
@@ -95,7 +97,20 @@ public class CommissionController {
     @GetMapping("/upload")
     public ResponseEntity<byte[]> imgGet(@RequestHeader ("Authorization") String token, @RequestParam String file) {
         CommissionFileGetResponseDto commissionFileGetResponseDto = commissionService.imgGet(token, file);
-        return new ResponseEntity<>(commissionFileGetResponseDto.getFileData(), HttpStatus.OK);
+        // 파일의 MIME 타입 설정
+        String contentType;
+        try {
+            contentType = Files.probeContentType(Paths.get("/uploads/" + file));
+            if (contentType == null) {
+                contentType = "application/octet-stream";  // MIME 타입을 추정할 수 없을 때 기본값
+            }
+        } catch (IOException e) {
+            contentType = "application/octet-stream";  // 오류 발생 시 기본값
+        }
+        // HttpHeaders 객체 생성
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(HttpHeaders.CONTENT_TYPE, contentType);
+        return new ResponseEntity<>(commissionFileGetResponseDto.getFileData(), headers, HttpStatus.OK);
     }
 
 }
