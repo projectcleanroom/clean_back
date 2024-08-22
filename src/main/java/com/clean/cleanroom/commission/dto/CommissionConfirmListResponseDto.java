@@ -23,6 +23,7 @@ public class CommissionConfirmListResponseDto {
     private String significant;
     private String image;
     private StatusType status;
+    private Long addressId;
 
     private List<EstimateResponseDto> estimates;
 
@@ -38,6 +39,7 @@ public class CommissionConfirmListResponseDto {
         this.significant = commission.getSignificant();
         this.image = commission.getImage();
         this.status = commission.getStatus();
+        this.addressId = commission.getAddress().getId();
         this.estimates = estimateDtos;
     }
 }
