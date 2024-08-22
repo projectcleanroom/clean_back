@@ -21,6 +21,7 @@
         <include resource="file-info-appender.xml"/> <!-- 파일에 로그 저장을 위한 appender 추가 -->
 
 
+
         <!-- 루트 로거 설정: INFO 레벨 이상의 로그를 콘솔에 기록 -->
         <root level="INFO">
             <appender-ref ref="CONSOLE"/> <!-- 필요한 appender 이름을 appender-ref 태그에 추가 -->
@@ -35,12 +36,13 @@
 
         <!-- include = 어떤 appender를 사용할지 추가 (자바 import와 동일)  -->
         <include resource="console-appender.xml"/> <!-- 콘솔에 로그 출력 -->
-        <include resource="file-error-appender.xml"/>
+        <include resource="file-info-appender.xml"/> <!-- INFO 레벨 이상의 로그 파일 저장 -->
+
 
         <!-- 루트 로거 설정: INFO로 설정 -->
         <root level="INFO">
             <include resource="console-appender.xml"/> <!-- 콘솔에 로그 출력 -->
-            <appender-ref ref="FILE-ERROR"/> <!-- 필요한 appender 이름을 appender-ref 태그에 추가 -->
+            <appender-ref ref="FILE-INFO"/> <!-- INFO 레벨 이상의 로그 파일 저장 -->
         </root>
 
     </springProfile>
@@ -50,12 +52,13 @@
 
         <!-- include = 어떤 appender를 사용할지 추가 (자바 import와 동일)  -->
         <include resource="console-appender.xml"/> <!-- 콘솔에 로그 출력 -->
-        <include resource="file-error-appender.xml"/> <!-- 파일에 에러로그 저장 -->
+        <include resource="file-info-appender.xml"/> <!-- INFO 레벨 이상의 로그 파일 저장 -->
+
 
         <!-- 루트 로거 설정: INFO로 설정 -->
         <root level="INFO">
             <appender-ref ref="CONSOLE"/>
-            <appender-ref ref="FILE-ERROR"/> <!-- 필요한 appender 이름을 appender-ref 태그에 추가 -->
+            <appender-ref ref="FILE-INFO"/> <!-- INFO 레벨 이상의 로그 파일 저장 -->
         </root>
 
     </springProfile>
@@ -65,12 +68,12 @@
 
         <!-- include = 어떤 appender를 사용할지 추가 (자바 import와 동일)  -->
         <include resource="console-appender.xml"/> <!-- 콘솔에 로그 출력 -->
-        <include resource="file-error-appender.xml"/>
+        <include resource="file-info-appender.xml"/> <!-- INFO 레벨 이상의 로그 파일 저장 -->
 
         <!-- 루트 로거 설정: INFO로 설정 -->
         <root level="INFO">
             <appender-ref ref="CONSOLE"/>
-            <appender-ref ref="FILE-ERROR"/> <!-- 필요한 appender 이름을 appender-ref 태그에 추가 -->
+            <appender-ref ref="FILE-INFO"/> <!-- INFO 레벨 이상의 로그 파일 저장 -->
         </root>
 
     </springProfile>
