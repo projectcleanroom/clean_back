@@ -12,9 +12,19 @@ import com.clean.cleanroom.members.entity.Members;
 import com.clean.cleanroom.members.repository.AddressRepository;
 import com.clean.cleanroom.members.repository.MembersRepository;
 import com.clean.cleanroom.util.JwtUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,18 +53,26 @@ public class CommissionService {
         //주소찾기
         Address address = getAddressById(requestDto.getAddressId());
 
-        //청소의뢰 객채 생성
-        Commission commission = new Commission(members, address, requestDto);
+        //청소의뢰 객채 생성 + 저장
+        saveCommission(members, address, requestDto);
 
-        //저장
-        commissionRepository.save(commission);
+        // 캐시된 청소의뢰 내역 가져오기
+        List<CommissionCreateResponseDto> cachedCommissions = getMemberCommissionsByEmail(email, CommissionCreateResponseDto.class);
 
-        //내 청소의뢰내역 전체조회
-        return getMemberCommissionsByEmail(email, CommissionCreateResponseDto.class);
+        // 실시간으로 새로 생성된 청소의뢰 가져오기
+        Commission newCommission = commissionRepository.findTopByMembersIdOrderByIdDesc(members.getId())
+                .orElseThrow(() -> new CustomException(ErrorMsg.COMMISSION_NOT_FOUND));
+
+        // 실시간 데이터를 캐시 데이터에 추가
+        cachedCommissions.add(new CommissionCreateResponseDto(newCommission));
+
+        //실시간 데이터가 추가된 캐시 데이터 반환
+        return cachedCommissions;
     }
 
     //청소의로 수정 서비스
     @Transactional
+    @CacheEvict(value = "commission", key = "#email") //청소의뢰가 수정되거나 삭제될 때 캐시를 무효화
     public List<CommissionUpdateResponseDto> updateCommission(String email, Long commissionId, Long addressId, CommissionUpdateRequestDto requestDto) {
 
         //수정할 회원 찾기
@@ -74,6 +92,7 @@ public class CommissionService {
     }
 
     //청소의뢰 취소 서비스
+    @CacheEvict(value = "commission", key = "#email") //청소의뢰가 수정되거나 삭제될 때 캐시를 무효화
     public List<CommissionCancelResponseDto> cancelCommission(String email, Long commissionId) {
 
         //회원 찾기
@@ -89,26 +108,9 @@ public class CommissionService {
         return getMemberCommissionsByEmail(email, CommissionCancelResponseDto.class);
     }
 
-    //견적이 있는 청소의뢰 리스트 조회
-    public List<CommissionConfirmListResponseDto> getCommissionConfirmList(String email) {
-        Members members = getMemberByEmail(email);
-
-        List<Commission> commissions = commissionRepository.findByMembers(members);
-
-        // 견적이 있는 청소 의뢰 필터링 및 모든 견적 추가
-        List<CommissionConfirmListResponseDto> responseList = new ArrayList<>();
-        for (Commission commission : commissions) {
-            for (Estimate estimate : commission.getEstimates()) {
-                CommissionConfirmListResponseDto dto = convertToConfirmListDto(commission, estimate); // dto 변환
-                responseList.add(dto); // 변환된 dto를 리스트에 추가
-            }
-        }
-        return responseList;
-
-    }
-
-
     // 특정 회원(나) 청소의뢰 내역 전체조회
+    @Transactional(readOnly = true)
+    @Cacheable(value = "commission", key = "#email") //특정 이메일로 조회된 청소의뢰 내역을 캐시로 저장
     public <T> List<T> getMemberCommissionsByEmail(String email, Class<T> responseType) {
 
         //회원 찾기
@@ -137,6 +139,46 @@ public class CommissionService {
         return responseDtoList;
 
     }
+
+    //청소의뢰 단건조회
+    public CommissionConfirmDetailResponseDto getCommissionDetailConfirm(String email, Long commissionId) {
+
+        //이메일로 회원찾기
+        Members members = getMemberByEmail(email);
+
+        //청소의뢰 객체 찾기
+        Commission commission = getCommissionByIdAndMember(commissionId, members);
+
+        //DTO로 변환하기
+        CommissionConfirmDetailResponseDto responseDto = new CommissionConfirmDetailResponseDto(commission);
+
+        //반환하기
+        return responseDto;
+
+    }
+
+    //청소견적이 리스트로 붙어있는 청소의뢰 단건조회
+    public CommissionConfirmListResponseDto getCommissionConfirmList(String email, Long commissionId) {
+
+        //회원 찾기
+        Members members = getMemberByEmail(email);
+
+        //청소의뢰 객체 찾기
+        Commission commission = getCommissionByIdAndMember(commissionId, members);
+
+        // 청소의뢰에 속한 견적 리스트 변환
+        List<EstimateResponseDto> estimateDtos = new ArrayList<>();
+        for (Estimate estimate : commission.getEstimates()) {
+            EstimateResponseDto estimateDto = new EstimateResponseDto(estimate);
+            estimateDtos.add(estimateDto);
+        }
+
+        //DTO로 변환
+        CommissionConfirmListResponseDto responseDto = new CommissionConfirmListResponseDto(commission, estimateDtos);
+
+        return responseDto;
+    }
+
 
     //이메일로 회원은 찾는 메서드
     private Members getMemberByEmail(String email) {
@@ -175,31 +217,75 @@ public class CommissionService {
     }
 
 
-    // Commission과 Estimate를 받아서 CommissionConfirmListResponseDto로 변환하는 메서드
-    private CommissionConfirmListResponseDto convertToConfirmListDto(Commission commission, Estimate estimate) {
-        List<EstimateResponseDto> estimateResponseDtos = new ArrayList<>();
-        estimateResponseDtos.add(new EstimateResponseDto(estimate));
 
-        return new CommissionConfirmListResponseDto(
-                commission.getId(),
-                commission.getSize(),
-                commission.getHouseType(),
-                commission.getCleanType(),
-                commission.getDesiredDate(),
-                commission.getSignificant(),
-                commission.getImage(),
-                commission.getStatus(),
-                estimateResponseDtos
-        );
+    private static final Logger logger = LoggerFactory.getLogger(CommissionService.class);
+    private static final String UPLOAD_DIR = "/uploads/";
+    public CommissionFileResponseDto imgUpload(String token, MultipartFile file) {
+        String email = jwtUtil.extractEmail(token);
+        try {
+            // 이미지 파일만 허용
+            if (!isImageFile(file)) {
+                return new CommissionFileResponseDto(null, "Only image files are allowed.");
+            }
+
+            // 파일 저장 로직
+            saveFile(file);
+            String filePath = UPLOAD_DIR + file.getOriginalFilename(); // 파일 경로
+            logger.info("File successfully uploaded to: " + filePath);
+            return new CommissionFileResponseDto(file.getOriginalFilename(), "File uploaded successfully");
+        } catch (IOException e) {
+            logger.error("File upload failed due to IOException: ", e);
+            return new CommissionFileResponseDto(null, "File upload failed");
+        }
     }
 
-    public CommissionConfirmDetailResponseDto getCommissionDetailConfirm(Long estimateId, Long commissionId) {
+    private void saveFile(MultipartFile file) throws IOException {
+        File directory = new File(UPLOAD_DIR);
+        if (!directory.exists()) {
+            directory.mkdirs();  // 디렉토리가 없으면 생성
+        }
+        File destinationFile = new File(UPLOAD_DIR + file.getOriginalFilename());
+        file.transferTo(destinationFile);  // 파일 저장
+        logger.info("File transferred to: " + destinationFile.getAbsolutePath());
+    }
+    private boolean isImageFile(MultipartFile file) {
+        String contentType = file.getContentType();
+        return contentType != null && (
+                contentType.equals("image/jpeg") ||
+                        contentType.equals("image/png") ||
+                        contentType.equals("image/gif"));
+    }
 
-        Commission commission = commissionRepository.findByEstimatesIdAndId(estimateId,commissionId);
 
-        Estimate estimate = new Estimate();
-        Address address = new Address();
-        CommissionConfirmDetailResponseDto commissionConfirmDetailResponseDto = new CommissionConfirmDetailResponseDto(commission, estimate, address);
-        return commissionConfirmDetailResponseDto;
+    public CommissionFileGetResponseDto imgGet(String token, String file) {
+        String email = jwtUtil.extractEmail(token);
+        Path filePath = Paths.get(UPLOAD_DIR + file);
+        try {
+            // 파일이 존재하는지 확인
+            if (!Files.exists(filePath)) {
+                logger.error("File not found: " + file);
+                return new CommissionFileGetResponseDto(file, "File not found", null);
+            }
+
+            // 파일을 읽어 바이트 배열로 변환
+            byte[] fileData = Files.readAllBytes(filePath);
+            logger.info("File successfully retrieved: " + file);
+
+            // 성공 메시지와 함께 DTO 반환
+            return new CommissionFileGetResponseDto(file, "File retrieved successfully", fileData);
+
+        } catch (IOException e) {
+            // 파일 읽기 실패 시 처리
+            logger.error("Failed to read file: " + file, e);
+            return new CommissionFileGetResponseDto(file, "Failed to retrieve file", null);
+        }
+
+    }
+
+    //필요한 부분만 트랜잭셔널 처리를 하도록 save메서드를 따로 빼기
+    @Transactional
+    protected void saveCommission(Members members, Address address, CommissionCreateRequestDto requestDto) {
+        Commission commission = new Commission(members, address, requestDto);
+        commissionRepository.save(commission);
     }
 }

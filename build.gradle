@@ -47,10 +47,15 @@ dependencies {
     testImplementation 'org.mockito:mockito-core:4.0.0'
     testImplementation 'org.mockito:mockito-junit-jupiter:4.0.0'
     testImplementation 'org.hamcrest:hamcrest:2.2'
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
     //logging
     implementation 'ch.qos.logback:logback-classic'
     implementation 'net.logstash.logback:logstash-logback-encoder:7.0.1'
+
+    //Cache
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+
 }
 
 tasks.named('test') {

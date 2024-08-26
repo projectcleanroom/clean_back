@@ -22,23 +22,24 @@ public class CommissionConfirmListResponseDto {
     private LocalDateTime desiredDate;
     private String significant;
     private String image;
-    private StatusType statusType;
+    private StatusType status;
+    private Long addressId;
 
     private List<EstimateResponseDto> estimates;
 
 
-    // 생성자 추가
-    public CommissionConfirmListResponseDto(Long id, int size, HouseType houseType, CleanType cleanType,
-                                            LocalDateTime desiredDate, String significant, String image, StatusType statusType,
-                                            List<EstimateResponseDto> estimates) {
-        this.id = id;
-        this.size = size;
-        this.houseType = houseType;
-        this.cleanType = cleanType;
-        this.desiredDate = desiredDate;
-        this.significant = significant;
-        this.image = image;
-        this.estimates = estimates;
-        this.statusType = statusType;
+
+
+    public CommissionConfirmListResponseDto(Commission commission, List<EstimateResponseDto> estimateDtos) {
+        this.id = commission.getId();
+        this.size = commission.getSize();
+        this.houseType = commission.getHouseType();
+        this.cleanType = commission.getCleanType();
+        this.desiredDate = commission.getDesiredDate();
+        this.significant = commission.getSignificant();
+        this.image = commission.getImage();
+        this.status = commission.getStatus();
+        this.addressId = commission.getAddress().getId();
+        this.estimates = estimateDtos;
     }
 }
