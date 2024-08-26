@@ -1,5 +1,6 @@
 package com.clean.cleanroom.members.controller;
 
+import com.clean.cleanroom.members.dto.KakaoAuthCodeRequestDto;
 import com.clean.cleanroom.members.dto.MembersLoginRequestDto;
 import com.clean.cleanroom.members.dto.MembersLoginResponseDto;
 import com.clean.cleanroom.members.dto.MembersLogoutResponseDto;
@@ -25,5 +26,10 @@ public class MembersLoginAndLogoutController {
     @PostMapping("/logout")
     public ResponseEntity<MembersLogoutResponseDto> logout(@RequestHeader("Authorization") String accessToken, @RequestHeader("Refresh-Token") String refreshToken) {
         return membersService.logout(accessToken, refreshToken);
+    }
+
+    @PostMapping("/kakao-login")
+    public ResponseEntity<MembersLoginResponseDto> socialKakaoLogin(@RequestBody KakaoAuthCodeRequestDto kakaoAuthCodeRequestDto) {
+        return kakaoLoginService.socialKakaoLogin(kakaoAuthCodeRequestDto);
     }
 }

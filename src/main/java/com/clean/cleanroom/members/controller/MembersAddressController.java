@@ -3,7 +3,6 @@ package com.clean.cleanroom.members.controller;
 import com.clean.cleanroom.members.dto.MembersAddressDelResponseDto;
 import com.clean.cleanroom.members.dto.MembersAddressRequestDto;
 import com.clean.cleanroom.members.dto.MembersAddressResponseDto;
-import com.clean.cleanroom.members.dto.MembersGetProfileResponseDto;
 import com.clean.cleanroom.members.service.MembersAddressService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
