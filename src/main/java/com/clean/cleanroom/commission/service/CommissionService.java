@@ -51,11 +51,8 @@ public class CommissionService {
         //주소찾기
         Address address = getAddressById(requestDto.getAddressId());
 
-        //청소의뢰 객채 생성
-        Commission commission = new Commission(members, address, requestDto);
-
-        //저장
-        commissionRepository.save(commission);
+        //청소의뢰 객채 생성 + 저장
+        saveCommission(members, address, requestDto);
 
         //내 청소의뢰내역 전체조회
         return getMemberCommissionsByEmail(email, CommissionCreateResponseDto.class);
@@ -267,5 +264,12 @@ public class CommissionService {
             return new CommissionFileGetResponseDto(file, "Failed to retrieve file", null);
         }
 
+    }
+
+    //필요한 부분만 트랜잭셔널 처리를 하도록 save메서드를 따로 빼기
+    @Transactional
+    protected void saveCommission(Members members, Address address, CommissionCreateRequestDto requestDto) {
+        Commission commission = new Commission(members, address, requestDto);
+        commissionRepository.save(commission);
     }
 }
