@@ -50,12 +50,15 @@ class CommissionServiceTest {
         Members member = mock(Members.class);
         Address address = mock(Address.class);
 
+        // 청소 의뢰 객체 생성
         Commission commission = new Commission(member, address, requestDto);
 
+        // 필요한 리포지토리 메서드를 모킹
         when(membersRepository.findByEmail(anyString())).thenReturn(Optional.of(member));
         when(addressRepository.findById(anyLong())).thenReturn(Optional.of(address));
         when(commissionRepository.save(any(Commission.class))).thenReturn(commission);
         when(commissionRepository.findByMembersId(anyLong())).thenReturn(Optional.of(List.of(commission)));
+        when(commissionRepository.findTopByMembersIdOrderByIdDesc(anyLong())).thenReturn(Optional.of(commission));
 
         // When
         List<CommissionCreateResponseDto> result = commissionService.createCommission(email, requestDto);
@@ -65,6 +68,8 @@ class CommissionServiceTest {
         assertFalse(result.isEmpty());
         verify(commissionRepository).save(any(Commission.class));
     }
+
+
 
     @Test
     void createCommission_ThrowsException_IfMemberNotFound() {
