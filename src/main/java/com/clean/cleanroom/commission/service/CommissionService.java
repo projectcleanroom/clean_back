@@ -95,6 +95,7 @@ public class CommissionService {
     }
 
     // 특정 회원(나) 청소의뢰 내역 전체조회
+    @Transactional(readOnly = true)
     public <T> List<T> getMemberCommissionsByEmail(String email, Class<T> responseType) {
 
         //회원 찾기
