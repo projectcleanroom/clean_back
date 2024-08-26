@@ -14,6 +14,8 @@ import com.clean.cleanroom.members.repository.MembersRepository;
 import com.clean.cleanroom.util.JwtUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -54,12 +56,23 @@ public class CommissionService {
         //청소의뢰 객채 생성 + 저장
         saveCommission(members, address, requestDto);
 
-        //내 청소의뢰내역 전체조회
-        return getMemberCommissionsByEmail(email, CommissionCreateResponseDto.class);
+        // 캐시된 청소의뢰 내역 가져오기
+        List<CommissionCreateResponseDto> cachedCommissions = getMemberCommissionsByEmail(email, CommissionCreateResponseDto.class);
+
+        // 실시간으로 새로 생성된 청소의뢰 가져오기
+        Commission newCommission = commissionRepository.findTopByMembersIdOrderByIdDesc(members.getId())
+                .orElseThrow(() -> new CustomException(ErrorMsg.COMMISSION_NOT_FOUND));
+
+        // 실시간 데이터를 캐시 데이터에 추가
+        cachedCommissions.add(new CommissionCreateResponseDto(newCommission));
+
+        //실시간 데이터가 추가된 캐시 데이터 반환
+        return cachedCommissions;
     }
 
     //청소의로 수정 서비스
     @Transactional
+    @CacheEvict(value = "commission", key = "#email") //청소의뢰가 수정되거나 삭제될 때 캐시를 무효화
     public List<CommissionUpdateResponseDto> updateCommission(String email, Long commissionId, Long addressId, CommissionUpdateRequestDto requestDto) {
 
         //수정할 회원 찾기
@@ -79,6 +92,7 @@ public class CommissionService {
     }
 
     //청소의뢰 취소 서비스
+    @CacheEvict(value = "commission", key = "#email") //청소의뢰가 수정되거나 삭제될 때 캐시를 무효화
     public List<CommissionCancelResponseDto> cancelCommission(String email, Long commissionId) {
 
         //회원 찾기
@@ -96,6 +110,7 @@ public class CommissionService {
 
     // 특정 회원(나) 청소의뢰 내역 전체조회
     @Transactional(readOnly = true)
+    @Cacheable(value = "commission", key = "#email") //특정 이메일로 조회된 청소의뢰 내역을 캐시로 저장
     public <T> List<T> getMemberCommissionsByEmail(String email, Class<T> responseType) {
 
         //회원 찾기
