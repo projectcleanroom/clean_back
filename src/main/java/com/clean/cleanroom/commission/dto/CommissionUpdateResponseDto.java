@@ -18,7 +18,7 @@ public class CommissionUpdateResponseDto {
     private Long addressId;
     private LocalDateTime desiredDate;
     private String significant;
-    private StatusType statusType;
+    private StatusType status;
 
 
 
@@ -31,7 +31,7 @@ public class CommissionUpdateResponseDto {
         this.addressId = commission.getAddress().getId();
         this.desiredDate = commission.getDesiredDate();
         this.significant = commission.getSignificant();
-        this.statusType = commission.getStatus();
+        this.status = commission.getStatus();
     }
 
 }
