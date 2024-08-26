@@ -23,7 +23,7 @@ import org.springframework.web.client.RestTemplate;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class KakaoOAuth2Service {
+public class KakaoLoginService {
 
     private final MembersRepository membersRepository;
     private final RestTemplate restTemplate;

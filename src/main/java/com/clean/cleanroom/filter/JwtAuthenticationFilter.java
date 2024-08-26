@@ -28,7 +28,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
 
         // 특정 경로에 대해서는 필터를 적용하지 않습니다.
-        if ("/api/members/login".equals(path) || "/api/members/signup".equals(path)) {
+        if ("/api/members/login".equals(path) ||
+                "/api/members/signup".equals(path) ||
+                "/api/members/kakao-login".equals(path)) {
             chain.doFilter(request, response);
             return;
         }
