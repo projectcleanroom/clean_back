@@ -19,7 +19,6 @@ import org.mockito.MockitoAnnotations;
 import java.util.List;
 import java.util.Optional;
 
-import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -51,7 +50,6 @@ class CommissionServiceTest {
         Members member = mock(Members.class);
         Address address = mock(Address.class);
 
-        // Commission 객체 자체가 아니라 그 내부의 Members와 Address 객체를 설정
         Commission commission = new Commission(member, address, requestDto);
 
         when(membersRepository.findByEmail(anyString())).thenReturn(Optional.of(member));
@@ -83,7 +81,6 @@ class CommissionServiceTest {
         });
     }
 
-
     @Test
     void updateCommission() {
         // Given
@@ -95,16 +92,12 @@ class CommissionServiceTest {
         Address address = mock(Address.class);
         Commission commission = mock(Commission.class);
 
-        // Mocking - 필요에 따라 설정 추가
         when(membersRepository.findByEmail(anyString())).thenReturn(Optional.of(member));
         when(commissionRepository.findByIdAndMembersId(anyLong(), anyLong())).thenReturn(Optional.of(commission));
         when(addressRepository.findById(anyLong())).thenReturn(Optional.of(address));
         when(commissionRepository.findByMembersId(anyLong())).thenReturn(Optional.of(List.of(commission)));
 
-        // Commission의 getMembers 메서드가 mock된 Members 객체를 반환하도록 설정
         when(commission.getMembers()).thenReturn(member);
-
-        // Commission의 getAddress 메서드가 mock된 Address 객체를 반환하도록 설정
         when(commission.getAddress()).thenReturn(address);
 
         // When
@@ -112,7 +105,7 @@ class CommissionServiceTest {
 
         // Then
         assertNotNull(result);
-        verify(commission).update(any(CommissionUpdateRequestDto.class), any(Address.class)); // 업데이트 메서드 호출 확인
+        verify(commission).update(any(CommissionUpdateRequestDto.class), any(Address.class));
     }
 
     @Test
@@ -134,9 +127,6 @@ class CommissionServiceTest {
         });
     }
 
-
-
-
     @Test
     void cancelCommission() {
         // Given
@@ -146,15 +136,11 @@ class CommissionServiceTest {
         Address address = mock(Address.class);
         Commission commission = mock(Commission.class);
 
-        // Mock 설정
         when(membersRepository.findByEmail(anyString())).thenReturn(Optional.of(member));
         when(commissionRepository.findByIdAndMembersId(anyLong(), anyLong())).thenReturn(Optional.of(commission));
         when(commissionRepository.findByMembersId(anyLong())).thenReturn(Optional.of(List.of(commission)));
 
-        // Commission의 getMembers 메서드가 mock된 Members 객체를 반환하도록 설정
         when(commission.getMembers()).thenReturn(member);
-
-        // Commission의 getAddress 메서드가 mock된 Address 객체를 반환하도록 설정
         when(commission.getAddress()).thenReturn(address);
 
         // When
@@ -183,8 +169,6 @@ class CommissionServiceTest {
         });
     }
 
-
-
     @Test
     void getMemberCommissionsByEmail() {
         // Given
@@ -192,7 +176,6 @@ class CommissionServiceTest {
         Members member = mock(Members.class);
         Address address = mock(Address.class);
 
-        // Commission 객체 내부의 Members와 Address를 설정
         Commission commission = new Commission(member, address, mock(CommissionCreateRequestDto.class));
 
         when(membersRepository.findByEmail(anyString())).thenReturn(Optional.of(member));
@@ -221,15 +204,12 @@ class CommissionServiceTest {
         });
     }
 
-
-
     @Test
     void getAllCommissions() {
         // Given
         Members member = mock(Members.class);
         Address address = mock(Address.class);
 
-        // Commission 객체 내부의 Members와 Address를 설정
         Commission commission = new Commission(member, address, mock(CommissionCreateRequestDto.class));
 
         when(commissionRepository.findAll()).thenReturn(List.of(commission));
@@ -262,63 +242,77 @@ class CommissionServiceTest {
     void getCommissionConfirmList_Success() {
         // Given
         String email = "test@example.com";
+        Long commissionId = 1L;
         Members member = mock(Members.class);
         Commission commission = mock(Commission.class);
         Estimate estimate = mock(Estimate.class);
         Partner partner = mock(Partner.class);
+        Address address = mock(Address.class);
 
         when(membersRepository.findByEmail(anyString())).thenReturn(Optional.of(member));
-        when(commissionRepository.findByMembers(any(Members.class))).thenReturn(List.of(commission));
+        when(commissionRepository.findByIdAndMembersId(anyLong(), anyLong())).thenReturn(Optional.of(commission));
         when(commission.getEstimates()).thenReturn(List.of(estimate));
-        when(estimate.getPartner()).thenReturn(partner); // 모킹된 Partner 객체를 반환하도록 설정합니다.
-        when(partner.getId()).thenReturn(1L);
+        when(estimate.getPartner()).thenReturn(partner);
+        when(partner.getId()).thenReturn(100L);
+        when(commission.getAddress()).thenReturn(address);
+        when(address.getId()).thenReturn(200L);
 
         // When
-        List<CommissionConfirmListResponseDto> result = commissionService.getCommissionConfirmList(email);
+        CommissionConfirmListResponseDto result = commissionService.getCommissionConfirmList(email, commissionId);
 
         // Then
         assertNotNull(result);
-        assertFalse(result.isEmpty());
         verify(membersRepository, times(1)).findByEmail(email);
-        verify(commissionRepository, times(1)).findByMembers(member);
+        verify(commissionRepository, times(1)).findByIdAndMembersId(commissionId, member.getId());
     }
+
 
     @Test
     void getCommissionConfirmList_EmptyEstimates() {
         // Given
         String email = "test@example.com";
+        Long commissionId = 1L;
         Members member = mock(Members.class);
         Commission commission = mock(Commission.class);
+        Address address = mock(Address.class);
 
         when(membersRepository.findByEmail(anyString())).thenReturn(Optional.of(member));
-        when(commissionRepository.findByMembers(any(Members.class))).thenReturn(List.of(commission));
-        when(commission.getEstimates()).thenReturn(List.of()); // 빈 리스트를 반환하도록 설정
+        when(commissionRepository.findByIdAndMembersId(anyLong(), anyLong())).thenReturn(Optional.of(commission));
+        when(commission.getEstimates()).thenReturn(List.of());
+        when(commission.getAddress()).thenReturn(address);
+        when(address.getId()).thenReturn(200L);
 
         // When
-        List<CommissionConfirmListResponseDto> result = commissionService.getCommissionConfirmList(email);
+        CommissionConfirmListResponseDto result = commissionService.getCommissionConfirmList(email, commissionId);
 
         // Then
         assertNotNull(result);
-        assertTrue(result.isEmpty());
+        assertTrue(result.getEstimates().isEmpty());
         verify(membersRepository, times(1)).findByEmail(email);
-        verify(commissionRepository, times(1)).findByMembers(member);
+        verify(commissionRepository, times(1)).findByIdAndMembersId(commissionId, member.getId());
     }
-
 
     @Test
     void getCommissionDetailConfirm_Success() {
         // Given
-        Long estimateId = 1L;
+        String email = "test@example.com";
         Long commissionId = 1L;
+        Members member = mock(Members.class);
         Commission commission = mock(Commission.class);
+        Address address = mock(Address.class);
 
-        when(commissionRepository.findByEstimatesIdAndId(anyLong(), anyLong())).thenReturn(commission);
+        when(membersRepository.findByEmail(anyString())).thenReturn(Optional.of(member));
+        when(commissionRepository.findByIdAndMembersId(anyLong(), anyLong())).thenReturn(Optional.of(commission));
+        when(commission.getMembers()).thenReturn(member); // Members 객체 반환하도록 모킹
+        when(commission.getAddress()).thenReturn(address); // Address 객체 반환하도록 모킹
+        when(address.getId()).thenReturn(200L); // Address의 ID 값 모킹
 
         // When
-        CommissionConfirmDetailResponseDto result = commissionService.getCommissionDetailConfirm(estimateId, commissionId);
+        CommissionConfirmDetailResponseDto result = commissionService.getCommissionDetailConfirm(email, commissionId);
 
         // Then
         assertNotNull(result);
-        verify(commissionRepository, times(1)).findByEstimatesIdAndId(estimateId, commissionId);
+        verify(commissionRepository, times(1)).findByIdAndMembersId(commissionId, member.getId());
     }
+
 }

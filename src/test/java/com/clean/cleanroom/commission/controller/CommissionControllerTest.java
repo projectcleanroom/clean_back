@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -123,34 +124,72 @@ class CommissionControllerTest {
     void getConfirmedCommissions() {
         // Given
         String email = "test@example.com";
-        List<CommissionConfirmListResponseDto> responseDtoList = mock(List.class);
+        Long commissionId = 1L;
+        CommissionConfirmListResponseDto responseDto = mock(CommissionConfirmListResponseDto.class);
 
         when(tokenService.getEmailFromRequest(request)).thenReturn(email);
-        when(commissionService.getCommissionConfirmList(anyString())).thenReturn(responseDtoList);
+        when(commissionService.getCommissionConfirmList(anyString(), anyLong())).thenReturn(responseDto);
 
         // When
-        ResponseEntity<List<CommissionConfirmListResponseDto>> response = commissionController.getConfirmedCommissions(request);
-
-        // Then
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(responseDtoList, response.getBody());
-    }
-
-
-    @Test
-    void getConfirmDetailCommissions() {
-        // Given
-        Long estimateId = 1L;
-        Long commissionId = 2L;
-        CommissionConfirmDetailResponseDto responseDto = mock(CommissionConfirmDetailResponseDto.class);
-
-        when(commissionService.getCommissionDetailConfirm(anyLong(), anyLong())).thenReturn(responseDto);
-
-        // When
-        ResponseEntity<CommissionConfirmDetailResponseDto> response = commissionController.getConfirmDetailCommissions(estimateId, commissionId);
+        ResponseEntity<CommissionConfirmListResponseDto> response = commissionController.getConfirmedCommissions(request, commissionId);
 
         // Then
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(responseDto, response.getBody());
     }
+
+    @Test
+    void getConfirmDetailCommissions() {
+        // Given
+        String email = "test@example.com";
+        Long commissionId = 1L;
+        CommissionConfirmDetailResponseDto responseDto = mock(CommissionConfirmDetailResponseDto.class);
+
+        when(tokenService.getEmailFromRequest(request)).thenReturn(email);
+        when(commissionService.getCommissionDetailConfirm(anyString(), anyLong())).thenReturn(responseDto);
+
+        // When
+        ResponseEntity<CommissionConfirmDetailResponseDto> response = commissionController.getConfirmDetailCommissions(request, commissionId);
+
+        // Then
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(responseDto, response.getBody());
+    }
+
+    @Test
+    void imgUpload() {
+        // Given
+        String token = "test-token";
+        MultipartFile file = mock(MultipartFile.class);
+        CommissionFileResponseDto responseDto = mock(CommissionFileResponseDto.class);
+
+        when(commissionService.imgUpload(anyString(), any(MultipartFile.class))).thenReturn(responseDto);
+
+        // When
+        ResponseEntity<CommissionFileResponseDto> response = commissionController.imgUpload(token, file);
+
+        // Then
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(responseDto, response.getBody());
+    }
+
+    @Test
+    void imgGet() {
+        // Given
+        String token = "test-token";
+        String fileName = "test.jpg";
+        CommissionFileGetResponseDto responseDto = mock(CommissionFileGetResponseDto.class);
+        byte[] fileData = new byte[0];
+
+        when(commissionService.imgGet(anyString(), anyString())).thenReturn(responseDto);
+        when(responseDto.getFileData()).thenReturn(fileData);
+
+        // When
+        ResponseEntity<byte[]> response = commissionController.imgGet(token, fileName);
+
+        // Then
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(fileData, response.getBody());
+    }
+
 }
