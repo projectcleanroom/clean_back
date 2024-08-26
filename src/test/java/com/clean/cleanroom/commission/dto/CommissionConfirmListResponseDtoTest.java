@@ -1,9 +1,11 @@
 package com.clean.cleanroom.commission.dto;
 
+import com.clean.cleanroom.commission.entity.Commission;
 import com.clean.cleanroom.enums.CleanType;
 import com.clean.cleanroom.enums.HouseType;
 import com.clean.cleanroom.enums.StatusType;
 import com.clean.cleanroom.estimate.dto.EstimateResponseDto;
+import com.clean.cleanroom.members.entity.Address;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
@@ -18,52 +20,58 @@ class CommissionConfirmListResponseDtoTest {
     @Test
     void testCommissionConfirmListResponseDtoConstructor() {
         // Given
-        Long id = 1L;
-        int size = 100;
-        HouseType houseType = HouseType.APT;
-        CleanType cleanType = CleanType.NORMAL;
-        LocalDateTime desiredDate = LocalDateTime.of(2024, 8, 1, 10, 0);
-        String significant = "Test Significant";
-        String image = "testImage.jpg";
-        StatusType statusType = StatusType.CHECK; // 새로운 필드 statusType 추가
-        EstimateResponseDto estimateResponseDto = mock(EstimateResponseDto.class);
+        Commission commission = mock(Commission.class);
+        Address address = mock(Address.class);
+        when(commission.getId()).thenReturn(1L);
+        when(commission.getSize()).thenReturn(100);
+        when(commission.getHouseType()).thenReturn(HouseType.APT);
+        when(commission.getCleanType()).thenReturn(CleanType.NORMAL);
+        when(commission.getDesiredDate()).thenReturn(LocalDateTime.of(2024, 8, 1, 10, 0));
+        when(commission.getSignificant()).thenReturn("Test Significant");
+        when(commission.getImage()).thenReturn("testImage.jpg");
+        when(commission.getStatus()).thenReturn(StatusType.CHECK);
+        when(commission.getAddress()).thenReturn(address);
+        when(address.getId()).thenReturn(2L);
 
+        EstimateResponseDto estimateResponseDto = mock(EstimateResponseDto.class);
         List<EstimateResponseDto> estimates = List.of(estimateResponseDto);
 
         // When
-        CommissionConfirmListResponseDto responseDto = new CommissionConfirmListResponseDto(
-                id, size, houseType, cleanType, desiredDate, significant, image, statusType, estimates // statusType 추가
-        );
+        CommissionConfirmListResponseDto responseDto = new CommissionConfirmListResponseDto(commission, estimates);
 
         // Then: 필드 값이 예상대로 설정되었는지 확인
-        assertEquals(id, responseDto.getId());
-        assertEquals(size, responseDto.getSize());
-        assertEquals(houseType, responseDto.getHouseType());
-        assertEquals(cleanType, responseDto.getCleanType());
-        assertEquals(desiredDate, responseDto.getDesiredDate());
-        assertEquals(significant, responseDto.getSignificant());
-        assertEquals(image, responseDto.getImage());
-        assertEquals(statusType, responseDto.getStatusType()); // statusType 검증 추가
+        assertEquals(1L, responseDto.getId());
+        assertEquals(100, responseDto.getSize());
+        assertEquals(HouseType.APT, responseDto.getHouseType());
+        assertEquals(CleanType.NORMAL, responseDto.getCleanType());
+        assertEquals(LocalDateTime.of(2024, 8, 1, 10, 0), responseDto.getDesiredDate());
+        assertEquals("Test Significant", responseDto.getSignificant());
+        assertEquals("testImage.jpg", responseDto.getImage());
+        assertEquals(StatusType.CHECK, responseDto.getStatus());
+        assertEquals(2L, responseDto.getAddressId());
         assertEquals(estimates, responseDto.getEstimates());
     }
 
     @Test
     void testCommissionConfirmListResponseDtoConstructorWithNullValues() {
         // Given
-        Long id = null;
-        int size = 0;
-        HouseType houseType = null;
-        CleanType cleanType = null;
-        LocalDateTime desiredDate = null;
-        String significant = null;
-        String image = null;
-        StatusType statusType = null; // statusType null 값 테스트 추가
+        Commission commission = mock(Commission.class);
+        Address address = mock(Address.class);
+        when(commission.getId()).thenReturn(null);
+        when(commission.getSize()).thenReturn(0);
+        when(commission.getHouseType()).thenReturn(null);
+        when(commission.getCleanType()).thenReturn(null);
+        when(commission.getDesiredDate()).thenReturn(null);
+        when(commission.getSignificant()).thenReturn(null);
+        when(commission.getImage()).thenReturn(null);
+        when(commission.getStatus()).thenReturn(null);
+        when(commission.getAddress()).thenReturn(address);
+        when(address.getId()).thenReturn(null);
+
         List<EstimateResponseDto> estimates = new ArrayList<>();
 
         // When
-        CommissionConfirmListResponseDto responseDto = new CommissionConfirmListResponseDto(
-                id, size, houseType, cleanType, desiredDate, significant, image, statusType, estimates // statusType 추가
-        );
+        CommissionConfirmListResponseDto responseDto = new CommissionConfirmListResponseDto(commission, estimates);
 
         // Then: 필드 값이 예상대로 설정되었는지 확인
         assertNull(responseDto.getId());
@@ -73,7 +81,8 @@ class CommissionConfirmListResponseDtoTest {
         assertNull(responseDto.getDesiredDate());
         assertNull(responseDto.getSignificant());
         assertNull(responseDto.getImage());
-        assertNull(responseDto.getStatusType()); // statusType 검증 추가
+        assertNull(responseDto.getStatus());
+        assertNull(responseDto.getAddressId());
         assertEquals(estimates, responseDto.getEstimates());
     }
 

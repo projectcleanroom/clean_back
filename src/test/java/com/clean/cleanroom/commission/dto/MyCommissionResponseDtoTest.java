@@ -3,6 +3,7 @@ package com.clean.cleanroom.commission.dto;
 import com.clean.cleanroom.commission.entity.Commission;
 import com.clean.cleanroom.enums.CleanType;
 import com.clean.cleanroom.enums.HouseType;
+import com.clean.cleanroom.enums.StatusType;
 import com.clean.cleanroom.members.entity.Address;
 import com.clean.cleanroom.members.entity.Members;
 import org.junit.jupiter.api.Test;
@@ -16,15 +17,17 @@ class MyCommissionResponseDtoTest {
 
     @Test
     void testMyCommissionResponseDtoConstructor() {
-        // given: 모의 Commission, Members, Address 객체를 생성 및 설정
+        // Given: 모의 Commission, Members, Address 객체를 생성 및 설정
         Long commissionId = 1L;
         String memberNick = "TestNick";
         int size = 50;
-        HouseType houseType = HouseType.APT;  // HouseType.APT를 사용
-        CleanType cleanType = CleanType.NORMAL;  // CleanType.NORMAL를 사용
+        HouseType houseType = HouseType.APT;
+        CleanType cleanType = CleanType.NORMAL;
         Long addressId = 2L;
         LocalDateTime desiredDate = LocalDateTime.of(2024, 8, 1, 10, 0);
         String significant = "Test Significant";
+        String image = "testImage.jpg";
+        StatusType status = StatusType.CHECK;
 
         Members members = mock(Members.class);
         Address address = mock(Address.class);
@@ -40,11 +43,13 @@ class MyCommissionResponseDtoTest {
         when(address.getId()).thenReturn(addressId);
         when(commission.getDesiredDate()).thenReturn(desiredDate);
         when(commission.getSignificant()).thenReturn(significant);
+        when(commission.getImage()).thenReturn(image);
+        when(commission.getStatus()).thenReturn(status);
 
-        // when: MyCommissionResponseDto 객체를 생성
+        // When: MyCommissionResponseDto 객체를 생성
         MyCommissionResponseDto responseDto = new MyCommissionResponseDto(commission);
 
-        // then: 필드 값이 예상대로 설정되었는지 확인
+        // Then: 필드 값이 예상대로 설정되었는지 확인
         assertEquals(commissionId, responseDto.getCommissionId());
         assertEquals(memberNick, responseDto.getMemberNick());
         assertEquals(size, responseDto.getSize());
@@ -53,5 +58,7 @@ class MyCommissionResponseDtoTest {
         assertEquals(addressId, responseDto.getAddressId());
         assertEquals(desiredDate, responseDto.getDesiredDate());
         assertEquals(significant, responseDto.getSignificant());
+        assertEquals(image, responseDto.getImage());
+        assertEquals(status, responseDto.getStatus());
     }
 }
