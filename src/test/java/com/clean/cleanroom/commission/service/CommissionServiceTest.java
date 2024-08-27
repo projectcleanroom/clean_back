@@ -5,17 +5,26 @@ import com.clean.cleanroom.commission.entity.Commission;
 import com.clean.cleanroom.commission.repository.CommissionRepository;
 import com.clean.cleanroom.estimate.entity.Estimate;
 import com.clean.cleanroom.exception.CustomException;
+import com.clean.cleanroom.exception.ErrorMsg;
 import com.clean.cleanroom.members.entity.Address;
 import com.clean.cleanroom.members.entity.Members;
 import com.clean.cleanroom.members.repository.AddressRepository;
 import com.clean.cleanroom.members.repository.MembersRepository;
 import com.clean.cleanroom.partner.entity.Partner;
+import com.clean.cleanroom.util.JwtUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,28 +46,28 @@ class CommissionServiceTest {
     @Mock
     private AddressRepository addressRepository;
 
+    @Mock
+    private JwtUtil jwtUtil;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    void createCommission() {
+    void createCommission_Success() {
         // Given
         String email = "test@example.com";
         CommissionCreateRequestDto requestDto = mock(CommissionCreateRequestDto.class);
         Members member = mock(Members.class);
         Address address = mock(Address.class);
+        Commission commission = new Commission(member, address, requestDto); // Commission 객체 생성
 
-        // 청소 의뢰 객체 생성
-        Commission commission = new Commission(member, address, requestDto);
-
-        // 필요한 리포지토리 메서드를 모킹
         when(membersRepository.findByEmail(anyString())).thenReturn(Optional.of(member));
         when(addressRepository.findById(anyLong())).thenReturn(Optional.of(address));
-        when(commissionRepository.save(any(Commission.class))).thenReturn(commission);
-        when(commissionRepository.findByMembersId(anyLong())).thenReturn(Optional.of(List.of(commission)));
+        when(commissionRepository.save(any(Commission.class))).thenReturn(commission); // save 메서드 모킹
         when(commissionRepository.findTopByMembersIdOrderByIdDesc(anyLong())).thenReturn(Optional.of(commission));
+        when(commissionRepository.findByMembersId(anyLong())).thenReturn(Optional.of(List.of(commission)));
 
         // When
         List<CommissionCreateResponseDto> result = commissionService.createCommission(email, requestDto);
@@ -70,7 +79,6 @@ class CommissionServiceTest {
     }
 
 
-
     @Test
     void createCommission_ThrowsException_IfMemberNotFound() {
         // Given
@@ -79,15 +87,18 @@ class CommissionServiceTest {
 
         when(membersRepository.findByEmail(anyString())).thenReturn(Optional.empty());
 
-        // Then
-        assertThrows(CustomException.class, () -> {
-            // When
+        // When & Then
+        CustomException exception = assertThrows(CustomException.class, () -> {
             commissionService.createCommission(email, requestDto);
         });
+
+        // ErrorMsg 객체 자체를 비교
+        assertEquals(ErrorMsg.MEMBER_NOT_FOUND, exception.getErrorMsg());
     }
 
+
     @Test
-    void updateCommission() {
+    void updateCommission_Success() {
         // Given
         String email = "test@example.com";
         Long commissionId = 1L;
@@ -101,9 +112,8 @@ class CommissionServiceTest {
         when(commissionRepository.findByIdAndMembersId(anyLong(), anyLong())).thenReturn(Optional.of(commission));
         when(addressRepository.findById(anyLong())).thenReturn(Optional.of(address));
         when(commissionRepository.findByMembersId(anyLong())).thenReturn(Optional.of(List.of(commission)));
-
-        when(commission.getMembers()).thenReturn(member);
-        when(commission.getAddress()).thenReturn(address);
+        when(commission.getMembers()).thenReturn(member); // Commission 객체의 getMembers() 모킹
+        when(commission.getAddress()).thenReturn(address); // Commission 객체의 getAddress() 모킹
 
         // When
         List<CommissionUpdateResponseDto> result = commissionService.updateCommission(email, commissionId, addressId, requestDto);
@@ -112,6 +122,7 @@ class CommissionServiceTest {
         assertNotNull(result);
         verify(commission).update(any(CommissionUpdateRequestDto.class), any(Address.class));
     }
+
 
     @Test
     void updateCommission_ThrowsException_IfCommissionNotFound() {
@@ -125,28 +136,30 @@ class CommissionServiceTest {
         when(membersRepository.findByEmail(anyString())).thenReturn(Optional.of(member));
         when(commissionRepository.findByIdAndMembersId(anyLong(), anyLong())).thenReturn(Optional.empty());
 
-        // Then
-        assertThrows(CustomException.class, () -> {
-            // When
+        // When & Then
+        CustomException exception = assertThrows(CustomException.class, () -> {
             commissionService.updateCommission(email, commissionId, addressId, requestDto);
         });
+
+        // ErrorMsg 객체 자체를 비교
+        assertEquals(ErrorMsg.COMMISSION_NOT_FOUND_OR_UNAUTHORIZED, exception.getErrorMsg());
     }
 
+
     @Test
-    void cancelCommission() {
+    void cancelCommission_Success() {
         // Given
         String email = "test@example.com";
         Long commissionId = 1L;
         Members member = mock(Members.class);
-        Address address = mock(Address.class);
         Commission commission = mock(Commission.class);
+        Address address = mock(Address.class);
 
         when(membersRepository.findByEmail(anyString())).thenReturn(Optional.of(member));
         when(commissionRepository.findByIdAndMembersId(anyLong(), anyLong())).thenReturn(Optional.of(commission));
         when(commissionRepository.findByMembersId(anyLong())).thenReturn(Optional.of(List.of(commission)));
-
-        when(commission.getMembers()).thenReturn(member);
-        when(commission.getAddress()).thenReturn(address);
+        when(commission.getMembers()).thenReturn(member); // Members 객체를 반환하도록 설정
+        when(commission.getAddress()).thenReturn(address); // Address 객체를 반환하도록 설정
 
         // When
         List<CommissionCancelResponseDto> result = commissionService.cancelCommission(email, commissionId);
@@ -156,6 +169,25 @@ class CommissionServiceTest {
         assertFalse(result.isEmpty());
         verify(commissionRepository).delete(any(Commission.class));
     }
+
+//    @Test
+//    void cancelCommission_ThrowsException_IfCommissionNotFound() {
+//        // Given
+//        String email = "test@example.com";
+//        Long commissionId = 1L;
+//        Members member = mock(Members.class);
+//
+//        when(membersRepository.findByEmail(anyString())).thenReturn(Optional.of(member));
+//        when(commissionRepository.findByIdAndMembersId(anyLong(), anyLong())).thenReturn(Optional.empty());
+//
+//        // Then
+//        CustomException exception = assertThrows(CustomException.class, () -> {
+//            // When
+//            commissionService.cancelCommission(email, commissionId);
+//        });
+//
+//        assertEquals(ErrorMsg.COMMISSION_NOT_FOUND_OR_UNAUTHORIZED, exception.getMessage());
+//    }
 
     @Test
     void cancelCommission_ThrowsException_IfCommissionNotFound() {
@@ -168,19 +200,22 @@ class CommissionServiceTest {
         when(commissionRepository.findByIdAndMembersId(anyLong(), anyLong())).thenReturn(Optional.empty());
 
         // Then
-        assertThrows(CustomException.class, () -> {
+        CustomException exception = assertThrows(CustomException.class, () -> {
             // When
             commissionService.cancelCommission(email, commissionId);
         });
+
+        assertEquals("청소의뢰가 존재하지 않거나 권한이 없습니다.", exception.getMessage());
     }
 
+
+
     @Test
-    void getMemberCommissionsByEmail() {
+    void getMemberCommissionsByEmail_Success() {
         // Given
         String email = "test@example.com";
         Members member = mock(Members.class);
         Address address = mock(Address.class);
-
         Commission commission = new Commission(member, address, mock(CommissionCreateRequestDto.class));
 
         when(membersRepository.findByEmail(anyString())).thenReturn(Optional.of(member));
@@ -203,18 +238,21 @@ class CommissionServiceTest {
         when(membersRepository.findByEmail(anyString())).thenReturn(Optional.empty());
 
         // Then
-        assertThrows(CustomException.class, () -> {
+        CustomException exception = assertThrows(CustomException.class, () -> {
             // When
             commissionService.getMemberCommissionsByEmail(email, CommissionCreateResponseDto.class);
         });
+
+        // 기대 메시지를 실제 한글 메시지로 수정
+        assertEquals("사용자를 찾을 수 없습니다.", exception.getMessage());
     }
 
+
     @Test
-    void getAllCommissions() {
+    void getAllCommissions_Success() {
         // Given
         Members member = mock(Members.class);
         Address address = mock(Address.class);
-
         Commission commission = new Commission(member, address, mock(CommissionCreateRequestDto.class));
 
         when(commissionRepository.findAll()).thenReturn(List.of(commission));
@@ -242,7 +280,6 @@ class CommissionServiceTest {
         verify(commissionRepository).findAll();
     }
 
-
     @Test
     void getCommissionConfirmList_Success() {
         // Given
@@ -258,9 +295,7 @@ class CommissionServiceTest {
         when(commissionRepository.findByIdAndMembersId(anyLong(), anyLong())).thenReturn(Optional.of(commission));
         when(commission.getEstimates()).thenReturn(List.of(estimate));
         when(estimate.getPartner()).thenReturn(partner);
-        when(partner.getId()).thenReturn(100L);
         when(commission.getAddress()).thenReturn(address);
-        when(address.getId()).thenReturn(200L);
 
         // When
         CommissionConfirmListResponseDto result = commissionService.getCommissionConfirmList(email, commissionId);
@@ -279,13 +314,12 @@ class CommissionServiceTest {
         Long commissionId = 1L;
         Members member = mock(Members.class);
         Commission commission = mock(Commission.class);
-        Address address = mock(Address.class);
+        Address address = mock(Address.class); // Address 객체 추가
 
         when(membersRepository.findByEmail(anyString())).thenReturn(Optional.of(member));
         when(commissionRepository.findByIdAndMembersId(anyLong(), anyLong())).thenReturn(Optional.of(commission));
         when(commission.getEstimates()).thenReturn(List.of());
-        when(commission.getAddress()).thenReturn(address);
-        when(address.getId()).thenReturn(200L);
+        when(commission.getAddress()).thenReturn(address); // Commission에서 Address 반환하도록 설정
 
         // When
         CommissionConfirmListResponseDto result = commissionService.getCommissionConfirmList(email, commissionId);
@@ -304,13 +338,12 @@ class CommissionServiceTest {
         Long commissionId = 1L;
         Members member = mock(Members.class);
         Commission commission = mock(Commission.class);
-        Address address = mock(Address.class);
+        Address address = mock(Address.class); // Address 객체 추가
 
         when(membersRepository.findByEmail(anyString())).thenReturn(Optional.of(member));
         when(commissionRepository.findByIdAndMembersId(anyLong(), anyLong())).thenReturn(Optional.of(commission));
-        when(commission.getMembers()).thenReturn(member); // Members 객체 반환하도록 모킹
-        when(commission.getAddress()).thenReturn(address); // Address 객체 반환하도록 모킹
-        when(address.getId()).thenReturn(200L); // Address의 ID 값 모킹
+        when(commission.getMembers()).thenReturn(member); // Commission에서 Members 반환하도록 설정
+        when(commission.getAddress()).thenReturn(address); // Commission에서 Address 반환하도록 설정
 
         // When
         CommissionConfirmDetailResponseDto result = commissionService.getCommissionDetailConfirm(email, commissionId);
@@ -320,4 +353,114 @@ class CommissionServiceTest {
         verify(commissionRepository, times(1)).findByIdAndMembersId(commissionId, member.getId());
     }
 
+
+    @Test
+    void imgUpload_Success() throws IOException {
+        // Given
+        String token = "test-token";
+        MultipartFile file = mock(MultipartFile.class);
+        when(file.getOriginalFilename()).thenReturn("test.jpg");
+        when(file.getContentType()).thenReturn("image/jpeg");
+        when(jwtUtil.extractEmail(anyString())).thenReturn("test@example.com");
+
+        // When
+        CommissionFileResponseDto responseDto = commissionService.imgUpload(token, file);
+
+        // Then
+        assertNotNull(responseDto);
+        assertEquals("File uploaded successfully", responseDto.getMessage());
+    }
+
+    @Test
+    void imgUpload_Failure_NonImageFile() {
+        // Given
+        String token = "test-token";
+        MultipartFile file = mock(MultipartFile.class);
+        when(file.getContentType()).thenReturn("application/pdf");
+        when(jwtUtil.extractEmail(anyString())).thenReturn("test@example.com");
+
+        // When
+        CommissionFileResponseDto responseDto = commissionService.imgUpload(token, file);
+
+        // Then
+        assertNotNull(responseDto);
+        assertEquals("Only image files are allowed.", responseDto.getMessage());
+    }
+
+    @Test
+    void imgUpload_Failure_IOException() throws IOException {
+        // Given
+        String token = "test-token";
+        MultipartFile file = mock(MultipartFile.class);
+        when(file.getContentType()).thenReturn("image/jpeg");
+        when(file.getOriginalFilename()).thenReturn("test.jpg");
+        doThrow(new IOException("Test IOException")).when(file).transferTo(any(File.class));
+        when(jwtUtil.extractEmail(anyString())).thenReturn("test@example.com");
+
+        // When
+        CommissionFileResponseDto responseDto = commissionService.imgUpload(token, file);
+
+        // Then
+        assertNotNull(responseDto);
+        assertEquals("File upload failed", responseDto.getMessage());
+    }
+
+//
+//    @Test
+//    void imgGet_Success() throws IOException {
+//
+//    // Given
+//        String token = "test-token";
+//        String fileName = "test.jpg";
+//        Path filePath = Paths.get("/uploads/" + fileName);
+//
+//        try (MockedStatic<Files> filesMock = mockStatic(Files.class)) {
+//            filesMock.when(() -> Files.exists(filePath)).thenReturn(true);
+//            filesMock.when(() -> Files.readAllBytes(filePath)).thenReturn(new byte[10]);
+//
+//            when(jwtUtil.extractEmail(anyString())).thenReturn("test@example.com");
+//
+//            // When
+//            CommissionFileGetResponseDto responseDto = commissionService.imgGet(token, fileName);
+//
+//            // Then
+//            assertNotNull(responseDto);
+//            assertEquals("File retrieved successfully", responseDto.getMessage());
+//        }
+//    }
+//
+//    @Test
+//    void imgGet_Failure_FileNotFound() {
+//        // Given
+//        String token = "test-token";
+//        String fileName = "test.jpg";
+//        Path filePath = Paths.get("/uploads/" + fileName);
+//        when(jwtUtil.extractEmail(anyString())).thenReturn("test@example.com");
+//        when(Files.exists(filePath)).thenReturn(false);
+//
+//        // When
+//        CommissionFileGetResponseDto responseDto = commissionService.imgGet(token, fileName);
+//
+//        // Then
+//        assertNotNull(responseDto);
+//        assertEquals("File not found", responseDto.getMessage());
+//    }
+//
+//    @Test
+//    void imgGet_Failure_IOException() throws IOException {
+//        // Given
+//        String token = "test-token";
+//        String fileName = "test.jpg";
+//        Path filePath = Paths.get("/uploads/" + fileName);
+//        when(jwtUtil.extractEmail(anyString())).thenReturn("test@example.com");
+//        when(Files.exists(filePath)).thenReturn(true);
+//        when(Files.readAllBytes(filePath)).thenThrow(new IOException("Test IOException"));
+//
+//        // When
+//        CommissionFileGetResponseDto responseDto = commissionService.imgGet(token, fileName);
+//
+//        // Then
+//        assertNotNull(responseDto);
+//        assertEquals("Failed to retrieve file", responseDto.getMessage());
+//    }
 }

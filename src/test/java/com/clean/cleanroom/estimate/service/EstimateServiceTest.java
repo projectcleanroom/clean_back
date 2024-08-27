@@ -2,6 +2,7 @@ package com.clean.cleanroom.estimate.service;
 
 import com.clean.cleanroom.commission.entity.Commission;
 import com.clean.cleanroom.commission.repository.CommissionRepository;
+import com.clean.cleanroom.estimate.dto.EstimateDetailResponseDto;
 import com.clean.cleanroom.estimate.dto.EstimateListResponseDto;
 import com.clean.cleanroom.estimate.dto.EstimateResponseDto;
 import com.clean.cleanroom.estimate.entity.Estimate;
@@ -213,6 +214,84 @@ public class EstimateServiceTest {
         assertThrows(CustomException.class, () -> {
             estimateService.getAllEstimates(token, commissionId);
         });
+    }
+
+    @Test
+    void getEstimateById_Success() {
+        // Given
+        String token = "Bearer sampleToken";
+        Long estimateId = 1L;
+        String email = "test@example.com";
+        Members members = mock(Members.class);
+        Long memberId = 1L;
+
+        Commission commission = mock(Commission.class); // Commission 객체를 여기서 선언
+        Estimate estimate = mock(Estimate.class); // Estimate 객체를 여기서 선언
+
+        when(jwtUtil.extractEmail(anyString())).thenReturn(email);
+        when(membersRepository.findByEmail(anyString())).thenReturn(Optional.of(members));
+        when(members.getId()).thenReturn(memberId);
+        when(estimateRepository.findById(anyLong())).thenReturn(Optional.of(estimate));
+        when(estimate.getCommission()).thenReturn(commission);
+        when(commission.getMembers()).thenReturn(members);
+
+        // When
+        EstimateDetailResponseDto response = estimateService.getEstimateById(token, estimateId);
+
+        // Then
+        assertNotNull(response);
+        verify(estimateRepository, times(1)).findById(estimateId);
+        verify(estimate, times(1)).getCommission();
+        verify(commission, times(1)).getMembers();
+    }
+
+    @Test
+    void getEstimateById_ThrowsException_IfEstimateNotFound() {
+        // Given
+        String token = "Bearer sampleToken";
+        Long estimateId = 1L;
+        String email = "test@example.com";
+
+        when(jwtUtil.extractEmail(anyString())).thenReturn(email);
+        when(membersRepository.findByEmail(anyString())).thenReturn(Optional.of(mock(Members.class)));
+        when(estimateRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        // When & Then
+        CustomException exception = assertThrows(CustomException.class, () -> {
+            estimateService.getEstimateById(token, estimateId);
+        });
+
+        assertEquals(ErrorMsg.ESTIMATE_NOT_FOUND.getCode(), exception.getErrorMsg().getCode());
+    }
+
+    @Test
+    void getEstimateById_ThrowsException_IfUnauthorizedMember() {
+        // Given
+        String token = "Bearer sampleToken";
+        Long estimateId = 1L;
+        String email = "test@example.com";
+        Members members = mock(Members.class);
+        Members otherMember = mock(Members.class);
+        Long memberId = 1L;
+        Long otherMemberId = 2L;
+
+        Commission commission = mock(Commission.class); // Commission 객체를 여기서 선언
+        Estimate estimate = mock(Estimate.class); // Estimate 객체를 여기서 선언
+
+        when(jwtUtil.extractEmail(anyString())).thenReturn(email);
+        when(membersRepository.findByEmail(anyString())).thenReturn(Optional.of(members));
+        when(members.getId()).thenReturn(memberId);
+        when(estimateRepository.findById(anyLong())).thenReturn(Optional.of(estimate));
+        when(estimate.getCommission()).thenReturn(commission);
+        when(commission.getMembers()).thenReturn(otherMember);
+        when(otherMember.getId()).thenReturn(otherMemberId);
+
+        // When & Then
+        CustomException exception = assertThrows(CustomException.class, () -> {
+            estimateService.getEstimateById(token, estimateId);
+        });
+
+        assertEquals(ErrorMsg.UNAUTHORIZED_MEMBER.getCode(), exception.getErrorMsg().getCode());
     }
 }
 
