@@ -1,5 +1,6 @@
 package com.clean.cleanroom.estimate.controller;
 
+import com.clean.cleanroom.estimate.dto.EstimateDetailResponseDto;
 import com.clean.cleanroom.estimate.dto.EstimateResponseDto;
 import com.clean.cleanroom.estimate.dto.EstimateListResponseDto;
 import com.clean.cleanroom.estimate.service.EstimateService;
@@ -73,5 +74,25 @@ public class EstimateControllerTest {
         assertEquals(response, result.getBody());
         verify(estimateService, times(1)).getAllEstimates(token, id);
     }
+
+    @Test
+    void getEstimateById_Success() {
+        // Given: 테스트 초기 조건 설정
+        String token = "Bearer sampleToken"; // 가짜 토큰
+        Long id = 1L; // 가짜 ID
+        EstimateDetailResponseDto response = mock(EstimateDetailResponseDto.class);
+
+        // 모킹된 메서드 반환값 설정
+        when(estimateService.getEstimateById(anyString(), any(Long.class))).thenReturn(response);
+
+        // When: 테스트할 동작 실행
+        ResponseEntity<EstimateDetailResponseDto> result = estimateController.getEstimateById(token, id);
+
+        // Then: 기대하는 결과 확인
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertEquals(response, result.getBody());
+        verify(estimateService, times(1)).getEstimateById(token, id);
+    }
+
 }
 

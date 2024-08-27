@@ -12,12 +12,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class CommissionControllerTest {
 
@@ -191,5 +195,72 @@ class CommissionControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(fileData, response.getBody());
     }
+
+    @Test
+    void imgGet_withValidMimeType() throws IOException {
+        // Given: 테스트에 필요한 데이터 설정
+        String token = "test-token";
+        String fileName = "test.jpg";
+        CommissionFileGetResponseDto responseDto = mock(CommissionFileGetResponseDto.class);
+        byte[] fileData = new byte[0];
+
+        when(commissionService.imgGet(anyString(), anyString())).thenReturn(responseDto);
+        when(responseDto.getFileData()).thenReturn(fileData);
+
+        // 실제 파일 시스템을 이용해 파일을 생성 (테스트가 끝난 후 파일 삭제)
+        Path filePath = Paths.get("uploads/" + fileName);
+        if (!Files.exists(filePath)) {
+            Files.createDirectories(filePath.getParent()); // 테스트를 위한 디렉토리 생성
+            Files.createFile(filePath); // 테스트를 위한 파일 생성
+        }
+
+        // When: 실제 메서드 호출
+        ResponseEntity<byte[]> response;
+        try {
+            response = commissionController.imgGet(token, fileName);
+        } finally {
+            // 테스트가 끝난 후 파일 정리
+            Files.deleteIfExists(filePath);
+        }
+
+        // Then: 결과 검증
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(fileData, response.getBody());
+        assertEquals("image/jpeg", response.getHeaders().getContentType().toString());
+    }
+
+    @Test
+    void imgUpload_withEmptyFileHandledByService() throws IOException {
+        // Given
+        String token = "test-token";
+        MultipartFile file = mock(MultipartFile.class);
+        when(file.isEmpty()).thenReturn(true);
+
+        // 모킹된 서비스가 빈 파일에 대해 예외를 던지도록 설정 (이 부분이 비즈니스 로직에 따라 다름)
+        when(commissionService.imgUpload(anyString(), any(MultipartFile.class)))
+                .thenThrow(new IllegalArgumentException("File is empty"));
+
+        // When & Then
+        assertThrows(IllegalArgumentException.class, () -> {
+            commissionController.imgUpload(token, file);
+        });
+    }
+
+
+    @Test
+    void imgGet_withInvalidFileName() {
+        // Given
+        String token = "test-token";
+        String invalidFileName = "invalid_file_name.jpg";
+
+        when(commissionService.imgGet(anyString(), eq(invalidFileName)))
+                .thenThrow(new RuntimeException("File not found"));
+
+        // When & Then
+        assertThrows(RuntimeException.class, () -> {
+            commissionController.imgGet(token, invalidFileName);
+        });
+    }
+
 
 }
