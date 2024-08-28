@@ -10,7 +10,6 @@ import java.util.Optional;
 
 public interface CommissionRepository extends JpaRepository<Commission, Long> {
 
-    @EntityGraph(attributePaths = {"members", "address", "estimates"}) //@EntityGraph를 사용하여 Members와 Address, estimates를 미리 로드
     Optional<List<Commission>> findByMembersId(Long membersId);
 
     Optional<Commission> findByIdAndMembersId(Long id, Long membersId);
