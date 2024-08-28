@@ -1,5 +1,6 @@
 package com.clean.cleanroom.members.service;
 
+import com.clean.cleanroom.enums.LoginType;
 import com.clean.cleanroom.exception.CustomException;
 import com.clean.cleanroom.exception.ErrorMsg;
 import com.clean.cleanroom.members.dto.*;
@@ -21,7 +22,11 @@ public class MembersService {
     }
 
     @Transactional
-    public MembersSignupResponseDto signup(MembersRequestDto requestDto) {
+    public MembersSignupResponseDto signup(MembersSignupRequestDto requestDto) {
+        // 일반 유저만 처리
+        if (requestDto.getLoginType() != LoginType.REGULAR) {
+            throw new CustomException(ErrorMsg.INVALID_SIGNUP_REQUEST);
+        }
         // email 유무
         if (membersRepository.existsByEmail(requestDto.getEmail())){
             throw new CustomException(ErrorMsg.DUPLICATE_EMAIL);
@@ -31,15 +36,15 @@ public class MembersService {
             throw new CustomException(ErrorMsg.DUPLICATE_NICK);
         }
         // phoneNumber 존재 유무
-        if (membersRepository.existsByPhoneNumber(requestDto.getPhoneNumber())){
+        if (requestDto.getPhoneNumber() != null && membersRepository.existsByPhoneNumber(requestDto.getPhoneNumber())) {
             throw new CustomException(ErrorMsg.DUPLICATE_PHONENUMBER);
         }
+        // 일반 회원으로 등록 (비밀번호는 필수이므로 바로 설정)
+        Members member = new Members(requestDto);
+        member.setPassword(requestDto.getPassword());
 
-        // 패스워드 Hashing
-        Members members = new Members(requestDto);
-        members.setPassword(requestDto.getPassword());
-        membersRepository.save(members);
-        return new MembersSignupResponseDto(members);
+        membersRepository.save(member);
+        return new MembersSignupResponseDto(member);
     }
 
     @Transactional
@@ -53,9 +58,11 @@ public class MembersService {
                 membersRepository.existsByNick(requestDto.getNick())){
             throw new CustomException(ErrorMsg.DUPLICATE_NICK);
         }
+
         // phoneNumber 존재 유무
-        if (!members.getPhoneNumber().equals(requestDto.getPhoneNumber()) &&
-                membersRepository.existsByPhoneNumber(requestDto.getPhoneNumber())){
+        if (requestDto.getPhoneNumber() != null &&
+                !requestDto.getPhoneNumber().equals(members.getPhoneNumber()) &&
+                membersRepository.existsByPhoneNumber(requestDto.getPhoneNumber())) {
             throw new CustomException(ErrorMsg.DUPLICATE_PHONENUMBER);
         }
         // 비밀번호 일치 확인

@@ -14,9 +14,6 @@ public class MembersLoginResponseDto {
     public MembersLoginResponseDto(Members members) {
         this.email = members.getEmail();
         this.nick = members.getNick();
-    }
-
-    public MembersLoginResponseDto(String message) {
-        this.message = message;
+        this.message = "로그인 성공!";
     }
 }

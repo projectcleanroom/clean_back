@@ -17,7 +17,8 @@ public enum ErrorMsg {
     PASSWORD_INCORRECT(HttpStatus.BAD_REQUEST, 1002, "비밀번호가 옳지 않습니다."),
     MISSING_AUTHORIZATION_HEADER(HttpStatus.BAD_REQUEST, 1004, "Authorization 헤더가 없거나 형식이 올바르지 않습니다."),
     INVALID_PASSWORD(HttpStatus.BAD_REQUEST, 1005, "잘못된 비밀번호 입니다."),
-
+    FAILED_TO_PARSE_KAKAO_RESPONSE(HttpStatus.BAD_REQUEST, 1006, "카카오 사용자 정보 응답을 처리하는 중 오류가 발생했습니다."),
+    INVALID_SIGNUP_REQUEST(HttpStatus.BAD_REQUEST, 1007, "회원가입 요청이 유효하지 않습니다."),
 
     /* 401 UNAUTHORIZED : 인증되지 않음 */
     UNAUTHORIZED_MEMBER(HttpStatus.UNAUTHORIZED, 2001, "인증되지 않은 사용자입니다."),

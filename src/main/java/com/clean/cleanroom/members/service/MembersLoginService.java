@@ -22,33 +22,46 @@ public class MembersLoginService {
     private final JwtUtil jwtUtil;
     private final TokenService tokenService;
 
-    // 로그인 로직
+    // 일반 로그인 로직
     public ResponseEntity<MembersLoginResponseDto> login(MembersLoginRequestDto requestDto) {
-        // 이메일로 회원을 조회. 없으면 예외를 던짐
-        Members member = membersRepository.findByEmail(requestDto.getEmail())
-                .orElseThrow(() -> new CustomException(ErrorMsg.INVALID_ID));
+        // 이메일로 회원을 조회
+        Members member = getMemberByEmail(requestDto.getEmail());
 
-        // 비밀번호가 일치하는지 확인. 일치하지 않으면 예외를 던짐
+        // 비밀번호 검증
         if (!member.checkPassword(requestDto.getPassword())) {
-            throw new CustomException(ErrorMsg.INVALID_PASSWORD);
+            throw new CustomException(ErrorMsg.INVALID_PASSWORD); // 비밀번호가 일치하지 않으면 예외 발생
         }
 
-        // JWT 토큰 생성
+        // 공통 로직 호출 (JWT 토큰 생성 및 응답 반환)
+        return generateLoginResponse(member);
+    }
+
+    // 카카오 로그인 로직
+    public ResponseEntity<MembersLoginResponseDto> kakaoLogin(MembersLoginRequestDto requestDto) {
+        // 이메일로 회원을 조회
+        Members member = getMemberByEmail(requestDto.getEmail());
+
+        // 카카오 로그인은 비밀번호 검증 없이 바로 로그인 처리
+
+        // 공통 로직 호출 (JWT 토큰 생성 및 응답 반환)
+        return generateLoginResponse(member);
+    }
+
+    // 공통 로직: 이메일로 회원을 조회하고 없으면 예외를 던짐
+    private Members getMemberByEmail(String email) {
+        return membersRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorMsg.INVALID_ID));
+    }
+
+    // 공통 로직: JWT 토큰 생성 및 응답 반환
+    private ResponseEntity<MembersLoginResponseDto> generateLoginResponse(Members member) {
         String token = jwtUtil.generateAccessToken(member.getEmail());
         String refreshToken = jwtUtil.generateRefreshToken(member.getEmail());
-
-        // 비동기적으로 토큰 저장
-        tokenService.saveTokenAsync(member, refreshToken);
-
-        // HTTP 헤더에 토큰 추가
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + token);
         headers.set("Refresh-Token", "Bearer " + refreshToken);
-
-        // 응답 DTO 생성
         MembersLoginResponseDto responseDto = new MembersLoginResponseDto(member);
 
-        // 응답 반환
         return ResponseEntity.ok()
                 .headers(headers)
                 .body(responseDto);
