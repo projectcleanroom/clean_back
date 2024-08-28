@@ -12,6 +12,7 @@ import com.clean.cleanroom.members.entity.Members;
 import com.clean.cleanroom.members.repository.AddressRepository;
 import com.clean.cleanroom.members.repository.MembersRepository;
 import com.clean.cleanroom.util.JwtUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -23,17 +24,20 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
 
 @Service
+@Slf4j
 public class CommissionService {
 
     private final CommissionRepository commissionRepository;
     private final MembersRepository membersRepository;
     private final AddressRepository addressRepository;
     private final JwtUtil jwtUtil;
+
 
     public CommissionService(CommissionRepository commissionRepository, MembersRepository membersRepository, AddressRepository addressRepository, JwtUtil jwtUtil) {
         this.commissionRepository = commissionRepository;
@@ -43,7 +47,7 @@ public class CommissionService {
     }
 
     //청소의뢰 생성 서비스
-    public List<CommissionCreateResponseDto> createCommission(String email, CommissionCreateRequestDto requestDto) {
+    public CommissionCreateResponseDto createCommission(String email, CommissionCreateRequestDto requestDto) {
 
         //의뢰한 회원찾기
         Members members = getMemberByEmail(email);
@@ -54,13 +58,12 @@ public class CommissionService {
         //청소의뢰 객채 생성 + 저장
         saveCommission(members, address, requestDto);
 
-        //내 청소의뢰내역 전체조회
-        return getMemberCommissionsByEmail(email, CommissionCreateResponseDto.class);
+        return new CommissionCreateResponseDto();
     }
 
     //청소의로 수정 서비스
     @Transactional
-    public List<CommissionUpdateResponseDto> updateCommission(String email, Long commissionId, Long addressId, CommissionUpdateRequestDto requestDto) {
+    public CommissionUpdateResponseDto updateCommission(String email, Long commissionId, Long addressId, CommissionUpdateRequestDto requestDto) {
 
         //수정할 회원 찾기
         Members members = getMemberByEmail(email);
@@ -74,12 +77,14 @@ public class CommissionService {
         //청소의뢰를 업데이트(요청데이터와, 수정주소)
         commission.update(requestDto, address);
 
-        //내 청소의뢰내역 전체조회
-        return getMemberCommissionsByEmail(email, CommissionUpdateResponseDto.class);
+        //업데이트 된 청소의뢰 엔티티를 -> DTO로 변환해 반환하기
+        CommissionUpdateResponseDto responseDto = new CommissionUpdateResponseDto(commission);
+
+        return responseDto;
     }
 
     //청소의뢰 취소 서비스
-    public List<CommissionCancelResponseDto> cancelCommission(String email, Long commissionId) {
+    public CommissionCancelResponseDto cancelCommission(String email, Long commissionId) {
 
         //회원 찾기
         Members members = getMemberByEmail(email);
@@ -90,13 +95,13 @@ public class CommissionService {
         //청소 의뢰 삭제
         commissionRepository.delete(commission);
 
-        //내 청소의뢰내역 전체조회
-        return getMemberCommissionsByEmail(email, CommissionCancelResponseDto.class);
+        //메시지 반환
+        return new CommissionCancelResponseDto();
     }
 
     // 특정 회원(나) 청소의뢰 내역 전체조회
     @Transactional(readOnly = true)
-    public <T> List<T> getMemberCommissionsByEmail(String email, Class<T> responseType) {
+    public  List<MyCommissionResponseDto> getMemberCommissionsByEmail(String email) {
 
         //회원 찾기
         Members members = getMemberByEmail(email);
@@ -105,20 +110,27 @@ public class CommissionService {
         List<Commission> commissions = commissionRepository.findByMembersId(members.getId())
                 .orElseThrow(() -> new CustomException(ErrorMsg.MEMBER_NOT_FOUND));
 
-        return convertToDtoList(commissions, responseType);
+        // Commission 리스트를 MyCommissionResponseDto 리스트로 변환
+        List<MyCommissionResponseDto> commissionResponseDtos = new ArrayList<>();
+        for (Commission commission : commissions) {
+            commissionResponseDtos.add(new MyCommissionResponseDto(commission));
+        }
+
+        //변환된 Dto리스트 반환
+        return commissionResponseDtos;
     }
 
 
     //전체 청소의뢰를 조회하는 서비스
-    public List<CommissionCreateResponseDto> getAllCommissions() {
+    public List<MyCommissionResponseDto> getAllCommissions() {
 
         //청소의뢰 객체 전체 찾기
         List<Commission> commissions = commissionRepository.findAll();
 
         //찾은 청소 의뢰 객체들을 담아줄 DTO리스트 생성
-        List<CommissionCreateResponseDto> responseDtoList = new ArrayList<>();
+        List<MyCommissionResponseDto> responseDtoList = new ArrayList<>();
         for (Commission commission : commissions) {
-            responseDtoList.add(new CommissionCreateResponseDto(commission)); //for 문으로 하나씩 담아주기
+            responseDtoList.add(new MyCommissionResponseDto(commission)); //for 문으로 하나씩 담아주기
         }
 
         return responseDtoList;
@@ -182,25 +194,6 @@ public class CommissionService {
         return commissionRepository.findByIdAndMembersId(commissionId, members.getId())
                 .orElseThrow(() -> new CustomException(ErrorMsg.COMMISSION_NOT_FOUND_OR_UNAUTHORIZED));
     }
-
-
-    // 청소의뢰 내역 리스트를 -> 각각의 반환타입 DTO타입 리스트에 맞도록 변환해 담아주는 매서드
-    private <T> List<T> convertToDtoList(List<Commission> commissions, Class<T> responseType) {
-        List<T> responseDtoList = new ArrayList<>();
-        for (Commission commission : commissions) {
-            if (responseType == CommissionCreateResponseDto.class) {
-                responseDtoList.add(responseType.cast(new CommissionCreateResponseDto(commission)));
-            } else if (responseType == CommissionUpdateResponseDto.class) {
-                responseDtoList.add(responseType.cast(new CommissionUpdateResponseDto(commission)));
-            } else if (responseType == CommissionCancelResponseDto.class) {
-                responseDtoList.add(responseType.cast(new CommissionCancelResponseDto(commission)));
-            } else if (responseType == MyCommissionResponseDto.class) {
-                responseDtoList.add(responseType.cast(new MyCommissionResponseDto(commission)));
-            }
-        }
-        return responseDtoList;
-    }
-
 
 
     private static final Logger logger = LoggerFactory.getLogger(CommissionService.class);
