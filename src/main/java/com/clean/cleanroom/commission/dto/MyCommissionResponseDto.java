@@ -22,9 +22,9 @@ public class MyCommissionResponseDto {
     private StatusType status;
 
 
-    public MyCommissionResponseDto(Commission commission) {
+    public MyCommissionResponseDto(Commission commission, String memberNick) {
         this.commissionId = commission.getId();
-        this.memberNick = commission.getMembers().getNick();
+        this.memberNick = memberNick;
         this.size = commission.getSize();
         this.houseType = commission.getHouseType();
         this.cleanType = commission.getCleanType();

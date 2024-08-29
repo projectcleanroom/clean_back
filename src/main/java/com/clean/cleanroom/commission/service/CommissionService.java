@@ -7,6 +7,7 @@ import com.clean.cleanroom.estimate.dto.EstimateResponseDto;
 import com.clean.cleanroom.estimate.entity.Estimate;
 import com.clean.cleanroom.exception.CustomException;
 import com.clean.cleanroom.exception.ErrorMsg;
+import com.clean.cleanroom.members.dto.MemberIdAndNickDto;
 import com.clean.cleanroom.members.entity.Address;
 import com.clean.cleanroom.members.entity.Members;
 import com.clean.cleanroom.members.repository.AddressRepository;
@@ -103,39 +104,25 @@ public class CommissionService {
     @Transactional(readOnly = true)
     public  List<MyCommissionResponseDto> getMemberCommissionsByEmail(String email) {
 
-        //회원 찾기
-        Members members = getMemberByEmail(email);
+        //회원 ID와 닉네임 가져오기
+        MemberIdAndNickDto memberInfo = membersRepository.findMemberIdByEmailNative(email);
+        Long membersId = memberInfo.getId();
+        String membernick = memberInfo.getNick();
 
         //청소의뢰 객체 찾기 (리스트로)
-        List<Commission> commissions = commissionRepository.findByMembersId(members.getId())
+        List<Commission> commissions = commissionRepository.findByMembersId(membersId)
                 .orElseThrow(() -> new CustomException(ErrorMsg.MEMBER_NOT_FOUND));
 
         // Commission 리스트를 MyCommissionResponseDto 리스트로 변환
         List<MyCommissionResponseDto> commissionResponseDtos = new ArrayList<>();
         for (Commission commission : commissions) {
-            commissionResponseDtos.add(new MyCommissionResponseDto(commission));
+            commissionResponseDtos.add(new MyCommissionResponseDto(commission, membernick));
         }
 
         //변환된 Dto리스트 반환
         return commissionResponseDtos;
     }
 
-
-    //전체 청소의뢰를 조회하는 서비스
-    public List<MyCommissionResponseDto> getAllCommissions() {
-
-        //청소의뢰 객체 전체 찾기
-        List<Commission> commissions = commissionRepository.findAll();
-
-        //찾은 청소 의뢰 객체들을 담아줄 DTO리스트 생성
-        List<MyCommissionResponseDto> responseDtoList = new ArrayList<>();
-        for (Commission commission : commissions) {
-            responseDtoList.add(new MyCommissionResponseDto(commission)); //for 문으로 하나씩 담아주기
-        }
-
-        return responseDtoList;
-
-    }
 
     //청소의뢰 단건조회
     public CommissionConfirmDetailResponseDto getCommissionDetailConfirm(String email, Long commissionId) {
@@ -182,6 +169,7 @@ public class CommissionService {
         return membersRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(ErrorMsg.MEMBER_NOT_FOUND));
     }
+
 
     //주소 찾는 메서드
     private Address getAddressById(Long addressId) {
