@@ -16,6 +16,8 @@ import com.clean.cleanroom.util.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -48,6 +50,7 @@ public class CommissionService {
     }
 
     //청소의뢰 생성 서비스
+    @CacheEvict(value = "commissionCache", key = "#email")
     public CommissionCreateResponseDto createCommission(String email, CommissionCreateRequestDto requestDto) {
 
         //의뢰한 회원찾기
@@ -64,6 +67,7 @@ public class CommissionService {
 
     //청소의로 수정 서비스
     @Transactional
+    @CacheEvict(value = "commissionCache", key = "#email")
     public CommissionUpdateResponseDto updateCommission(String email, Long commissionId, Long addressId, CommissionUpdateRequestDto requestDto) {
 
         //수정할 회원 찾기
@@ -85,6 +89,7 @@ public class CommissionService {
     }
 
     //청소의뢰 취소 서비스
+    @CacheEvict(value = "commissionCache", key = "#email")
     public CommissionCancelResponseDto cancelCommission(String email, Long commissionId) {
 
         //회원 찾기
@@ -102,7 +107,8 @@ public class CommissionService {
 
     // 특정 회원(나) 청소의뢰 내역 전체조회
     @Transactional(readOnly = true)
-    public  List<MyCommissionResponseDto> getMemberCommissionsByEmail(String email) {
+    @Cacheable(value = "commissionCache", key = "#email")
+    public List<MyCommissionResponseDto> getMemberCommissionsByEmail(String email) {
 
         //회원 ID와 닉네임 가져오기
         MemberIdAndNickDto memberInfo = membersRepository.findMemberIdByEmailNative(email);
