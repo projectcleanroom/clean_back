@@ -26,6 +26,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String path = request.getRequestURI();
+        String query = request.getQueryString();
 
         // 특정 경로에 대해서는 필터를 적용하지 않습니다.
         if ("/api/members/login".equals(path) ||
