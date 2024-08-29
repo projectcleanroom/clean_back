@@ -103,6 +103,7 @@ public class EstimateService {
             estimateListResponseDtos.add(estimateListResponseDto);
         }
         return estimateListResponseDtos;
+        //
     }
 
 
@@ -119,6 +120,8 @@ public class EstimateService {
         // 견적에 연결된 의뢰 가져오기
         Commission commission = estimate.getCommission();
 
+        Partner partner = estimate.getPartner();
+
         // 의뢰의 소유자 가져오기
         Members owner = commission.getMembers();
 
@@ -127,7 +130,7 @@ public class EstimateService {
             throw new CustomException(ErrorMsg.UNAUTHORIZED_MEMBER);
         }
 
-        return new EstimateDetailResponseDto (estimate);
+        return new EstimateDetailResponseDto (estimate, commission, partner);
     }
 
 
