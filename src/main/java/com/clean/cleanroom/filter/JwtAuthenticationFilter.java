@@ -31,7 +31,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if ("/api/members/login".equals(path) ||
                 "/api/members/signup".equals(path) ||
                 "/api/members/kakao-login".equals(path) ||
-                "/api/commission/upload".equals(path)) {
+                ("/api/commission/upload".equals(path) && query != null && query.startsWith("file="))) {
             chain.doFilter(request, response);
             return;
         }
