@@ -67,6 +67,14 @@ public class Members {
         this.password = null; // 카카오 유저는 비밀번호가 없음
     }
 
+    public Members(MembersSignupRequestDto requestDto, String encodedPassword) {
+        this.email = requestDto.getEmail();
+        this.nick = requestDto.getNick();
+        this.loginType = requestDto.getLoginType();
+        this.phoneNumber = requestDto.getPhoneNumber();
+        this.password = encodedPassword;
+        this.kakaoId = null; // 카카오 ID는 null로 설정
+    }
 
     // 회원 정보를 업데이트하는 메서드
     public void updateMembers(MembersUpdateProfileRequestDto requestDto) {
@@ -76,11 +84,6 @@ public class Members {
         if (requestDto.getPhoneNumber() != null) {
             this.phoneNumber = requestDto.getPhoneNumber();
         }
-    }
-    // 비밀번호 확인 메서드
-    public boolean checkPassword(String rawPassword) {
-        // 이 메서드는 단순히 비밀번호 비교만 수행
-        return PasswordUtil.matches(rawPassword, this.password);
     }
 
     // 비밀번호 설정 메서드
