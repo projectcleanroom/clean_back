@@ -6,10 +6,13 @@ import com.clean.cleanroom.members.dto.MembersLoginResponseDto;
 import com.clean.cleanroom.members.dto.MembersLogoutResponseDto;
 import com.clean.cleanroom.members.service.KakaoLoginService;
 import com.clean.cleanroom.members.service.MembersLoginService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/members")
@@ -31,7 +34,7 @@ public class MembersLoginAndLogoutController {
     }
 
     @PostMapping("/kakao-login")
-    public ResponseEntity<MembersLoginResponseDto> socialKakaoLogin(@RequestBody KakaoAuthCodeRequestDto kakaoAuthCodeRequestDto) {
-        return kakaoLoginService.socialKakaoLogin(kakaoAuthCodeRequestDto);
+    public void socialKakaoLogin(@RequestBody KakaoAuthCodeRequestDto kakaoAuthCodeRequestDto, HttpServletResponse response) throws IOException {
+        kakaoLoginService.socialKakaoLogin(kakaoAuthCodeRequestDto, response);
     }
 }
