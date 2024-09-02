@@ -26,9 +26,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String path = request.getRequestURI();
+        String query = request.getQueryString();
 
         // 특정 경로에 대해서는 필터를 적용하지 않습니다.
-        if ("/api/members/login".equals(path) || "/api/members/signup".equals(path)) {
+        if ("/api/members/login".equals(path) ||
+                "/api/members/signup".equals(path) ||
+                "/api/members/verify-email".equals(path) ||
+                "/api/members/request-email-verification".equals(path) ||
+                "/api/members/kakao-login".equals(path) ||
+                ("/api/commission/upload".equals(path) && query != null && query.startsWith("file="))) {
             chain.doFilter(request, response);
             return;
         }

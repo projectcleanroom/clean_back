@@ -35,6 +35,10 @@ public class Address {
     @Column(nullable = false, length = 500)
     private String addressCode;
 
+    @ManyToOne
+    @JoinColumn(name = "member_id")
+    private Members members;
+
     public Address(String email, MembersAddressRequestDto requestDto) {
         this.email = email;
         this.address = requestDto.getAddress();

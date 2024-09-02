@@ -2,7 +2,6 @@ package com.clean.cleanroom.config;
 
 import com.clean.cleanroom.filter.JwtAuthenticationFilter;
 import com.clean.cleanroom.util.JwtUtil;
-import com.clean.cleanroom.jwt.service.TokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -13,7 +12,6 @@ import org.springframework.context.annotation.Configuration;
 public class WebConfig {
 
     private final JwtUtil jwtUtil;
-    private final TokenService tokenService;
 
     @Bean
     public FilterRegistrationBean<JwtAuthenticationFilter> jwtFilter() {

@@ -30,33 +30,33 @@ public class CommissionController {
 
     //청소의뢰 생성
     @PostMapping
-    public ResponseEntity<List<CommissionCreateResponseDto>> createCommission(HttpServletRequest request, @RequestBody CommissionCreateRequestDto requestDto) {
+    public ResponseEntity<CommissionCreateResponseDto> createCommission(HttpServletRequest request, @RequestBody CommissionCreateRequestDto requestDto) {
         String email = tokenService.getEmailFromRequest(request); //헤더의 토큰에서 이메일 추출
 
-        List<CommissionCreateResponseDto> responseDtoList = commissionService.createCommission(email, requestDto);
+        CommissionCreateResponseDto responseDtoList = commissionService.createCommission(email, requestDto);
         return new ResponseEntity<>(responseDtoList, HttpStatus.CREATED);
     }
 
 
     //청소의뢰 수정
     @PatchMapping
-    public ResponseEntity<List<CommissionUpdateResponseDto>> updateCommission(
+    public ResponseEntity<CommissionUpdateResponseDto> updateCommission(
             HttpServletRequest request,
             @RequestParam Long commissionId,
             @RequestParam Long addressId,
             @RequestBody CommissionUpdateRequestDto requestDto) {
 
         String email = tokenService.getEmailFromRequest(request); //헤더의 토큰에서 이메일 추출
-        List<CommissionUpdateResponseDto> responseDtoList = commissionService.updateCommission(email, commissionId, addressId, requestDto);
+        CommissionUpdateResponseDto responseDtoList = commissionService.updateCommission(email, commissionId, addressId, requestDto);
         return new ResponseEntity<>(responseDtoList, HttpStatus.OK);
     }
 
     //청소의뢰 취소
     @DeleteMapping
-    public ResponseEntity<List<CommissionCancelResponseDto>> cancelCommission(HttpServletRequest request, @RequestParam Long commissionId) {
+    public ResponseEntity<CommissionCancelResponseDto> cancelCommission(HttpServletRequest request, @RequestParam Long commissionId) {
         String email = tokenService.getEmailFromRequest(request); //헤더의 토큰에서 이메일 추출
 
-        List<CommissionCancelResponseDto> responseDtoList = commissionService.cancelCommission(email, commissionId);
+        CommissionCancelResponseDto responseDtoList = commissionService.cancelCommission(email, commissionId);
         return new ResponseEntity<>(responseDtoList, HttpStatus.OK);
     }
 
@@ -65,7 +65,7 @@ public class CommissionController {
     public ResponseEntity<List<MyCommissionResponseDto>> getMyCommission(HttpServletRequest request) {
         String email = tokenService.getEmailFromRequest(request); //헤더의 토큰에서 이메일 추출
 
-        List<MyCommissionResponseDto> responseDtoList = commissionService.getMemberCommissionsByEmail(email, MyCommissionResponseDto.class);
+        List<MyCommissionResponseDto> responseDtoList = commissionService.getMemberCommissionsByEmail(email);
         return new ResponseEntity<>(responseDtoList, HttpStatus.OK);
     }
 
