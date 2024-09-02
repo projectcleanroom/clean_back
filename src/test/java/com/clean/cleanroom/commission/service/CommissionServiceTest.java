@@ -16,15 +16,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
@@ -61,11 +57,11 @@ class CommissionServiceTest {
         CommissionCreateRequestDto requestDto = mock(CommissionCreateRequestDto.class);
         Members member = mock(Members.class);
         Address address = mock(Address.class);
-        Commission commission = new Commission(member, address, requestDto); // Commission 객체 생성
+        Commission commission = new Commission(member, address, requestDto);
 
         when(membersRepository.findByEmail(anyString())).thenReturn(Optional.of(member));
         when(addressRepository.findById(anyLong())).thenReturn(Optional.of(address));
-        when(commissionRepository.save(any(Commission.class))).thenReturn(commission); // save 메서드 모킹
+        when(commissionRepository.save(any(Commission.class))).thenReturn(commission);
         when(commissionRepository.findTopByMembersIdOrderByIdDesc(anyLong())).thenReturn(Optional.of(commission));
         when(commissionRepository.findByMembersId(anyLong())).thenReturn(Optional.of(List.of(commission)));
 
@@ -92,7 +88,6 @@ class CommissionServiceTest {
             commissionService.createCommission(email, requestDto);
         });
 
-        // ErrorMsg 객체 자체를 비교
         assertEquals(ErrorMsg.MEMBER_NOT_FOUND, exception.getErrorMsg());
     }
 
@@ -112,8 +107,8 @@ class CommissionServiceTest {
         when(commissionRepository.findByIdAndMembersId(anyLong(), anyLong())).thenReturn(Optional.of(commission));
         when(addressRepository.findById(anyLong())).thenReturn(Optional.of(address));
         when(commissionRepository.findByMembersId(anyLong())).thenReturn(Optional.of(List.of(commission)));
-        when(commission.getMembers()).thenReturn(member); // Commission 객체의 getMembers() 모킹
-        when(commission.getAddress()).thenReturn(address); // Commission 객체의 getAddress() 모킹
+        when(commission.getMembers()).thenReturn(member);
+        when(commission.getAddress()).thenReturn(address);
 
         // When
         List<CommissionUpdateResponseDto> result = commissionService.updateCommission(email, commissionId, addressId, requestDto);
@@ -158,8 +153,8 @@ class CommissionServiceTest {
         when(membersRepository.findByEmail(anyString())).thenReturn(Optional.of(member));
         when(commissionRepository.findByIdAndMembersId(anyLong(), anyLong())).thenReturn(Optional.of(commission));
         when(commissionRepository.findByMembersId(anyLong())).thenReturn(Optional.of(List.of(commission)));
-        when(commission.getMembers()).thenReturn(member); // Members 객체를 반환하도록 설정
-        when(commission.getAddress()).thenReturn(address); // Address 객체를 반환하도록 설정
+        when(commission.getMembers()).thenReturn(member);
+        when(commission.getAddress()).thenReturn(address);
 
         // When
         List<CommissionCancelResponseDto> result = commissionService.cancelCommission(email, commissionId);
@@ -243,7 +238,6 @@ class CommissionServiceTest {
             commissionService.getMemberCommissionsByEmail(email, CommissionCreateResponseDto.class);
         });
 
-        // 기대 메시지를 실제 한글 메시지로 수정
         assertEquals("사용자를 찾을 수 없습니다.", exception.getMessage());
     }
 
@@ -268,6 +262,7 @@ class CommissionServiceTest {
 
     @Test
     void getAllCommissions_EmptyList() {
+
         // Given
         when(commissionRepository.findAll()).thenReturn(List.of());
 
@@ -314,12 +309,12 @@ class CommissionServiceTest {
         Long commissionId = 1L;
         Members member = mock(Members.class);
         Commission commission = mock(Commission.class);
-        Address address = mock(Address.class); // Address 객체 추가
+        Address address = mock(Address.class);
 
         when(membersRepository.findByEmail(anyString())).thenReturn(Optional.of(member));
         when(commissionRepository.findByIdAndMembersId(anyLong(), anyLong())).thenReturn(Optional.of(commission));
         when(commission.getEstimates()).thenReturn(List.of());
-        when(commission.getAddress()).thenReturn(address); // Commission에서 Address 반환하도록 설정
+        when(commission.getAddress()).thenReturn(address);
 
         // When
         CommissionConfirmListResponseDto result = commissionService.getCommissionConfirmList(email, commissionId);
@@ -338,12 +333,12 @@ class CommissionServiceTest {
         Long commissionId = 1L;
         Members member = mock(Members.class);
         Commission commission = mock(Commission.class);
-        Address address = mock(Address.class); // Address 객체 추가
+        Address address = mock(Address.class);
 
         when(membersRepository.findByEmail(anyString())).thenReturn(Optional.of(member));
         when(commissionRepository.findByIdAndMembersId(anyLong(), anyLong())).thenReturn(Optional.of(commission));
-        when(commission.getMembers()).thenReturn(member); // Commission에서 Members 반환하도록 설정
-        when(commission.getAddress()).thenReturn(address); // Commission에서 Address 반환하도록 설정
+        when(commission.getMembers()).thenReturn(member);
+        when(commission.getAddress()).thenReturn(address);
 
         // When
         CommissionConfirmDetailResponseDto result = commissionService.getCommissionDetailConfirm(email, commissionId);
