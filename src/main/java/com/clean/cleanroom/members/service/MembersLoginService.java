@@ -86,7 +86,7 @@ public class MembersLoginService {
         response.setHeader("Authorization", "Bearer " + token);
         response.setHeader("Refresh-Token", "Bearer " + refreshToken);
 
-        response.sendRedirect("http://localhost:5173");
+        response.sendRedirect("http://121.125.6.41:5173");
     }
 
     // 로그아웃 로직
