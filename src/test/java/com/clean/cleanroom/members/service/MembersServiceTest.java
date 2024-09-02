@@ -39,7 +39,7 @@ class MembersServiceTest {
     @Test
     void signup_Success() {
         // Given
-        MembersRequestDto requestDto = mock(MembersRequestDto.class);
+        MembersSignupRequestDto requestDto = mock(MembersSignupRequestDto.class);
         when(requestDto.getEmail()).thenReturn("test@example.com");
         when(requestDto.getNick()).thenReturn("testNick");
         when(requestDto.getPhoneNumber()).thenReturn("01012345678");
@@ -61,7 +61,7 @@ class MembersServiceTest {
     @Test
     void signup_ThrowsException_WhenEmailExists() {
         // Given
-        MembersRequestDto requestDto = mock(MembersRequestDto.class);
+        MembersSignupRequestDto requestDto = mock(MembersSignupRequestDto.class);
         when(requestDto.getEmail()).thenReturn("test@example.com");
 
         when(membersRepository.existsByEmail(anyString())).thenReturn(true);
@@ -78,7 +78,7 @@ class MembersServiceTest {
     @Test
     void signup_ThrowsException_WhenNickExists() {
         // Given
-        MembersRequestDto requestDto = mock(MembersRequestDto.class);
+        MembersSignupRequestDto requestDto = mock(MembersSignupRequestDto.class);
         when(requestDto.getNick()).thenReturn("testNick");
 
         when(membersRepository.existsByNick(anyString())).thenReturn(true);
@@ -95,7 +95,7 @@ class MembersServiceTest {
     @Test
     void signup_ThrowsException_WhenPhoneNumberExists() {
         // Given
-        MembersRequestDto requestDto = mock(MembersRequestDto.class);
+        MembersSignupRequestDto requestDto = mock(MembersSignupRequestDto.class);
         when(requestDto.getPhoneNumber()).thenReturn("01012345678");
 
         when(membersRepository.existsByPhoneNumber(anyString())).thenReturn(true);
