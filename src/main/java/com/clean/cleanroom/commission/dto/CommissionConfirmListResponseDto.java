@@ -15,7 +15,7 @@ import java.util.List;
 @Getter
 public class CommissionConfirmListResponseDto {
 
-    private Long id;
+    private Long commissionId;
     private int size;
     private HouseType houseType;
     private CleanType cleanType;
@@ -31,7 +31,7 @@ public class CommissionConfirmListResponseDto {
 
 
     public CommissionConfirmListResponseDto(Commission commission, List<EstimateResponseDto> estimateDtos) {
-        this.id = commission.getId();
+        this.commissionId = commission.getId();
         this.size = commission.getSize();
         this.houseType = commission.getHouseType();
         this.cleanType = commission.getCleanType();

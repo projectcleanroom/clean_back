@@ -10,26 +10,9 @@ import java.time.LocalDateTime;
 @Getter
 public class CommissionCreateResponseDto {
 
-    private Long commissionId;
-    private String memberNick;
-    private int size;
-    private HouseType houseType;
-    private CleanType cleanType;
-    private Long addressId;
-    private LocalDateTime desiredDate;
-    private String significant;
-    private StatusType status;
+    private String message;
 
-
-    public CommissionCreateResponseDto(Commission commission) {
-        this.commissionId = commission.getId();
-        this.memberNick = commission.getMembers().getNick();
-        this.size = commission.getSize();
-        this.houseType = commission.getHouseType();
-        this.cleanType = commission.getCleanType();
-        this.addressId = commission.getAddress().getId();
-        this.desiredDate = commission.getDesiredDate();
-        this.significant = commission.getSignificant();
-        this.status = commission.getStatus();
+    public CommissionCreateResponseDto() {
+        this.message = "청소의뢰 생성 완료";
     }
 }

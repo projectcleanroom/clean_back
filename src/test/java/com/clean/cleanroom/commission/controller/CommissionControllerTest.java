@@ -39,7 +39,7 @@ class CommissionControllerTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        // 생성자를 통해 모킹된 의존성을 주입하여 Controller 생성
+
         commissionController = new CommissionController(commissionService, tokenService);
     }
 
@@ -48,78 +48,73 @@ class CommissionControllerTest {
         // Given
         String email = "test@example.com";
         CommissionCreateRequestDto requestDto = mock(CommissionCreateRequestDto.class);
-        List<CommissionCreateResponseDto> responseDtoList = mock(List.class);
+        CommissionCreateResponseDto responseDto = mock(CommissionCreateResponseDto.class);
 
         when(tokenService.getEmailFromRequest(request)).thenReturn(email);
         when(commissionService.createCommission(anyString(), any(CommissionCreateRequestDto.class)))
-                .thenReturn(responseDtoList);
+                .thenReturn(responseDto);
 
         // When
-        ResponseEntity<List<CommissionCreateResponseDto>> response = commissionController.createCommission(request, requestDto);
+        ResponseEntity<CommissionCreateResponseDto> response = commissionController.createCommission(request, requestDto);
 
         // Then
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        assertEquals(responseDtoList, response.getBody());
+        assertEquals(responseDto, response.getBody());
     }
 
     @Test
     void updateCommission() {
-
         // Given
         String email = "test@example.com";
         Long commissionId = 1L;
         Long addressId = 1L;
         CommissionUpdateRequestDto requestDto = mock(CommissionUpdateRequestDto.class);
-        List<CommissionUpdateResponseDto> responseDtoList = mock(List.class);
+        CommissionUpdateResponseDto responseDto = mock(CommissionUpdateResponseDto.class);
 
         when(tokenService.getEmailFromRequest(request)).thenReturn(email);
         when(commissionService.updateCommission(anyString(), anyLong(), anyLong(), any(CommissionUpdateRequestDto.class)))
-                .thenReturn(responseDtoList);
+                .thenReturn(responseDto);
 
         // When
-        ResponseEntity<List<CommissionUpdateResponseDto>> response = commissionController.updateCommission(request, commissionId, addressId, requestDto);
+        ResponseEntity<CommissionUpdateResponseDto> response = commissionController.updateCommission(request, commissionId, addressId, requestDto);
 
         // Then
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(responseDtoList, response.getBody());
+        assertEquals(responseDto, response.getBody());
     }
 
     @Test
     void cancelCommission() {
-
         // Given
         String email = "test@example.com";
         Long commissionId = 1L;
-        List<CommissionCancelResponseDto> responseDtoList = mock(List.class);
+        CommissionCancelResponseDto responseDto = mock(CommissionCancelResponseDto.class);
 
         when(tokenService.getEmailFromRequest(request)).thenReturn(email);
-        when(commissionService.cancelCommission(anyString(), anyLong())).thenReturn(responseDtoList);
+        when(commissionService.cancelCommission(anyString(), anyLong())).thenReturn(responseDto);
 
         // When
-        ResponseEntity<List<CommissionCancelResponseDto>> response = commissionController.cancelCommission(request, commissionId);
+        ResponseEntity<CommissionCancelResponseDto> response = commissionController.cancelCommission(request, commissionId);
 
         // Then
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(responseDtoList, response.getBody());
+        assertEquals(responseDto, response.getBody());
     }
 
     @Test
     void getMyCommission() {
-
         // Given
         String email = "test@example.com";
         List<MyCommissionResponseDto> responseDtoList = mock(List.class);
 
         when(tokenService.getEmailFromRequest(request)).thenReturn(email);
-        when(commissionService.getMemberCommissionsByEmail(anyString(), any(Class.class))).thenReturn(responseDtoList);
+        when(commissionService.getMemberCommissionsByEmail(anyString()))
+                .thenReturn(responseDtoList);
 
         // When
-        // @SuppressWarnings :컴파일러 경고를 억제하는 어노테이션
-        // mock(List.class)는 제네릭 타입 정보를 무시하고 단순히 List로 취급하기 때문에 컴파일러가 타입 경고를 발생
         ResponseEntity<List<MyCommissionResponseDto>> response = commissionController.getMyCommission(request);
 
         // Then
-
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(responseDtoList, response.getBody());
     }
@@ -246,7 +241,6 @@ class CommissionControllerTest {
         });
     }
 
-
     @Test
     void imgGet_withInvalidFileName() {
         // Given
@@ -261,6 +255,4 @@ class CommissionControllerTest {
             commissionController.imgGet(token, invalidFileName);
         });
     }
-
-
 }

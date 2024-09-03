@@ -19,6 +19,7 @@ class CommissionConfirmListResponseDtoTest {
 
     @Test
     void testCommissionConfirmListResponseDtoConstructor() {
+
         // Given
         Commission commission = mock(Commission.class);
         Address address = mock(Address.class);
@@ -40,7 +41,7 @@ class CommissionConfirmListResponseDtoTest {
         CommissionConfirmListResponseDto responseDto = new CommissionConfirmListResponseDto(commission, estimates);
 
         // Then: 필드 값이 예상대로 설정되었는지 확인
-        assertEquals(1L, responseDto.getId());
+        assertEquals(1L, responseDto.getCommissionId());
         assertEquals(100, responseDto.getSize());
         assertEquals(HouseType.APT, responseDto.getHouseType());
         assertEquals(CleanType.NORMAL, responseDto.getCleanType());
@@ -73,8 +74,8 @@ class CommissionConfirmListResponseDtoTest {
         // When
         CommissionConfirmListResponseDto responseDto = new CommissionConfirmListResponseDto(commission, estimates);
 
-        // Then: 필드 값이 예상대로 설정되었는지 확인
-        assertNull(responseDto.getId());
+        // Then
+        assertNull(responseDto.getCommissionId());
         assertEquals(0, responseDto.getSize());
         assertNull(responseDto.getHouseType());
         assertNull(responseDto.getCleanType());

@@ -12,6 +12,7 @@ import com.clean.cleanroom.exception.ErrorMsg;
 import com.clean.cleanroom.members.entity.Members;
 import com.clean.cleanroom.members.repository.MembersRepository;
 import com.clean.cleanroom.partner.entity.Partner;
+import com.clean.cleanroom.partner.repository.PartnerRepository;
 import com.clean.cleanroom.util.JwtUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -222,18 +223,31 @@ public class EstimateServiceTest {
         String token = "Bearer sampleToken";
         Long estimateId = 1L;
         String email = "test@example.com";
-        Members members = mock(Members.class);
         Long memberId = 1L;
+        Long partnerId = 1L;
 
-        Commission commission = mock(Commission.class); // Commission 객체를 여기서 선언
-        Estimate estimate = mock(Estimate.class); // Estimate 객체를 여기서 선언
+        Members members = mock(Members.class);
+        Commission commission = mock(Commission.class);
+        Estimate estimate = mock(Estimate.class);
+        Partner partner = mock(Partner.class);
 
+        // JWT에서 이메일 추출
         when(jwtUtil.extractEmail(anyString())).thenReturn(email);
+
+        // 이메일로 회원 정보 조회
         when(membersRepository.findByEmail(anyString())).thenReturn(Optional.of(members));
         when(members.getId()).thenReturn(memberId);
+
+        // 견적 ID로 견적 정보 조회
         when(estimateRepository.findById(anyLong())).thenReturn(Optional.of(estimate));
         when(estimate.getCommission()).thenReturn(commission);
+
+        // 의뢰 정보에서 회원 정보 조회
         when(commission.getMembers()).thenReturn(members);
+
+        // Partner 객체 반환 설정
+        when(estimate.getPartner()).thenReturn(partner);
+        when(partner.getId()).thenReturn(partnerId);
 
         // When
         EstimateDetailResponseDto response = estimateService.getEstimateById(token, estimateId);
@@ -243,7 +257,10 @@ public class EstimateServiceTest {
         verify(estimateRepository, times(1)).findById(estimateId);
         verify(estimate, times(1)).getCommission();
         verify(commission, times(1)).getMembers();
+        verify(partner, times(1)).getId(); // Partner 객체의 ID 반환 확인
+        assertEquals(partnerId, partner.getId());
     }
+
 
     @Test
     void getEstimateById_ThrowsException_IfEstimateNotFound() {
