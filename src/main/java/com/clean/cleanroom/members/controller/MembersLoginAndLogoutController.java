@@ -33,7 +33,7 @@ public class MembersLoginAndLogoutController {
         return membersService.logout(accessToken, refreshToken);
     }
 
-    @GetMapping("/kakao-login")
+    @PostMapping("/kakao-login")
     public void socialKakaoLogin(@RequestBody KakaoAuthCodeRequestDto kakaoAuthCodeRequestDto, HttpServletResponse response) throws IOException {
         kakaoLoginService.socialKakaoLogin(kakaoAuthCodeRequestDto, response);
     }
