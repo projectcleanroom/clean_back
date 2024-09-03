@@ -22,6 +22,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -101,19 +102,40 @@ public class KakaoLoginService {
             throw new CustomException(ErrorMsg.FAILED_TO_PARSE_KAKAO_RESPONSE);
         }
     }
-
     private Members findOrCreateKakaoMember(KakaoUserInfoRequestDto kakaoUserInfoRequestDto) {
-        return membersRepository.findByEmail(kakaoUserInfoRequestDto.getEmail())
-                .orElseGet(() -> {
-                    Members newKakaoMember = new Members(
-                            kakaoUserInfoRequestDto.getEmail(),
-                            kakaoUserInfoRequestDto.getNick(),
-                            null, // 초기 phoneNumber는 null로 설정
-                            kakaoUserInfoRequestDto.getKakaoId(),
-                            LoginType.KAKAO // loginType을 명시적으로 설정
-                    );
-                    membersRepository.save(newKakaoMember);
-                    return newKakaoMember;
-                });
+        // 이메일로 회원을 찾음
+        Optional<Members> existingMember = membersRepository.findByEmail(kakaoUserInfoRequestDto.getEmail());
+
+        if (existingMember.isPresent()) {
+            // 이미 존재하는 회원이 있을 경우 해당 회원을 반환
+            return existingMember.get();
+        } else {
+            // 새로운 회원을 생성
+            Members newKakaoMember = new Members(
+                    kakaoUserInfoRequestDto.getEmail(),
+                    kakaoUserInfoRequestDto.getNick(),
+                    null, // 초기 phoneNumber는 null로 설정
+                    kakaoUserInfoRequestDto.getKakaoId(),
+                    LoginType.KAKAO // LoginType을 명시적으로 설정
+            );
+
+            // 회원을 저장하고 반환
+            membersRepository.save(newKakaoMember);
+            return newKakaoMember;
+        }
     }
+    // private Members findOrCreateKakaoMember(KakaoUserInfoRequestDto kakaoUserInfoRequestDto) {
+    //     return membersRepository.findByEmail(kakaoUserInfoRequestDto.getEmail())
+    //             .orElseGet(() -> {
+    //                 Members newKakaoMember = new Members(
+    //                         kakaoUserInfoRequestDto.getEmail(),
+    //                         kakaoUserInfoRequestDto.getNick(),
+    //                         null, // 초기 phoneNumber는 null로 설정
+    //                         kakaoUserInfoRequestDto.getKakaoId(),
+    //                         LoginType.KAKAO // loginType을 명시적으로 설정
+    //                 );
+    //                 membersRepository.save(newKakaoMember);
+    //                 return newKakaoMember;
+    //             });
+    // }
 }
