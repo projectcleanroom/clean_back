@@ -1,10 +1,13 @@
 package com.clean.cleanroom.members.service;
 
+import com.clean.cleanroom.enums.LoginType;
 import com.clean.cleanroom.exception.CustomException;
 import com.clean.cleanroom.exception.ErrorMsg;
 import com.clean.cleanroom.members.dto.*;
 import com.clean.cleanroom.members.entity.Members;
+import com.clean.cleanroom.members.entity.VerificationCode;
 import com.clean.cleanroom.members.repository.MembersRepository;
+import com.clean.cleanroom.members.repository.VerificationCodeRepository;
 import com.clean.cleanroom.util.JwtUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,6 +29,9 @@ class MembersServiceTest {
     private MembersRepository membersRepository;
 
     @Mock
+    private VerificationCodeRepository verificationCodeRepository;
+
+    @Mock
     private JwtUtil jwtUtil;
 
     @Mock
@@ -41,17 +47,23 @@ class MembersServiceTest {
         // Given
         MembersSignupRequestDto requestDto = mock(MembersSignupRequestDto.class);
         when(requestDto.getEmail()).thenReturn("test@example.com");
-        when(requestDto.getNick()).thenReturn("testNick");
-        when(requestDto.getPhoneNumber()).thenReturn("01012345678");
-        when(requestDto.getPassword()).thenReturn("password123");
+        when(requestDto.getNick()).thenReturn("newNick");
+        when(requestDto.getPhoneNumber()).thenReturn("01098765432");
+        when(requestDto.getLoginType()).thenReturn(LoginType.REGULAR);
+        when(requestDto.getPassword()).thenReturn("password123"); // 비밀번호 설정
 
         when(membersRepository.existsByEmail(anyString())).thenReturn(false);
         when(membersRepository.existsByNick(anyString())).thenReturn(false);
         when(membersRepository.existsByPhoneNumber(anyString())).thenReturn(false);
+
+        // Mock the isEmailVerified method to return true
+        MembersService membersServiceSpy = spy(membersService);
+        doReturn(true).when(membersServiceSpy).isEmailVerified(anyString());
+
         when(membersRepository.save(any(Members.class))).thenReturn(members);
 
         // When
-        MembersSignupResponseDto response = membersService.signup(requestDto);
+        MembersSignupResponseDto response = membersServiceSpy.signup(requestDto);
 
         // Then
         assertNotNull(response);
@@ -63,7 +75,7 @@ class MembersServiceTest {
         // Given
         MembersSignupRequestDto requestDto = mock(MembersSignupRequestDto.class);
         when(requestDto.getEmail()).thenReturn("test@example.com");
-
+        when(requestDto.getLoginType()).thenReturn(LoginType.REGULAR);
         when(membersRepository.existsByEmail(anyString())).thenReturn(true);
 
         // When & Then
@@ -79,8 +91,8 @@ class MembersServiceTest {
     void signup_ThrowsException_WhenNickExists() {
         // Given
         MembersSignupRequestDto requestDto = mock(MembersSignupRequestDto.class);
-        when(requestDto.getNick()).thenReturn("testNick");
-
+        when(requestDto.getNick()).thenReturn("newNick");
+        when(requestDto.getLoginType()).thenReturn(LoginType.REGULAR);
         when(membersRepository.existsByNick(anyString())).thenReturn(true);
 
         // When & Then
@@ -97,7 +109,7 @@ class MembersServiceTest {
         // Given
         MembersSignupRequestDto requestDto = mock(MembersSignupRequestDto.class);
         when(requestDto.getPhoneNumber()).thenReturn("01012345678");
-
+        when(requestDto.getLoginType()).thenReturn(LoginType.REGULAR);
         when(membersRepository.existsByPhoneNumber(anyString())).thenReturn(true);
 
         // When & Then

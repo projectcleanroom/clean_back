@@ -39,7 +39,7 @@ class CommissionControllerTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        // 생성자를 통해 모킹된 의존성을 주입하여 Controller 생성
+
         commissionController = new CommissionController(commissionService, tokenService);
     }
 
