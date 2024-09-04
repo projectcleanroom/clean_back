@@ -67,28 +67,14 @@ public class MembersLoginService {
                 .body(responseDto);
     }
 
-    // 카카오 로그인 로직 (리다이렉트 포함)
-    public void kakaoLogin(MembersLoginRequestDto requestDto, HttpServletResponse response) throws IOException {
+    // 카카오 로그인 로직
+    public ResponseEntity<MembersLoginResponseDto> kakaoLogin(MembersLoginRequestDto requestDto) {
         // 이메일로 회원을 조회
         MembersEmailAndPasswordDto memberEmailDto = getMemberByEmail(requestDto.getEmail());
-        // 카카오 로그인은 비밀번호 검증 없이 바로 로그인 처리
 
-        // JWT 토큰 생성 후 리다이렉트
-        generateLoginResponseAndRedirect(memberEmailDto, response);
+        // JWT 토큰 생성 및 응답 반환
+        return generateLoginResponse(memberEmailDto);
     }
-
-
-    // JWT 토큰 생성 후 리다이렉트 (카카오 로그인)
-    private void generateLoginResponseAndRedirect(MembersEmailAndPasswordDto memberEmailDto, HttpServletResponse response) throws IOException {
-        String token = jwtUtil.generateAccessToken(memberEmailDto.getEmail());
-        String refreshToken = jwtUtil.generateRefreshToken(memberEmailDto.getEmail());
-
-        response.setHeader("Authorization", "Bearer " + token);
-        response.setHeader("Refresh-Token", "Bearer " + refreshToken);
-
-        response.sendRedirect("http://121.125.6.41:5173/memberhome");
-    }
-
     // 로그아웃 로직
     public ResponseEntity<MembersLogoutResponseDto> logout(String accessToken, String refreshToken) {
         // Access Token 검증 및 무효화 처리
