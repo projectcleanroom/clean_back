@@ -60,6 +60,7 @@ public class MembersLoginService {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + token);
         headers.set("Refresh-Token", "Bearer " + refreshToken);
+        System.out.println("엑세스 토큰" + token);
         MembersLoginResponseDto responseDto = new MembersLoginResponseDto("로그인 성공!");
 
         return ResponseEntity.ok()
