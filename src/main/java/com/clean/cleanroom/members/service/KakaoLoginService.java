@@ -9,7 +9,6 @@ import com.clean.cleanroom.members.repository.MembersRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
@@ -20,8 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-
-import java.io.IOException;
 
 @Slf4j
 @Service
@@ -38,7 +35,7 @@ public class KakaoLoginService {
     private static final String CLIENT_ID = "65f1cfe772375248de10b233e85b8203";
     private static final String REDIRECT_URI = "https://mb.clean-room.co.kr/api/members/kakao-login";
 
-    public void socialKakaoLogin(KakaoAuthCodeRequestDto kakaoAuthCodeRequestDto, HttpServletResponse response) throws IOException {
+    public ResponseEntity<MembersLoginResponseDto> socialKakaoLogin(KakaoAuthCodeRequestDto kakaoAuthCodeRequestDto) {
         // 1. 카카오 서버로부터 액세스 토큰을 요청
         OAuthTokenDto oauthToken = requestKakaoToken(kakaoAuthCodeRequestDto.getCode());
 
@@ -49,7 +46,7 @@ public class KakaoLoginService {
         Members kakaoMember = findOrCreateKakaoMember(kakaoUserInfoRequestDto);
 
         // 4. 로그인 로직 호출 - 카카오 유저는 비밀번호 없이 로그인
-        membersLoginService.kakaoLogin(new MembersLoginRequestDto(kakaoMember.getEmail(), null), response);
+        return membersLoginService.kakaoLogin(new MembersLoginRequestDto(kakaoMember.getEmail(), null));
     }
 
     private OAuthTokenDto requestKakaoToken(String code) {
@@ -101,7 +98,28 @@ public class KakaoLoginService {
             throw new CustomException(ErrorMsg.FAILED_TO_PARSE_KAKAO_RESPONSE);
         }
     }
-
+//    private Members findOrCreateKakaoMember(KakaoUserInfoRequestDto kakaoUserInfoRequestDto) {
+//        // 이메일로 회원을 찾음
+//        Optional<Members> existingMember = membersRepository.findByEmail(kakaoUserInfoRequestDto.getEmail());
+//
+//        if (existingMember.isPresent()) {
+//            // 이미 존재하는 회원이 있을 경우 해당 회원을 반환
+//            return existingMember.get();
+//        } else {
+//            // 새로운 회원을 생성
+//            Members newKakaoMember = new Members(
+//                    kakaoUserInfoRequestDto.getEmail(),
+//                    kakaoUserInfoRequestDto.getNick(),
+//                    null, // 초기 phoneNumber는 null로 설정
+//                    kakaoUserInfoRequestDto.getKakaoId(),
+//                    LoginType.KAKAO // LoginType을 명시적으로 설정
+//            );
+//
+//            // 회원을 저장하고 반환
+//            membersRepository.save(newKakaoMember);
+//            return newKakaoMember;
+//        }
+//    }
     private Members findOrCreateKakaoMember(KakaoUserInfoRequestDto kakaoUserInfoRequestDto) {
         return membersRepository.findByEmail(kakaoUserInfoRequestDto.getEmail())
                 .orElseGet(() -> {

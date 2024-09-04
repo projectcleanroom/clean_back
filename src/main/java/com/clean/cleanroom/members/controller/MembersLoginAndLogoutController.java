@@ -33,8 +33,9 @@ public class MembersLoginAndLogoutController {
         return membersService.logout(accessToken, refreshToken);
     }
 
+    // 카카오 로그인 처리
     @PostMapping("/kakao-login")
-    public void socialKakaoLogin(@RequestBody KakaoAuthCodeRequestDto kakaoAuthCodeRequestDto, HttpServletResponse response) throws IOException {
-        kakaoLoginService.socialKakaoLogin(kakaoAuthCodeRequestDto, response);
+    public ResponseEntity<MembersLoginResponseDto> socialKakaoLogin(@RequestBody KakaoAuthCodeRequestDto kakaoAuthCodeRequestDto) {
+        return kakaoLoginService.socialKakaoLogin(kakaoAuthCodeRequestDto);
     }
 }
