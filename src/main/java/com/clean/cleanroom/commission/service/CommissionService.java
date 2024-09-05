@@ -38,14 +38,12 @@ public class CommissionService {
     private final CommissionRepository commissionRepository;
     private final MembersRepository membersRepository;
     private final AddressRepository addressRepository;
-    private final JwtUtil jwtUtil;
 
 
-    public CommissionService(CommissionRepository commissionRepository, MembersRepository membersRepository, AddressRepository addressRepository, JwtUtil jwtUtil) {
+    public CommissionService(CommissionRepository commissionRepository, MembersRepository membersRepository, AddressRepository addressRepository) {
         this.commissionRepository = commissionRepository;
         this.membersRepository = membersRepository;
         this.addressRepository = addressRepository;
-        this.jwtUtil = jwtUtil;
     }
 
     //청소의뢰 생성 서비스
@@ -192,7 +190,7 @@ public class CommissionService {
     private static final Logger logger = LoggerFactory.getLogger(CommissionService.class);
     private static final String UPLOAD_DIR = "/uploads/";
     public CommissionFileResponseDto imgUpload(String token, MultipartFile file) {
-        String email = jwtUtil.extractEmail(token);
+        String email = JwtUtil.extractEmail(token);
         try {
             // 이미지 파일만 허용
             if (!isImageFile(file)) {
@@ -229,7 +227,7 @@ public class CommissionService {
 
 
     public CommissionFileGetResponseDto imgGet(String token, String file) {
-        String email = jwtUtil.extractEmail(token);
+        String email = JwtUtil.extractEmail(token);
         Path filePath = Paths.get(UPLOAD_DIR + file);
         try {
             // 파일이 존재하는지 확인

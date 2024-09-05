@@ -17,11 +17,9 @@ import java.util.List;
 public class EstimateController {
 
     private final EstimateService estimateService;
-    private final JwtUtil jwtUtil;
 
-    public EstimateController(EstimateService estimateService, JwtUtil jwtUtil) {
+    public EstimateController(EstimateService estimateService) {
         this.estimateService = estimateService;
-        this.jwtUtil = jwtUtil;
     }
 
 
