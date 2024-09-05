@@ -21,12 +21,12 @@ import java.util.Random;
 public class MembersService {
     private final MembersRepository membersRepository;
     private final VerificationCodeRepository verificationCodeRepository;
-    private final JwtUtil jwtUtil;
 
-    public MembersService(MembersRepository membersRepository, VerificationCodeRepository verificationCodeRepository, JwtUtil jwtUtil) {
+    public MembersService(
+            MembersRepository membersRepository,
+            VerificationCodeRepository verificationCodeRepository) {
         this.membersRepository = membersRepository;
         this.verificationCodeRepository = verificationCodeRepository;
-        this.jwtUtil = jwtUtil;
     }
 
     // 이메일 인증 코드를 생성하고 데이터베이스에 저장하거나 업데이트하는 메서드
@@ -123,7 +123,7 @@ public class MembersService {
 
     @Transactional
     public MembersProfileResponseDto profile(String token, MembersUpdateProfileRequestDto requestDto) {
-        String email = jwtUtil.extractEmail(token);
+        String email = JwtUtil.extractEmail(token);
         // email 유무
         Members members = membersRepository.findByEmail(email).orElseThrow(
                 () -> new CustomException(ErrorMsg.INVALID_ID));
@@ -155,7 +155,7 @@ public class MembersService {
 
     public MembersGetProfileResponseDto getProfile(String token) {
         // email 존재 유무
-        String email = jwtUtil.extractEmail(token);
+        String email = JwtUtil.extractEmail(token);
         Members members = membersRepository.findByEmail(email).orElseThrow(
                 () -> new CustomException(ErrorMsg.INVALID_ID)
         );

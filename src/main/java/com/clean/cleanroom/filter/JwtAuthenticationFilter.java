@@ -19,7 +19,6 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JwtUtil jwtUtil;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain chain)
@@ -41,8 +40,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             // Authorization 헤더에서 JWT 토큰을 추출하고 이메일을 얻어옵니다.
-            String token = jwtUtil.extractBearerToken(request.getHeader(HttpHeaders.AUTHORIZATION));
-            String email = jwtUtil.getEmailFromToken(token);
+            String token = JwtUtil.extractBearerToken(request.getHeader(HttpHeaders.AUTHORIZATION));
+            String email = JwtUtil.getEmailFromToken(token);
 
             // 이메일을 요청에 추가하고, 다음 필터나 서블릿으로 요청을 전달합니다.
             request.setAttribute("email", email);
@@ -68,9 +67,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private void refreshAccessToken(HttpServletRequest request, HttpServletResponse response, String refreshToken) throws IOException {
         try {
             // 리프레시 토큰에서 이메일을 추출하고, 새로운 액세스 및 리프레시 토큰을 생성합니다.
-            String email = jwtUtil.getEmailFromToken(refreshToken);
-            String newAccessToken = jwtUtil.generateAccessToken(email);
-            String newRefreshToken = jwtUtil.generateRefreshToken(email);
+            String email = JwtUtil.getEmailFromToken(refreshToken);
+            String newAccessToken = JwtUtil.generateAccessToken(email);
+            String newRefreshToken = JwtUtil.generateRefreshToken(email);
 
             // 새로 발급된 토큰을 응답 헤더와 JSON 본문에 포함시켜 클라이언트에 전달합니다.
             response.setHeader("Authorization", "Bearer " + newAccessToken);

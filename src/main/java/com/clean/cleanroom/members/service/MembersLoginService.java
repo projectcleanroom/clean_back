@@ -23,8 +23,6 @@ import java.io.IOException;
 public class MembersLoginService {
 
     private final MembersRepository membersRepository;
-    private final JwtUtil jwtUtil;
-    private final TokenService tokenService;
     private final PasswordEncoder passwordEncoder;
 
 
@@ -55,8 +53,8 @@ public class MembersLoginService {
 
     // Login JWT 토큰 생성 및 응답 반환
     private ResponseEntity<MembersLoginResponseDto> generateLoginResponse(MembersEmailAndPasswordDto memberEmailDto) {
-        String token = jwtUtil.generateAccessToken(memberEmailDto.getEmail());
-        String refreshToken = jwtUtil.generateRefreshToken(memberEmailDto.getEmail());
+        String token = JwtUtil.generateAccessToken(memberEmailDto.getEmail());
+        String refreshToken = JwtUtil.generateRefreshToken(memberEmailDto.getEmail());
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + token);
         headers.set("Refresh-Token", "Bearer " + refreshToken);
@@ -75,27 +73,5 @@ public class MembersLoginService {
 
         // JWT 토큰 생성 및 응답 반환
         return generateLoginResponse(memberEmailDto);
-    }
-    // 로그아웃 로직
-    public ResponseEntity<MembersLogoutResponseDto> logout(String accessToken, String refreshToken) {
-        // Access Token 검증 및 무효화 처리
-        if (accessToken != null && accessToken.startsWith("Bearer ")) {
-            String actualAccessToken = accessToken.substring(7);
-            if (jwtUtil.validateToken(actualAccessToken)) {
-                jwtUtil.revokeToken(actualAccessToken);
-            }
-        }
-
-        // Refresh Token 검증 및 무효화 처리
-        if (refreshToken != null && refreshToken.startsWith("Bearer ")) {
-            String actualRefreshToken = refreshToken.substring(7);
-            if (jwtUtil.validateToken(actualRefreshToken)) {
-                jwtUtil.revokeToken(actualRefreshToken);
-            }
-        }
-
-        // 로그아웃 성공 응답 반환
-        MembersLogoutResponseDto response = new MembersLogoutResponseDto("로그아웃 되었습니다.");
-        return ResponseEntity.ok(response);
     }
 }

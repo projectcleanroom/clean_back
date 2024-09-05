@@ -92,7 +92,7 @@ public class Members {
     }
 
     // 계좌 설정 메서드
-    public void SelectedAccount(Account account) {
+    public void selectedAccount(Account account) {
         this.selectedAccount = account;
     }
 
