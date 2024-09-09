@@ -4,6 +4,7 @@ import com.clean.cleanroom.members.dto.MembersAddressDelResponseDto;
 import com.clean.cleanroom.members.dto.MembersAddressRequestDto;
 import com.clean.cleanroom.members.dto.MembersAddressResponseDto;
 import com.clean.cleanroom.members.service.MembersAddressService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/address")
+@Tag(name = "주소")
 public class MembersAddressController {
     private final MembersAddressService membersAddressService;
 
