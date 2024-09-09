@@ -3,6 +3,7 @@ package com.clean.cleanroom.members.controller;
 import com.clean.cleanroom.members.dto.*;
 import com.clean.cleanroom.members.service.EmailSenderService;
 import com.clean.cleanroom.members.service.MembersService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/members")
+@Tag(name = "회원")
 public class MembersController {
     private final MembersService membersService;
     private final EmailSenderService emailSenderService;

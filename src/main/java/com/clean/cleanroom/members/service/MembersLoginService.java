@@ -2,21 +2,16 @@ package com.clean.cleanroom.members.service;
 
 import com.clean.cleanroom.exception.CustomException;
 import com.clean.cleanroom.exception.ErrorMsg;
-import com.clean.cleanroom.jwt.service.TokenService;
 import com.clean.cleanroom.members.dto.MembersEmailAndPasswordDto;
 import com.clean.cleanroom.members.dto.MembersLoginRequestDto;
 import com.clean.cleanroom.members.dto.MembersLoginResponseDto;
-import com.clean.cleanroom.members.dto.MembersLogoutResponseDto;
 import com.clean.cleanroom.members.repository.MembersRepository;
 import com.clean.cleanroom.util.JwtUtil;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
