@@ -31,6 +31,8 @@ public enum ErrorMsg {
     EMAIL_NOT_VERIFIED(HttpStatus.UNAUTHORIZED, 2006, "이메일 인증이 완료되지 않았습니다."),
     EXPIRED_VERIFICATION_CODE(HttpStatus.UNAUTHORIZED, 2007, "이메일 인증 코드가 만료되었습니다."),
     VERIFICATION_CODE_ATTEMPTS_EXCEEDED(HttpStatus.UNAUTHORIZED, 2008, "인증 시도 횟수 초과입니다."),
+    UNAUTHORIZED_EMAIL(HttpStatus.UNAUTHORIZED, 2009, "해당 이메일에 대한 인증 코드를 찾을 수 없습니다."),
+
 
 
     /* 403 FORBIDDEN : 권한 없음 */
