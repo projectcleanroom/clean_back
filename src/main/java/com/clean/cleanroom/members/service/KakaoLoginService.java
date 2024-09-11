@@ -37,7 +37,7 @@ public class KakaoLoginService {
     private static final String KAKAO_USER_INFO_URL = "https://kapi.kakao.com/v2/user/me";
     private static final String KAKAO_TOKEN_URL = "https://kauth.kakao.com/oauth/token";
     private static final String CLIENT_ID = "65f1cfe772375248de10b233e85b8203";
-    private static final String REDIRECT_URI = "http://localhost:5173/oauth/kakao/callback";
+    private static final String REDIRECT_URI = "https://clean-room.co.kr/oauth/kakao/callback";
 
   public ResponseEntity<MembersLoginResponseDto> socialKakaoLogin(KakaoAuthCodeRequestDto kakaoAuthCodeRequestDto) {
         // 1. 카카오 서버로부터 액세스 토큰을 요청
