@@ -40,6 +40,13 @@ public class GlobalExceptionHandler {
         return ResponseDto.toExceptionResponseEntity(HttpStatus.UNAUTHORIZED, 2000);
     }
 
+    // UnAuthenticationException 처리
+    @ExceptionHandler(value = {UnAuthenticationException.class})
+    protected ResponseEntity<ResponseDto> handleUnAuthenticationException(UnAuthenticationException e) {
+        log.error("UnAuthenticationException occurred: {}", e.getMessage());
+        return ResponseDto.toExceptionResponseEntity(HttpStatus.UNAUTHORIZED, 4000);
+    }
+
     // 500 error
     @ExceptionHandler({Exception.class})
     public ResponseEntity<ResponseDto> handleAll(final Exception ex) {
@@ -52,4 +59,5 @@ public class GlobalExceptionHandler {
         log.error("IOException occurred: ", ex);
         return ResponseDto.toExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, 9998);
     }
+
 }
