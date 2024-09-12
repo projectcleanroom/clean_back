@@ -25,4 +25,5 @@ public class ResponseDto {
                         .code(code)
                         .build());
     }
+
 }
