@@ -20,7 +20,7 @@ public enum ErrorMsg {
     INVALID_KAKAO_TOKEN(HttpStatus.BAD_REQUEST, 1006, "잘못된 카카오 토큰입니다."),
     FAILED_TO_PARSE_KAKAO_RESPONSE(HttpStatus.BAD_REQUEST, 1007, "카카오 사용자 정보 응답을 처리하는 중 오류가 발생했습니다."),
     INVALID_SIGNUP_REQUEST(HttpStatus.BAD_REQUEST, 1008, "회원가입 요청이 유효하지 않습니다."),
-    INVALID_VERIFICATION_CODE(HttpStatus.BAD_REQUEST, 1009, "유효하지 않은 인증 코드입니다."),
+    INVALID_VERIFICATION_CODE(HttpStatus.BAD_REQUEST, 1009, "인증 코드가 존재하지 않거나 만료되었습니다."),
 
     /* 401 UNAUTHORIZED : 인증되지 않음 */
     UNAUTHORIZED_MEMBER(HttpStatus.UNAUTHORIZED, 2001, "인증되지 않은 사용자입니다."),
