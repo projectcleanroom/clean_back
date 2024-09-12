@@ -60,4 +60,8 @@ public class RedisService {
         Object verifiedFlag = valOperations.get(email + "_verified");
         return verifiedFlag != null && verifiedFlag.equals("true");
     }
+
+    public void deleteObject(String key) {
+        redisTemplate.delete(key);
+    }
 }
