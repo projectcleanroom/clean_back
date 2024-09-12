@@ -50,7 +50,8 @@ public class RedisService {
     // 인증 완료 플래그 설정
     public void setVerifiedFlag(String email) {
         ValueOperations<String, Object> valOperations = redisTemplate.opsForValue();
-        valOperations.set(email + "_verified", "true", 10, TimeUnit.MINUTES);
+        // 인증이 완료되면 인증 플래그를 Redis에 영구적으로 저장
+        valOperations.set(email + "_verified", "true", 10, TimeUnit.MINUTES); // 만료 시간을 원하면 설정 가능
     }
 
     // 인증 완료 여부 확인

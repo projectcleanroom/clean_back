@@ -2,17 +2,14 @@ package com.clean.cleanroom.exception;
 
 import com.clean.cleanroom.util.ResponseDto;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import java.io.IOException;
 
-import static com.clean.cleanroom.exception.ErrorMsg.NOT_LOGGED_ID;
+import java.io.IOException;
 
 @Slf4j
 @ControllerAdvice

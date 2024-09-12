@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 
 @Service
@@ -97,41 +98,65 @@ public class MembersService {
     @Transactional
     public MembersProfileResponseDto profile(String token, MembersUpdateProfileRequestDto requestDto) {
         String email = JwtUtil.extractEmail(token);
-        // email 유무
+
+        // email 존재 여부 확인
         Members members = membersRepository.findByEmail(email).orElseThrow(
                 () -> new CustomException(ErrorMsg.INVALID_ID));
-        // Nick 존재 유무
+
+        // 닉네임 중복 여부 확인
         if (!members.getNick().equals(requestDto.getNick()) &&
-                membersRepository.existsByNick(requestDto.getNick())){
+                membersRepository.existsByNick(requestDto.getNick())) {
             throw new CustomException(ErrorMsg.DUPLICATE_NICK);
         }
 
-        // phoneNumber 존재 유무
+        // 휴대폰 번호 중복 여부 확인
         if (requestDto.getPhoneNumber() != null &&
                 !requestDto.getPhoneNumber().equals(members.getPhoneNumber()) &&
                 membersRepository.existsByPhoneNumber(requestDto.getPhoneNumber())) {
             throw new CustomException(ErrorMsg.DUPLICATE_PHONENUMBER);
         }
-        // 비밀번호 일치 확인
-//        if (!members.checkPassword(requestDto.getPassword())) {
-//            throw new CustomException(ErrorMsg.PASSWORD_INCORRECT);
-//        }
 
+        // 비밀번호 업데이트 (필요 시)
         if (requestDto.getPassword() != null && !requestDto.getPassword().isEmpty()) {
             members.setPassword(requestDto.getPassword());
         }
+
+        // 회원 정보 업데이트
         members.updateMembers(requestDto);
         membersRepository.save(members);
+
+        // Redis 캐시 갱신
+        String cacheKey = "profile_" + email;
+        MembersGetProfileResponseDto updatedProfileResponse = new MembersGetProfileResponseDto(members);
+
+        // 새로운 데이터를 Redis에 갱신
+        redisService.setObject(cacheKey, updatedProfileResponse, 5, TimeUnit.MINUTES);
+
         return new MembersProfileResponseDto(members);
     }
 
 
+
     public MembersGetProfileResponseDto getProfile(String token) {
-        // email 존재 유무
         String email = JwtUtil.extractEmail(token);
-        Members members = membersRepository.findByEmail(email).orElseThrow(
-                () -> new CustomException(ErrorMsg.INVALID_ID)
-        );
-        return new MembersGetProfileResponseDto(members);
+        String cacheKey = "profile_" + email;
+
+        // Redis에서 캐시된 프로필 조회
+        MembersGetProfileResponseDto cachedProfile = redisService.getObject(cacheKey, MembersGetProfileResponseDto.class);
+
+        if (cachedProfile != null) {
+            // 캐시된 데이터가 있으면 반환
+            return cachedProfile;
+        }
+        System.out.println("캐시 데이터 없음....");
+        // 캐시된 데이터가 없으면 DB에서 프로필 조회
+        Members members = membersRepository.findByEmail(email).orElseThrow(() -> new CustomException(ErrorMsg.INVALID_ID));
+
+        MembersGetProfileResponseDto profileResponse = new MembersGetProfileResponseDto(members);
+
+        // 조회한 데이터를 Redis에 캐시 (5분 동안 유효)
+        redisService.setObject(cacheKey, profileResponse, 5, TimeUnit.MINUTES);
+
+        return profileResponse;
     }
 }

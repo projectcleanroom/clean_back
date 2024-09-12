@@ -3,8 +3,10 @@ package com.clean.cleanroom.members.dto;
 import com.clean.cleanroom.members.entity.Members;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor
 public class MembersGetProfileResponseDto {
     @Schema(description = "이메일")
     private String email;
