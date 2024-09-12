@@ -26,7 +26,7 @@ public class RedisService {
         ValueOperations<String, Object> valOperations = redisTemplate.opsForValue();
         Object code = valOperations.get(email);
         if (code == null) {
-            return null;  // 데이터가 없으면 null 반환
+            throw new CustomException(ErrorMsg.INVALID_VERIFICATION_CODE);
         }
         return code.toString();
     }
