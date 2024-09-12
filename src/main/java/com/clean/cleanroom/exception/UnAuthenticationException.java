@@ -4,7 +4,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 // 예외가 발생할 때 자동으로 401 Unauthorized 상태 반환
-
 public class UnAuthenticationException extends RuntimeException {
     private final HttpStatus httpStatus;
     private final int code;
