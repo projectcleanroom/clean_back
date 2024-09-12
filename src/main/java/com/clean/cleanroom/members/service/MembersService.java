@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 
 @Service
@@ -127,11 +128,25 @@ public class MembersService {
 
 
     public MembersGetProfileResponseDto getProfile(String token) {
-        // email 존재 유무
         String email = JwtUtil.extractEmail(token);
-        Members members = membersRepository.findByEmail(email).orElseThrow(
-                () -> new CustomException(ErrorMsg.INVALID_ID)
-        );
-        return new MembersGetProfileResponseDto(members);
+        String cacheKey = "profile_" + email;
+
+        // Redis에서 캐시된 프로필 조회
+        MembersGetProfileResponseDto cachedProfile = redisService.getObject(cacheKey, MembersGetProfileResponseDto.class);
+
+        if (cachedProfile != null) {
+            // 캐시된 데이터가 있으면 반환
+            return cachedProfile;
+        }
+        System.out.println("캐시 데이터 없음....");
+        // 캐시된 데이터가 없으면 DB에서 프로필 조회
+        Members members = membersRepository.findByEmail(email).orElseThrow(() -> new CustomException(ErrorMsg.INVALID_ID));
+
+        MembersGetProfileResponseDto profileResponse = new MembersGetProfileResponseDto(members);
+
+        // 조회한 데이터를 Redis에 캐시 (5분 동안 유효)
+        redisService.setObject(cacheKey, profileResponse, 5, TimeUnit.MINUTES);
+
+        return profileResponse;
     }
 }
