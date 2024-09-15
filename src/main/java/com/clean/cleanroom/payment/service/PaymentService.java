@@ -1,14 +1,13 @@
 package com.clean.cleanroom.payment.service;
 
-import com.clean.cleanroom.enums.PayMethod;
+import com.clean.cleanroom.commission.entity.Commission;
+import com.clean.cleanroom.commission.repository.CommissionRepository;
 import com.clean.cleanroom.enums.PaymentStatusType;
+import com.clean.cleanroom.estimate.entity.Estimate;
+import com.clean.cleanroom.estimate.repository.EstimateRepository;
 import com.clean.cleanroom.payment.dto.*;
 import com.clean.cleanroom.payment.entity.PaymentEntity;
 import com.clean.cleanroom.payment.repository.PaymentRepository;
-import com.clean.cleanroom.commission.entity.Commission;
-import com.clean.cleanroom.estimate.entity.Estimate;
-import com.clean.cleanroom.commission.repository.CommissionRepository;
-import com.clean.cleanroom.estimate.repository.EstimateRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -18,7 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.UUID;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 @Slf4j
 @Service
@@ -41,28 +42,22 @@ public class PaymentService {
     }
 
     public PaymentPrepareResponseDto preparePayment(String accessToken, PaymentPrepareRequestDto requestDto) {
-        // merchant_uid 생성
-        String merchantUid = "order_" + UUID.randomUUID().toString();
+        // merchant_uid 중복 검사
+        if (paymentRepository.existsByMerchantUid(requestDto.getMerchant_uid())) {
+            throw new IllegalArgumentException("이미 사용 중인 merchant_uid입니다.");
+        }
 
-        // requestDto에 merchant_uid 설정
-        requestDto = new PaymentPrepareRequestDto(merchantUid, requestDto.getAmount());
-
+        String url = "https://api.iamport.kr/payments/prepare?_token=" + accessToken;
         // HTTP 헤더에 Authorization 추가
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Authorization", "Bearer " + accessToken);
-        log.info("Authorization Header: Bearer {}", accessToken);
 
         HttpEntity<PaymentPrepareRequestDto> entity = new HttpEntity<>(requestDto, headers);
 
-//        // 포트원 API 호출하여 결제 사전 등록
-//        return restTemplate.postForObject("https://api.iamport.kr/payments/prepare", entity, PaymentPrepareResponseDto.class);
-//    }
         // 포트원 API 호출하여 결제 사전 등록
         try {
-            return restTemplate.postForObject("https://api.iamport.kr/payments/prepare", entity, PaymentPrepareResponseDto.class);
+            return restTemplate.postForObject(url, entity, PaymentPrepareResponseDto.class);
         } catch (HttpClientErrorException e) {
-            log.error("HttpClientErrorException: {}", e.getMessage());
             throw e;  // 예외를 다시 던져서 글로벌 예외 처리기에 잡히도록 함
         }
     }
@@ -77,31 +72,37 @@ public class PaymentService {
 
         return new EstimateAndCommissionResponseDto(
                 estimate.getId(), commission.getId(), estimate.getPrice(),
-                commission.getMembers().getNick(), commission.getMembers().getPhoneNumber(), commission.getMembers().getEmail()
+                commission.getMembers().getNick(), commission.getMembers().getPhoneNumber(), commission.getMembers().getEmail(), commission.getCleanType()
         );
     }
 
     public PaymentResponseDto completePayment(String accessToken, String impUid, PaymentRequestDto requestDto) {
-        // 로그 추가: impUid 및 Access Token 확인
-        log.info("Requesting Payment Details with impUid: {}", impUid);
         String bearerToken = "Bearer " + accessToken;
-        log.info("Using Access Token: {}", bearerToken);
 
         PaymentDetailResponseDto portOneResponse = portOneService.getPaymentDetails(bearerToken, impUid);
         if (portOneResponse == null || !portOneResponse.getResponse().getStatus().equals("paid")) {
             throw new IllegalArgumentException("유효하지 않은 결제 정보입니다.");
         }
+        String transactionDateString = portOneResponse.getResponse().getTransaction_date();
+        Date transactionDate;
+        try {
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // 포맷을 변경 필요시 변경
+            transactionDate = formatter.parse(transactionDateString);
+        } catch (ParseException e) {
+            throw new RuntimeException("날짜 형식이 잘못되었습니다: " + transactionDateString, e);
+        }
+
 
         PaymentEntity paymentEntity = paymentRepository.findByImpUid(impUid)
                 .orElseGet(() -> PaymentEntity.builder()
-                        .impUid(impUid)
+                        .imp_uid(impUid)
                         .pg_provider(portOneResponse.getResponse().getPg_provider())
                         .name(portOneResponse.getResponse().getName())
                         .amount(portOneResponse.getResponse().getAmount())
                         .merchant_uid(portOneResponse.getResponse().getMerchant_uid())
                         .status(PaymentStatusType.valueOf(portOneResponse.getResponse().getStatus().toUpperCase()))
-                        .pay_method(PayMethod.valueOf(requestDto.getPay_method().toUpperCase()))
-                        .transaction_date(portOneResponse.getResponse().getTransaction_date())
+                        .pay_method(requestDto.getPay_method())
+                        .transaction_date(transactionDate)
                         .buyer_email(requestDto.getBuyer_email())
                         .buyer_tel(requestDto.getBuyer_tel())
                         .is_request_cancelled(false)
@@ -111,7 +112,7 @@ public class PaymentService {
         paymentRepository.save(paymentEntity);
 
         PaymentResponseDto.PaymentDetail paymentDetail = new PaymentResponseDto.PaymentDetail(
-                paymentEntity.getImpUid(),
+                paymentEntity.getImp_uid(),
                 paymentEntity.getMerchant_uid(),
                 paymentEntity.getStatus().name(),
                 paymentEntity.getAmount(),

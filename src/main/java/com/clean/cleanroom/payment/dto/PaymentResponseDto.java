@@ -2,7 +2,6 @@ package com.clean.cleanroom.payment.dto;
 
 import lombok.Getter;
 
-
 @Getter
 public class PaymentResponseDto {
 
@@ -18,18 +17,18 @@ public class PaymentResponseDto {
 
     @Getter
     public static class PaymentDetail {
-        private final String impUid;  // Port One의 고유 거래 ID
-        private final String merchantUid;  // 고객사의 주문 고유 ID
+        private final String imp_uid;  // Port One의 고유 거래 ID
+        private final String merchant_uid;  // 고객사의 주문 고유 ID
         private final String status;  // 결제 상태 (예: "paid", "failed")
-        private final int paidAmount;  // 결제된 금액
-        private final String payMethod;  // 결제 방법 (예: "card")
+        private final int paid_amount;  // 결제된 금액
+        private final String pay_method;  // 결제 방법 (예: "card")
 
-        public PaymentDetail(String impUid, String merchantUid, String status, int paidAmount, String payMethod) {
-            this.impUid = impUid;
-            this.merchantUid = merchantUid;
+        public PaymentDetail(String imp_uid, String merchant_uid, String status, int paid_amount, String pay_method) {
+            this.imp_uid = imp_uid;
+            this.merchant_uid = merchant_uid;
             this.status = status;
-            this.paidAmount = paidAmount;
-            this.payMethod = payMethod;
+            this.paid_amount = paid_amount;
+            this.pay_method = pay_method;
         }
     }
 }

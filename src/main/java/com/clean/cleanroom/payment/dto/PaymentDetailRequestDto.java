@@ -6,9 +6,9 @@ import lombok.Getter;
 @Getter
 public class PaymentDetailRequestDto {
 
-    private final String impUid;  // Port One의 고유 거래 ID
+    private final String imp_uid;  // Port One의 고유 거래 ID
 
-    public PaymentDetailRequestDto(String impUid) {
-        this.impUid = impUid;
+    public PaymentDetailRequestDto(String imp_uid) {
+        this.imp_uid = imp_uid;
     }
 }

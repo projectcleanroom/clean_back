@@ -5,9 +5,9 @@ import lombok.Getter;
 @Getter
 public class PortOneTokenResponseDto {
 
-    private int code;  // 응답 코드
-    private String message;  // 응답 메시지
-    private AccessToken response;  // 토큰 정보
+    private final int code;  // 응답 코드
+    private final String message;  // 응답 메시지
+    private final  AccessToken response;  // 토큰 정보
 
     public PortOneTokenResponseDto(int code, String message, AccessToken response) {
         this.code = code;
