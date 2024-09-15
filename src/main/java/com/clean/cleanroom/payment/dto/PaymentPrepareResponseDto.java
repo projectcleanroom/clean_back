@@ -1,13 +1,19 @@
 package com.clean.cleanroom.payment.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
 @Getter
 public class PaymentPrepareResponseDto {
 
-    private final int code;  // 응답 코드 (예: 0 = 성공)
-    private final String message;  // 응답 메시지
-    private final PrepareResponse response;  // 준비된 결제 응답 데이터
+    @JsonProperty("code")  // 응답 코드 (예: 0 = 성공)
+    private final int code;
+
+    @JsonProperty("message")  // 응답 메시지
+    private final String message;
+
+    @JsonProperty("response")  // 준비된 결제 응답 데이터
+    private final PrepareResponse response;
 
     public PaymentPrepareResponseDto(int code, String message, PrepareResponse response) {
         this.code = code;
@@ -17,11 +23,15 @@ public class PaymentPrepareResponseDto {
 
     @Getter
     public static class PrepareResponse {
-        private final String merchant_uid;  // 고객사의 주문 고유 ID
-        private final int amount;  // 사전 등록된 결제 금액
 
-        public PrepareResponse(String merchant_uid, int amount) {
-            this.merchant_uid = merchant_uid;
+        @JsonProperty("merchant_uid")  // 고객사의 주문 고유 ID
+        private final String merchantUid;
+
+        @JsonProperty("amount")  // 사전 등록된 결제 금액
+        private final int amount;
+
+        public PrepareResponse(String merchantUid, int amount) {
+            this.merchantUid = merchantUid;
             this.amount = amount;
         }
     }
