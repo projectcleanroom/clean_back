@@ -2,6 +2,7 @@ package com.clean.cleanroom.payment.service;
 
 import com.clean.cleanroom.commission.entity.Commission;
 import com.clean.cleanroom.commission.repository.CommissionRepository;
+import com.clean.cleanroom.enums.CleanType;
 import com.clean.cleanroom.enums.PaymentStatusType;
 import com.clean.cleanroom.estimate.entity.Estimate;
 import com.clean.cleanroom.estimate.repository.EstimateRepository;
@@ -43,7 +44,7 @@ public class PaymentService {
 
     public PaymentPrepareResponseDto preparePayment(String accessToken, PaymentPrepareRequestDto requestDto) {
         // merchant_uid 중복 검사
-        if (paymentRepository.existsByMerchantUid(requestDto.getMerchant_uid())) {
+        if (paymentRepository.existsByMerchantUid(requestDto.getMerchantUid())) {
             throw new IllegalArgumentException("이미 사용 중인 merchant_uid입니다.");
         }
 
@@ -83,7 +84,7 @@ public class PaymentService {
         if (portOneResponse == null || !portOneResponse.getResponse().getStatus().equals("paid")) {
             throw new IllegalArgumentException("유효하지 않은 결제 정보입니다.");
         }
-        String transactionDateString = portOneResponse.getResponse().getTransaction_date();
+        String transactionDateString = portOneResponse.getResponse().getTransactionDate();
         Date transactionDate;
         try {
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // 포맷을 변경 필요시 변경
@@ -95,28 +96,28 @@ public class PaymentService {
 
         PaymentEntity paymentEntity = paymentRepository.findByImpUid(impUid)
                 .orElseGet(() -> PaymentEntity.builder()
-                        .imp_uid(impUid)
-                        .pg_provider(portOneResponse.getResponse().getPg_provider())
-                        .name(portOneResponse.getResponse().getName())
+                        .impUid(impUid)
+                        .pgProvider(portOneResponse.getResponse().getPgProvider())
+                        .name(CleanType.valueOf(portOneResponse.getResponse().getName().toUpperCase()))  // 수정: cleanType 대신 name 필드 사용
                         .amount(portOneResponse.getResponse().getAmount())
-                        .merchant_uid(portOneResponse.getResponse().getMerchant_uid())
+                        .merchantUid(portOneResponse.getResponse().getMerchantUid())
                         .status(PaymentStatusType.valueOf(portOneResponse.getResponse().getStatus().toUpperCase()))
-                        .pay_method(requestDto.getPay_method())
-                        .transaction_date(transactionDate)
-                        .buyer_email(requestDto.getBuyer_email())
-                        .buyer_tel(requestDto.getBuyer_tel())
-                        .is_request_cancelled(false)
+                        .payMethod(requestDto.getPayMethod())
+                        .transactionDate(transactionDate)
+                        .buyerEmail(requestDto.getBuyerEmail())
+                        .buyerTel(requestDto.getBuyerTel())
+                        .isRequestCancelled(false)
                         .build());
 
         paymentEntity.completePayment();
         paymentRepository.save(paymentEntity);
 
         PaymentResponseDto.PaymentDetail paymentDetail = new PaymentResponseDto.PaymentDetail(
-                paymentEntity.getImp_uid(),
-                paymentEntity.getMerchant_uid(),
+                paymentEntity.getImpUid(),
+                paymentEntity.getMerchantUid(),
                 paymentEntity.getStatus().name(),
                 paymentEntity.getAmount(),
-                paymentEntity.getPay_method().name()
+                paymentEntity.getPayMethod().name()
         );
 
         return new PaymentResponseDto(0, "결제 완료", paymentDetail);
