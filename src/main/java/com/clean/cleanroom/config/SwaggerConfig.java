@@ -39,5 +39,6 @@ public class SwaggerConfig {
                                 .scheme("bearer")
                                 .bearerFormat("JWT")))
                 .servers(List.of(new Server().url("https://mb.clean-room.co.kr")));
+
     }
 }

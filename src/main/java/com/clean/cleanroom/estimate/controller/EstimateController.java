@@ -5,6 +5,7 @@ import com.clean.cleanroom.estimate.dto.EstimateResponseDto;
 import com.clean.cleanroom.estimate.dto.EstimateListResponseDto;
 import com.clean.cleanroom.estimate.service.EstimateService;
 import com.clean.cleanroom.util.JwtUtil;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,14 +15,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping ("/api/estimate")
+@Tag(name = "청소 견적")
 public class EstimateController {
 
     private final EstimateService estimateService;
-    private final JwtUtil jwtUtil;
 
-    public EstimateController(EstimateService estimateService, JwtUtil jwtUtil) {
+    public EstimateController(EstimateService estimateService) {
         this.estimateService = estimateService;
-        this.jwtUtil = jwtUtil;
     }
 
 

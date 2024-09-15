@@ -18,21 +18,19 @@ import java.util.List;
 @Service
 public class MembersAddressService {
     private final AddressRepository addressRepository;
-    private final JwtUtil jwtUtil;
 
-    public MembersAddressService(AddressRepository addressRepository, JwtUtil jwtUtil) {
+    public MembersAddressService(AddressRepository addressRepository) {
         this.addressRepository = addressRepository;
-        this.jwtUtil = jwtUtil;
     }
     public MembersAddressResponseDto createAddress(String token, MembersAddressRequestDto requestDto) {
-        String email = jwtUtil.extractEmail(token);
+        String email = JwtUtil.extractEmail(token);
         Address address = new Address(email,requestDto);
         addressRepository.save(address);
         return new MembersAddressResponseDto(address);
     }
 
     public List<MembersAddressResponseDto> getAddress(String token) {
-        String email = jwtUtil.extractEmail(token);
+        String email = JwtUtil.extractEmail(token);
         List<Address> address = addressRepository.findAllByEmail(email);
 
         List<MembersAddressResponseDto> addressResponseDtos = new ArrayList<>();
@@ -43,7 +41,7 @@ public class MembersAddressService {
     }
 
     public MembersAddressDelResponseDto delAddress(String token, Long id) {
-        String email = jwtUtil.extractEmail(token);
+        String email = JwtUtil.extractEmail(token);
         Address address = addressRepository.findByEmailAndId(email,id).orElseThrow(
                 ()-> new CustomException(ErrorMsg.ADDRESS_NOT_FOUND)
         );
