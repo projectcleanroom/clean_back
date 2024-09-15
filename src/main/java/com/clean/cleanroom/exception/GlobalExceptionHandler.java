@@ -37,6 +37,28 @@ public class GlobalExceptionHandler {
         return ResponseDto.toExceptionResponseEntity(HttpStatus.UNAUTHORIZED, 2000);
     }
 
+    // QuoteNotFoundException 처리
+    @ExceptionHandler({QuoteNotFoundException.class})
+    public ResponseEntity<ResponseDto> handleQuoteNotFoundException(QuoteNotFoundException e) {
+        log.error("QuoteNotFoundException occurred: ", e);
+        return ResponseDto.toExceptionResponseEntity(
+                ErrorMsg.ESTIMATE_NOT_FOUND.getHttpStatus(),
+                ErrorMsg.ESTIMATE_NOT_FOUND.getCode()
+        );
+    }
+
+    // InvalidQuoteException 처리
+    @ExceptionHandler({InvalidQuoteException.class})
+    public ResponseEntity<ResponseDto> handleInvalidQuoteException(InvalidQuoteException e) {
+        log.error("InvalidQuoteException occurred: ", e);
+        return ResponseDto.toExceptionResponseEntity(
+                ErrorMsg.INVALID_PAYMENT_REQUEST.getHttpStatus(),
+                ErrorMsg.INVALID_PAYMENT_REQUEST.getCode()
+        );
+    }
+
+
+
     // 500 error
     @ExceptionHandler({Exception.class})
     public ResponseEntity<ResponseDto> handleAll(final Exception ex) {

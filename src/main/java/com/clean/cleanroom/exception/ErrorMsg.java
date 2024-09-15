@@ -21,6 +21,11 @@ public enum ErrorMsg {
     FAILED_TO_PARSE_KAKAO_RESPONSE(HttpStatus.BAD_REQUEST, 1007, "카카오 사용자 정보 응답을 처리하는 중 오류가 발생했습니다."),
     INVALID_SIGNUP_REQUEST(HttpStatus.BAD_REQUEST, 1008, "회원가입 요청이 유효하지 않습니다."),
     INVALID_VERIFICATION_CODE(HttpStatus.BAD_REQUEST, 1009, "인증 코드가 존재하지 않거나 만료되었습니다."),
+    /* 결제 관련 오류 (400) */
+    INVALID_PAYMENT_REQUEST(HttpStatus.BAD_REQUEST, 1013, "잘못된 결제 요청입니다."),
+    PAYMENT_AMOUNT_MISMATCH(HttpStatus.BAD_REQUEST, 1014, "결제 금액이 일치하지 않습니다."),
+    PAYMENT_ALREADY_COMPLETED(HttpStatus.BAD_REQUEST, 1015, "결제가 이미 완료되었습니다."),
+    PAYMENT_ALREADY_CANCELED(HttpStatus.BAD_REQUEST, 1016, "결제가 이미 취소되었습니다."),
 
     /* 401 UNAUTHORIZED : 인증되지 않음 */
     UNAUTHORIZED_MEMBER(HttpStatus.UNAUTHORIZED, 2001, "인증되지 않은 사용자입니다."),
@@ -54,6 +59,8 @@ public enum ErrorMsg {
     INVALID_ID(HttpStatus.NOT_FOUND, 4010, "존재하지 않는 아이디입니다."),
     INVALID_EMAIL(HttpStatus.NOT_FOUND, 4011, "존재하지 않는 이메일입니다."),
 
+    /* 결제 관련 오류 (404) */
+    PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, 4013, "결제를 찾을 수 없습니다."),
 
     /* 409 CONFLICT : Resource 의 현재 상태와 충돌. 보통 중복된 데이터 존재 */
     DUPLICATE_USER(HttpStatus.CONFLICT, 5001, "이미 가입된 사용자입니다."),
@@ -65,7 +72,10 @@ public enum ErrorMsg {
 
     /* 500 INTERNAL SERVER ERROR : 그 외 서버 에러 (컴파일 관련) */
     FAILED_TO_EXECUTE_FILE(HttpStatus.INTERNAL_SERVER_ERROR, 6001, "파일 실행에 실패했습니다."),
-    FAILED_TO_COMPILE_FILE(HttpStatus.INTERNAL_SERVER_ERROR, 6002, "파일 컴파일에 실패했습니다.");
+    FAILED_TO_COMPILE_FILE(HttpStatus.INTERNAL_SERVER_ERROR, 6002, "파일 컴파일에 실패했습니다."),
+    /* 결제 관련 오류 (500) */
+    PAYMENT_PROCESSING_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 6004, "결제 처리에 실패했습니다."),
+    PAYMENT_CANCELLATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 6005, "결제 취소 처리에 실패했습니다.");
 
 
     private final HttpStatus httpStatus;

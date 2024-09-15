@@ -8,6 +8,7 @@ import com.clean.cleanroom.enums.StatusType;
 import com.clean.cleanroom.estimate.entity.Estimate;
 import com.clean.cleanroom.members.entity.Address;
 import com.clean.cleanroom.members.entity.Members;
+import com.clean.cleanroom.payment.entity.PaymentEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,6 +26,9 @@ public class Commission {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @OneToMany(mappedBy = "commission", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<PaymentEntity> payments;  // 이 의뢰와 연결된 결제 목록
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "members_id")

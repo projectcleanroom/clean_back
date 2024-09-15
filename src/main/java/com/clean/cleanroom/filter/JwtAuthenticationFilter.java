@@ -33,7 +33,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 "/api/members/verify-email".equals(path) ||
                 "/api/members/request-email-verification".equals(path) ||
                 "/api/members/kakao-login".equals(path) ||
-                ("/api/commission/upload".equals(path) && query != null && query.startsWith("file="))) {
+                ("/api/commission/upload".equals(path) && query != null && query.startsWith("file="))||
+                path.startsWith("/api/payments")) {  // 모든 /api/payments 관련 경로를 건너뜁니다.
+            log.info("JWT 필터 건너뛰기: {}", path);
             chain.doFilter(request, response);
             return;
         }
