@@ -12,7 +12,7 @@ public class CommissionCreateRequestDtoTest {
 
         // Then
         assertNull(requestDto.getImage());
-        assertEquals(0, requestDto.getSize()); // 기본값이 0인지 확인
+        assertEquals(0, requestDto.getSize());
         assertNull(requestDto.getHouseType());
         assertNull(requestDto.getCleanType());
         assertNull(requestDto.getAddressId());

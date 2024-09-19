@@ -43,8 +43,8 @@ public class EstimateController {
 
     //견적 단건 조회
     @GetMapping("/detail")
-    public ResponseEntity<EstimateDetailResponseDto> getEstimateById (@RequestHeader("Authorization") String token, @RequestParam Long id) {
-        EstimateDetailResponseDto estimateDetailResponseDto = estimateService.getEstimateById (token, id);
+    public ResponseEntity<EstimateDetailResponseDto> getEstimateById(@RequestHeader("Authorization") String token, @RequestParam Long id) {
+        EstimateDetailResponseDto estimateDetailResponseDto = estimateService.getEstimateById(token, id);
         return new ResponseEntity<>(estimateDetailResponseDto, HttpStatus.OK);
     }
 
