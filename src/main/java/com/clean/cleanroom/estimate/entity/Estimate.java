@@ -2,7 +2,9 @@ package com.clean.cleanroom.estimate.entity;
 
 import com.clean.cleanroom.commission.entity.Commission;
 import com.clean.cleanroom.enums.StatusType;
+import com.clean.cleanroom.members.entity.Members;
 import com.clean.cleanroom.partner.entity.Partner;
+import com.clean.cleanroom.payment.entity.PaymentEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,6 +12,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Entity
@@ -20,6 +23,13 @@ public class Estimate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @OneToMany(mappedBy = "estimate", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<PaymentEntity> payments;  // 이 견적과 연결된 결제 목록
+
+    @ManyToOne(fetch = FetchType.LAZY)  // Members와의 다대일 관계 설정
+    @JoinColumn(name = "members_id")
+    private Members member;  // 연관 관계 설정
 
     @ManyToOne
     @JoinColumn(name = "commission_id")

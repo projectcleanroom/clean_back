@@ -20,11 +20,11 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
     private final MembersRepository membersRepository;
-    private final JwtUtil jwtUtil;
+
 
     // 계좌 생성 메서드
     public Account createAccount(AccountRequestDto accountRequestDto, String token) {
-        String email = jwtUtil.extractEmail(token);
+        String email = JwtUtil.extractEmail(token);
         Optional<Members> userOptional = membersRepository.findByEmail(email);
 
         if (userOptional.isPresent()) {
@@ -57,12 +57,12 @@ public class AccountService {
     // 선택된 계좌 설정 메서드
     @Transactional
     public Members selectAccount(String token, Long accountId) {
-        String email = jwtUtil.extractEmail(token);
+        String email = JwtUtil.extractEmail(token);
         Members member = membersRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(ErrorMsg.MEMBER_NOT_FOUND));
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new CustomException(ErrorMsg.ACCOUNT_NOT_FOUND));
-        member.SelectedAccount(account);
+        member.selectedAccount(account);
         return membersRepository.save(member);
     }
 }

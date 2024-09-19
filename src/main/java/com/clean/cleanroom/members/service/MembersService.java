@@ -3,90 +3,64 @@ package com.clean.cleanroom.members.service;
 import com.clean.cleanroom.enums.LoginType;
 import com.clean.cleanroom.exception.CustomException;
 import com.clean.cleanroom.exception.ErrorMsg;
+import com.clean.cleanroom.exception.UnAuthenticationException;
 import com.clean.cleanroom.members.dto.*;
 import com.clean.cleanroom.members.entity.Members;
-import com.clean.cleanroom.members.entity.VerificationCode;
 import com.clean.cleanroom.members.repository.MembersRepository;
-import com.clean.cleanroom.members.repository.VerificationCodeRepository;
+import com.clean.cleanroom.redis.RedisService;
 import com.clean.cleanroom.util.JwtUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 
 @Service
 public class MembersService {
-    private final MembersRepository membersRepository;
-    private final VerificationCodeRepository verificationCodeRepository;
-    private final JwtUtil jwtUtil;
 
-    public MembersService(MembersRepository membersRepository, VerificationCodeRepository verificationCodeRepository, JwtUtil jwtUtil) {
+    private final MembersRepository membersRepository;
+    private final RedisService redisService;
+
+    public MembersService(MembersRepository membersRepository, RedisService redisService) {
         this.membersRepository = membersRepository;
-        this.verificationCodeRepository = verificationCodeRepository;
-        this.jwtUtil = jwtUtil;
+        this.redisService = redisService;
     }
 
-    // 이메일 인증 코드를 생성하고 데이터베이스에 저장하거나 업데이트하는 메서드
+    // 이메일 인증 코드를 생성하고 Redis에 저장하는 메서드
     @Transactional
     public String generateEmailVerificationCode(String email) {
         // 6자리 랜덤 인증 코드 생성
         String verificationCode = generateVerificationCode();
-        // 인증 코드의 만료 시간을 현재 시간으로부터 10분 후로 설정
-        LocalDateTime expirationTime = LocalDateTime.now().plusMinutes(10);
 
-        // 이메일로 기존에 저장된 인증 코드가 있는지 확인
-        Optional<VerificationCode> optionalVerificationCode = verificationCodeRepository.findByEmail(email);
-        if (optionalVerificationCode.isPresent()) {
-            // 기존 코드가 있으면 코드와 만료 시간을 업데이트
-            VerificationCode existingCode = optionalVerificationCode.get();
-            existingCode.updateCodeAndExpiration(verificationCode, expirationTime);
-            verificationCodeRepository.save(existingCode);
-        } else {
-            // 기존 코드가 없으면 새로운 인증 코드 생성
-            VerificationCode newCode = new VerificationCode(email, verificationCode, expirationTime);
-            verificationCodeRepository.save(newCode);
-        }
+        // Redis에 인증 코드 저장 (3분 동안 유효)
+        redisService.setCode(email, verificationCode);
 
         return verificationCode;
     }
 
     // 랜덤한 6자리 숫자 인증 코드를 생성하는 메서드
     private String generateVerificationCode() {
-        // 0부터 999999 사이의 랜덤 숫자를 생성하여 6자리 문자열로 반환
         return String.format("%06d", new Random().nextInt(999999));
     }
 
-    // 사용자가 입력한 이메일과 인증 코드를 검증하는 메서드
     @Transactional
     public void verifyEmail(String email, String code) {
-        // 이메일에 해당하는 인증 코드 조회, 없으면 예외 발생
-        VerificationCode storedCode = verificationCodeRepository.findByEmail(email)
-                .orElseThrow(() -> new CustomException(ErrorMsg.INVALID_VERIFICATION_CODE));
+        // Redis에서 인증 코드 조회
+        String storedCode = redisService.getCode(email);
 
-        // 인증 코드가 만료되었는지 확인
-        if (storedCode.isExpired()) {
-            throw new CustomException(ErrorMsg.EXPIRED_VERIFICATION_CODE);
-        }
-
-        // 사용자가 입력한 코드가 저장된 코드와 일치하는지 확인
-        if (!storedCode.getCode().equals(code)) {
+        // 사용자가 입력한 코드와 Redis에 저장된 코드가 일치하는지 확인
+        if (!storedCode.equals(code)) {
             throw new CustomException(ErrorMsg.INVALID_VERIFICATION_CODE);
         }
-
-        // 인증 완료 상태로 변경
-        storedCode.markAsVerified();
-        verificationCodeRepository.save(storedCode);
+        // 이메일 인증이 완료되었다고 Redis에 플래그 저장
+        redisService.setVerifiedFlag(email);
     }
 
     // 사용자의 이메일이 인증되었는지 확인하는 메서드
     public boolean isEmailVerified(String email) {
-        // 이메일에 해당하는 인증 코드가 존재하고, 인증되었는지 여부를 반환
-        return verificationCodeRepository.findByEmail(email)
-                .map(VerificationCode::isVerified)
-                .orElse(false);
+        // Redis에서 이메일 인증이 완료된 플래그가 있는지 확인
+        return redisService.isVerified(email);
     }
 
     @Transactional
@@ -123,42 +97,66 @@ public class MembersService {
 
     @Transactional
     public MembersProfileResponseDto profile(String token, MembersUpdateProfileRequestDto requestDto) {
-        String email = jwtUtil.extractEmail(token);
-        // email 유무
+        String email = JwtUtil.extractEmail(token);
+
+        // email 존재 여부 확인
         Members members = membersRepository.findByEmail(email).orElseThrow(
                 () -> new CustomException(ErrorMsg.INVALID_ID));
-        // Nick 존재 유무
+
+        // 닉네임 중복 여부 확인
         if (!members.getNick().equals(requestDto.getNick()) &&
-                membersRepository.existsByNick(requestDto.getNick())){
+                membersRepository.existsByNick(requestDto.getNick())) {
             throw new CustomException(ErrorMsg.DUPLICATE_NICK);
         }
 
-        // phoneNumber 존재 유무
+        // 휴대폰 번호 중복 여부 확인
         if (requestDto.getPhoneNumber() != null &&
                 !requestDto.getPhoneNumber().equals(members.getPhoneNumber()) &&
                 membersRepository.existsByPhoneNumber(requestDto.getPhoneNumber())) {
             throw new CustomException(ErrorMsg.DUPLICATE_PHONENUMBER);
         }
-        // 비밀번호 일치 확인
-//        if (!members.checkPassword(requestDto.getPassword())) {
-//            throw new CustomException(ErrorMsg.PASSWORD_INCORRECT);
-//        }
 
+        // 비밀번호 업데이트 (필요 시)
         if (requestDto.getPassword() != null && !requestDto.getPassword().isEmpty()) {
             members.setPassword(requestDto.getPassword());
         }
+
+        // 회원 정보 업데이트
         members.updateMembers(requestDto);
         membersRepository.save(members);
+
+        // Redis 캐시 갱신
+        String cacheKey = "profile_" + email;
+        MembersGetProfileResponseDto updatedProfileResponse = new MembersGetProfileResponseDto(members);
+
+        // 새로운 데이터를 Redis에 갱신
+        redisService.setObject(cacheKey, updatedProfileResponse, 5, TimeUnit.MINUTES);
+
         return new MembersProfileResponseDto(members);
     }
 
 
+
     public MembersGetProfileResponseDto getProfile(String token) {
-        // email 존재 유무
-        String email = jwtUtil.extractEmail(token);
-        Members members = membersRepository.findByEmail(email).orElseThrow(
-                () -> new CustomException(ErrorMsg.INVALID_ID)
-        );
-        return new MembersGetProfileResponseDto(members);
+        String email = JwtUtil.extractEmail(token);
+        String cacheKey = "profile_" + email;
+
+        // Redis에서 캐시된 프로필 조회
+        MembersGetProfileResponseDto cachedProfile = redisService.getObject(cacheKey, MembersGetProfileResponseDto.class);
+
+        if (cachedProfile != null) {
+            // 캐시된 데이터가 있으면 반환
+            return cachedProfile;
+        }
+        System.out.println("캐시 데이터 없음....");
+        // 캐시된 데이터가 없으면 DB에서 프로필 조회
+        Members members = membersRepository.findByEmail(email).orElseThrow(() -> new CustomException(ErrorMsg.INVALID_ID));
+
+        MembersGetProfileResponseDto profileResponse = new MembersGetProfileResponseDto(members);
+
+        // 조회한 데이터를 Redis에 캐시 (5분 동안 유효)
+        redisService.setObject(cacheKey, profileResponse, 5, TimeUnit.MINUTES);
+
+        return profileResponse;
     }
 }

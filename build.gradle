@@ -21,6 +21,8 @@ configurations {
 }
 
 repositories {
+    maven {
+        url 'https://jitpack.io'}
     mavenCentral()
 }
 
@@ -56,10 +58,15 @@ dependencies {
     implementation 'ch.qos.logback:logback-classic'
     implementation 'net.logstash.logback:logstash-logback-encoder:7.0.1'
 
-    //cache
-    implementation 'com.github.ben-manes.caffeine:caffeine:3.1.6'
-    implementation 'org.springframework.boot:spring-boot-starter-cache'
+        //cache
+        implementation 'com.github.ben-manes.caffeine:caffeine:3.1.6'
+        implementation 'org.springframework.boot:spring-boot-starter-cache'
+        //iamport
+        implementation 'com.github.iamport:iamport-rest-client-java:0.2.23'
 
+    //redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.1'
 
 }
 

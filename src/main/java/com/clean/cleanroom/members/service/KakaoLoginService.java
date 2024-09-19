@@ -9,7 +9,6 @@ import com.clean.cleanroom.members.repository.MembersRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
@@ -20,8 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-
-import java.io.IOException;
 
 @Slf4j
 @Service
@@ -36,9 +33,9 @@ public class KakaoLoginService {
     private static final String KAKAO_USER_INFO_URL = "https://kapi.kakao.com/v2/user/me";
     private static final String KAKAO_TOKEN_URL = "https://kauth.kakao.com/oauth/token";
     private static final String CLIENT_ID = "65f1cfe772375248de10b233e85b8203";
-    private static final String REDIRECT_URI = "https://mb.clean-room.co.kr/api/members/kakao-login";
+    private static final String REDIRECT_URI = "https://clean-room.co.kr/oauth/kakao/callback";
 
-    public void socialKakaoLogin(KakaoAuthCodeRequestDto kakaoAuthCodeRequestDto, HttpServletResponse response) throws IOException {
+  public ResponseEntity<MembersLoginResponseDto> socialKakaoLogin(KakaoAuthCodeRequestDto kakaoAuthCodeRequestDto) {
         // 1. 카카오 서버로부터 액세스 토큰을 요청
         OAuthTokenDto oauthToken = requestKakaoToken(kakaoAuthCodeRequestDto.getCode());
 
@@ -49,7 +46,7 @@ public class KakaoLoginService {
         Members kakaoMember = findOrCreateKakaoMember(kakaoUserInfoRequestDto);
 
         // 4. 로그인 로직 호출 - 카카오 유저는 비밀번호 없이 로그인
-        membersLoginService.kakaoLogin(new MembersLoginRequestDto(kakaoMember.getEmail(), null), response);
+        return membersLoginService.kakaoLogin(new MembersLoginRequestDto(kakaoMember.getEmail(), null));
     }
 
     private OAuthTokenDto requestKakaoToken(String code) {

@@ -24,23 +24,20 @@ public class EstimateService {
     private final EstimateRepository estimateRepository;
     private final CommissionRepository commissionRepository;
     private final MembersRepository membersRepository;
-    private final JwtUtil jwtUtil;
 
     public EstimateService(EstimateRepository estimateRepository,
                            CommissionRepository commissionRepository,
-                           MembersRepository membersRepository,
-                           JwtUtil jwtUtil) {
+                           MembersRepository membersRepository) {
         this.estimateRepository = estimateRepository;
         this.commissionRepository = commissionRepository;
         this.membersRepository = membersRepository;
-        this.jwtUtil = jwtUtil;
     }
 
 
     //견적 승인
     public EstimateResponseDto approveEstimate(String token, Long id) {
 
-        String email = jwtUtil.extractEmail(token);
+        String email = JwtUtil.extractEmail(token);
 
         //email로 회원 찾기
         Members members = getMemberByEmail(email);
@@ -71,7 +68,7 @@ public class EstimateService {
     //견적 내역 조회
     public List<EstimateListResponseDto> getAllEstimates(String token, Long commissionId) {
 
-        String email = jwtUtil.extractEmail(token);
+        String email = JwtUtil.extractEmail(token);
 
         //email로 회원 찾기
         Members members = getMemberByEmail(email);
@@ -110,7 +107,7 @@ public class EstimateService {
     // 견적 단건 조회
     public EstimateDetailResponseDto getEstimateById (String token, Long id) {
 
-        String email = jwtUtil.extractEmail(token);
+        String email = JwtUtil.extractEmail(token);
 
         Members members = getMemberByEmail(email);
 

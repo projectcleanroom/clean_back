@@ -3,6 +3,7 @@ package com.clean.cleanroom.commission.controller;
 import com.clean.cleanroom.commission.dto.*;
 import com.clean.cleanroom.commission.service.CommissionService;
 import com.clean.cleanroom.util.TokenService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/commission")
+@Tag(name = "청소 의뢰")
 public class CommissionController {
 
     private final CommissionService commissionService;
