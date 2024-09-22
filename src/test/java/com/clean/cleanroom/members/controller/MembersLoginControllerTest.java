@@ -1,8 +1,9 @@
 package com.clean.cleanroom.members.controller;
 
+import com.clean.cleanroom.members.dto.KakaoAuthCodeRequestDto;
 import com.clean.cleanroom.members.dto.MembersLoginRequestDto;
 import com.clean.cleanroom.members.dto.MembersLoginResponseDto;
-import com.clean.cleanroom.members.dto.MembersLogoutResponseDto;
+import com.clean.cleanroom.members.service.KakaoLoginService;
 import com.clean.cleanroom.members.service.MembersLoginService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,16 +15,18 @@ import org.springframework.http.ResponseEntity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
-class MembersLoginAndLogoutControllerTest {
+class MembersLoginControllerTest {
 
     @InjectMocks
-    private MembersLoginAndLogoutController membersLoginAndLogoutController;
+    private MembersLoginController membersLoginController;
 
     @Mock
     private MembersLoginService membersService;
+
+    @Mock
+    private KakaoLoginService kakaoLoginService;
 
     @BeforeEach
     void setUp() {
@@ -40,7 +43,7 @@ class MembersLoginAndLogoutControllerTest {
         when(membersService.login(any(MembersLoginRequestDto.class))).thenReturn(expectedResponse);
 
         // when
-        ResponseEntity<MembersLoginResponseDto> result = membersLoginAndLogoutController.login(requestDto);
+        ResponseEntity<MembersLoginResponseDto> result = membersLoginController.login(requestDto);
 
         // then
         assertEquals(HttpStatus.OK, result.getStatusCode());
@@ -49,21 +52,20 @@ class MembersLoginAndLogoutControllerTest {
     }
 
     @Test
-    void logout() {
+    void socialKakaoLogin() {
         // given
-        String accessToken = "Bearer sampleAccessToken";
-        String refreshToken = "sampleRefreshToken";
-        MembersLogoutResponseDto responseDto = mock(MembersLogoutResponseDto.class);
-        ResponseEntity<MembersLogoutResponseDto> expectedResponse = new ResponseEntity<>(responseDto, HttpStatus.OK);
+        KakaoAuthCodeRequestDto kakaoAuthCodeRequestDto = mock(KakaoAuthCodeRequestDto.class);
+        MembersLoginResponseDto responseDto = mock(MembersLoginResponseDto.class);
+        ResponseEntity<MembersLoginResponseDto> expectedResponse = new ResponseEntity<>(responseDto, HttpStatus.OK);
 
-        when(membersService.logout(anyString(), anyString())).thenReturn(expectedResponse);
+        when(kakaoLoginService.socialKakaoLogin(any(KakaoAuthCodeRequestDto.class))).thenReturn(expectedResponse);
 
         // when
-        ResponseEntity<MembersLogoutResponseDto> result = membersLoginAndLogoutController.logout(accessToken, refreshToken);
+        ResponseEntity<MembersLoginResponseDto> result = membersLoginController.socialKakaoLogin(kakaoAuthCodeRequestDto);
 
         // then
         assertEquals(HttpStatus.OK, result.getStatusCode());
         assertEquals(responseDto, result.getBody());
-        verify(membersService, times(1)).logout(accessToken, refreshToken);
+        verify(kakaoLoginService, times(1)).socialKakaoLogin(kakaoAuthCodeRequestDto);
     }
 }

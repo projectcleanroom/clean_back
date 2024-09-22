@@ -122,7 +122,7 @@ class MembersTest {
         members = new Members("test@example.com", "TestNick", "01012345678", null, LoginType.REGULAR);
 
         // When
-        members.SelectedAccount(account);
+        members.selectedAccount(account);
 
         // Then
         assertEquals(account, members.getSelectedAccount());

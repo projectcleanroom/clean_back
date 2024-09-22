@@ -68,6 +68,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.1'
 
+    // 정적 메서드 모킹 (테스트 코드)
+    testImplementation 'org.mockito:mockito-inline:4.11.0'
+
 }
 
 tasks.named('test') {
