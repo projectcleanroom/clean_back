@@ -2,6 +2,7 @@ package com.clean.cleanroom.payment.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
 public class PortOneTokenRequestDto {

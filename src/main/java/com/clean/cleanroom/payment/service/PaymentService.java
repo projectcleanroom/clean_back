@@ -10,9 +10,6 @@ import com.clean.cleanroom.payment.dto.*;
 import com.clean.cleanroom.payment.entity.PaymentEntity;
 import com.clean.cleanroom.payment.repository.PaymentRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
@@ -42,22 +39,15 @@ public class PaymentService {
         this.restTemplate = restTemplate;
     }
 
-    public PaymentPrepareResponseDto preparePayment(String accessToken, PaymentPrepareRequestDto requestDto) {
+    public PaymentPrepareResponseDto preparePayment(PaymentPrepareRequestDto requestDto) {
         // merchant_uid 중복 검사
         if (paymentRepository.existsByMerchantUid(requestDto.getMerchantUid())) {
             throw new IllegalArgumentException("이미 사용 중인 merchant_uid입니다.");
         }
 
-        String url = "https://api.iamport.kr/payments/prepare?_token=" + accessToken;
-        // HTTP 헤더에 Authorization 추가
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        HttpEntity<PaymentPrepareRequestDto> entity = new HttpEntity<>(requestDto, headers);
-
         // 포트원 API 호출하여 결제 사전 등록
         try {
-            return restTemplate.postForObject(url, entity, PaymentPrepareResponseDto.class);
+            return portOneService.preparePayment(requestDto);
         } catch (HttpClientErrorException e) {
             throw e;  // 예외를 다시 던져서 글로벌 예외 처리기에 잡히도록 함
         }
@@ -77,10 +67,10 @@ public class PaymentService {
         );
     }
 
-    public PaymentResponseDto completePayment(String accessToken, String impUid, PaymentRequestDto requestDto) {
-        String bearerToken = "Bearer " + accessToken;
+    public PaymentResponseDto completePayment(String impUid, PaymentRequestDto requestDto) {
+        // PortOneService에서 accessToken을 내부에서 처리하여 결제 내역을 가져옴
+        PaymentDetailResponseDto portOneResponse = portOneService.getPaymentDetails(impUid);
 
-        PaymentDetailResponseDto portOneResponse = portOneService.getPaymentDetails(bearerToken, impUid);
         if (portOneResponse == null || !portOneResponse.getResponse().getStatus().equals("paid")) {
             throw new IllegalArgumentException("유효하지 않은 결제 정보입니다.");
         }
@@ -92,7 +82,6 @@ public class PaymentService {
         } catch (ParseException e) {
             throw new RuntimeException("날짜 형식이 잘못되었습니다: " + transactionDateString, e);
         }
-
 
         PaymentEntity paymentEntity = paymentRepository.findByImpUid(impUid)
                 .orElseGet(() -> PaymentEntity.builder()
@@ -123,8 +112,8 @@ public class PaymentService {
         return new PaymentResponseDto(0, "결제 완료", paymentDetail);
     }
 
-    public CancelPaymentResponseDto cancelPayment(String accessToken, String impUid, CancelPaymentRequestDto requestDto) {
-        CancelPaymentResponseDto response = portOneService.cancelPayment(accessToken, requestDto);
+    public CancelPaymentResponseDto cancelPayment(String impUid, CancelPaymentRequestDto requestDto) {
+        CancelPaymentResponseDto response = portOneService.cancelPayment(requestDto);
 
         PaymentEntity paymentEntity = paymentRepository.findByImpUid(impUid)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 결제입니다."));
@@ -134,8 +123,8 @@ public class PaymentService {
         return response;
     }
 
-    public PaymentDetailResponseDto getPaymentDetails(String accessToken, String impUid) {
-        return portOneService.getPaymentDetails(accessToken, impUid);
+    public PaymentDetailResponseDto getPaymentDetails(String impUid) {
+        return portOneService.getPaymentDetails(impUid);
     }
 
     private PaymentEntity verifyAndSavePayment(String impUid, PaymentRequestDto requestDto) {
