@@ -131,22 +131,7 @@ cd clean_adm_back
 ```
 
 ---
-### 프론트엔드 설치 및 실행 (clean_front)
-**1. 저장소 클론**
-```
-git clone https://github.com/projectcleanroom/clean_front
-cd clean_front
-```
 
-**2. 의존성 설치**
-```
-yarn install
-```
-
-**3. 개발 서버 실행**
-```
-yarn dev
-```
 
 # <img src="https://www.clean-room.co.kr/assets/icon-Utf2YN7S.png" width="25" height="25"> 환경설정
 **백엔드**: `application.properties` 또는 `application.yml` 파일에서 데이터베이스 연결 정보를 설정합니다.  
